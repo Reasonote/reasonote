@@ -52,7 +52,6 @@ The default credentials are:
 (You should save these to your password manager so you don't have to type them often!)
 
 
-
 # Development Tools
 
 ## Type Checking
