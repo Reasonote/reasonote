@@ -19,11 +19,11 @@ Key features:
 
 ### STEP 1: ⚙️ Setup
 1. Install Prerequisites
-- [Node.js](https://nodejs.org/en/)
-- [Yarn](https://classic.yarnpkg.com/en/docs/install/#mac-stable)
-- [Bun](https://bun.sh/docs/installation)
-- [Docker](https://docs.docker.com/get-docker/)
-- [Docker Compose](https://docs.docker.com/compose/install/)
+    - [Node.js](https://nodejs.org/en/)
+    - [Yarn](https://classic.yarnpkg.com/en/docs/install/#mac-stable)
+    - [Bun](https://bun.sh/docs/installation)
+    - [Docker](https://docs.docker.com/get-docker/)
+    - [Docker Compose](https://docs.docker.com/compose/install/)
 2. `git clone` this repository
 3. `cd [DIRECTORY_YOU_CLONED_TO]`
   
@@ -64,9 +64,6 @@ NOTE: some test commands will be changing in the near future.
 
 ### Unit Tests
 `yarn test:vitest` -- Runs unit tests at the top level of the monorepo.
-
-### AI Generation Tests
-`yarn test:aigen -- -t [test-name]` -- Runs a specific AI Generation test. Use this because we do not want to unncessarily run all the tests (they are testing AI calls, which can be slow and expensive).
 
 ## Installing New Dependencies In The Monorepo
 
