@@ -3,13 +3,13 @@ name: Supabase PROD Test and Deployment
 on:
   push:
     branches:
-      - ENV/PROD
+      - main 
 
 jobs:
   PROD-Run-SB-Migrate:
     environment: 'Production'
     runs-on: 'ubuntu-latest'
-    if: github.ref == 'refs/heads/ENV/PROD'
+    if: github.ref == 'refs/heads/main'
     env:
       SUPABASE_ACCESS_TOKEN: ${{ secrets.REASONOTE_PROD_TOP_SECRET_SUPABASE_DB_AUTH_TOKEN }}
       SUPABASE_DB_PASSWORD: ${{ secrets.REASONOTE_PROD_TOP_SECRET_SUPABASE_DB_PASSWORD }}
