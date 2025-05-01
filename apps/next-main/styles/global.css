@@ -217,3 +217,14 @@ h6:not(.MuiTypography-root) {
     padding-left: 1em;  /* 6px, for some spacing after the number */
     margin-bottom: 0.25em;  /* 4px, adds some vertical spacing between items */
 }
+
+/* Fix all tags under li (no margin, display inline) */
+li > * {
+    display: inline;
+}
+
+/* Add spacing above and below ol and ul */
+ol, ul {
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+}
