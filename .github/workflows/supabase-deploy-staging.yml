@@ -1,15 +1,15 @@
-name: Supabase Development Deployment
+name: Supabase Test Staging and Deployment
 
 on:
   push:
     branches:
-      - main # main is now for development deploys (previously staging)
+      - staging
 
 jobs:
-  DEV-Run-SB-Migrate:
+  STAGING-Run-SB-Migrate:
     environment: 'Dev'
     runs-on: 'ubuntu-latest'
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/staging'
     env:
       SUPABASE_ACCESS_TOKEN: ${{ secrets.REASONOTE_DEV_TOP_SECRET_SUPABASE_DB_AUTH_TOKEN }}
       SUPABASE_DB_PASSWORD: ${{ secrets.REASONOTE_DEV_TOP_SECRET_SUPABASE_DB_PASSWORD }}
