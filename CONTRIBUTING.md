@@ -38,6 +38,22 @@ Please refer to the README.md file for detailed setup and running instructions. 
 • Keep PRs focused; unrelated changes belong in separate PRs.
 • Add/update changelog entry in CHANGELOG.md.
 
+### Deployment Flow
+
+• Feature branches should be created from `main` → git checkout -b feature/your-feature main
+• PRs are merged into `main` for testing and development deployment
+• The `main` branch is automatically deployed to dev.reasonote.com
+• To deploy to production, create and push a version tag:
+  ```
+  git checkout main
+  git pull origin main
+  git tag v1.2.3  # Use semantic versioning
+  git push origin v1.2.3
+  ```
+• Version tags (e.g., `v1.2.3`) trigger deployment to reasonote.com (production)
+
+See [DEPLOYMENT.md](DEPLOYMENT.md) for more details on our trunk-based deployment model.
+
 
 5 — Licensing of Contributions
 ----------------------------
