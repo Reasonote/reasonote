@@ -1,12 +1,12 @@
-name: Supabase Test DEV and Deployment
+name: Supabase Test Staging and Deployment
 
 on:
   push:
     branches:
-      - main
+      - staging
 
 jobs:
-  DEV-Run-SB-Migrate:
+  STAGING-Run-SB-Migrate:
     environment: 'Dev'
     runs-on: 'ubuntu-latest'
     if: github.ref == 'refs/heads/main'
