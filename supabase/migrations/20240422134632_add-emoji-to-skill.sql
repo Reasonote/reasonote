@@ -1,0 +1,1 @@
+ALTER TABLE skill ADD COLUMN emoji TEXT;

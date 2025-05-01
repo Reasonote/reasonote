@@ -1,0 +1,25 @@
+/* VerticalScrollGradients.css */
+.scrollable-container {
+    position: relative;
+    overflow: hidden;
+}
+
+.scrollable-content {
+    overflow-y: scroll;
+    height: 100%;
+}
+
+.scrollable-gradient {
+    position: absolute;
+    width: 100%;
+    pointer-events: none;
+    transition: opacity 0.3s;
+}
+
+.top {
+    top: 0;
+}
+
+.bottom {
+    bottom: 0;
+}

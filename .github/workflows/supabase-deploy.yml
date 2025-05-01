@@ -1,0 +1,29 @@
+name: Supabase Test DEV and Deployment
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  DEV-Run-SB-Migrate:
+    environment: 'Dev'
+    runs-on: 'ubuntu-latest'
+    if: github.ref == 'refs/heads/main'
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.REASONOTE_DEV_TOP_SECRET_SUPABASE_DB_AUTH_TOKEN }}
+      SUPABASE_DB_PASSWORD: ${{ secrets.REASONOTE_DEV_TOP_SECRET_SUPABASE_DB_PASSWORD }}
+      PROJECT_ID: ytbdizyjevbrqaezyrkq
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      with:
+        persist-credentials: true
+    - name: Setup Supabase CLI
+      uses: supabase/setup-cli@v1
+      with:
+        version: 2.15.8
+    - name: Link to Supabase project
+      run: supabase link --project-ref $PROJECT_ID
+    - name: Push database migrations
+      run: supabase db push

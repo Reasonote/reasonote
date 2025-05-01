@@ -1,0 +1,45 @@
+{
+    "$schema": "https://turbo.build/schema.json",
+    "pipeline": {
+      "clean": {
+        "outputs": []
+      },
+      "build": {
+        "dependsOn": ["^build"],
+        "outputs": [".next/**"]
+      },
+      "format": {
+        "outputs": []
+      },
+      "format:check": {
+        "outputs": []
+      },
+      "test": {
+        "dependsOn": [],
+        "outputs": [],
+        "inputs": ["src/**/*.tsx", "src/**/*.ts", "test/**/*.ts", "test/**/*.tsx"]
+      },
+      "test:unit": {
+        "dependsOn": [],
+        "outputs": [],
+        "inputs": ["src/**/*.unit.{spec,test}.{js,ts,jsx,tsx}", "src/**/*.tsx", "src/**/*.ts"]
+      },
+      "test:api": {
+        "dependsOn": [],
+        "outputs": [],
+        "inputs": ["src/**/*.api.{spec,test}.{js,ts,jsx,tsx}", "src/**/*.tsx", "src/**/*.ts"]
+      },
+      "lint": {
+        "outputs": []
+      },
+      "type-check": {
+        "dependsOn": [],
+        "outputs": [],
+        "inputs": ["**/*.tsx", "**/*.ts"]
+      },
+      "deploy": {
+        "dependsOn": ["build", "test", "lint", "type-check"],
+        "outputs": []
+      }
+    }
+}

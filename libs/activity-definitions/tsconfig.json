@@ -1,0 +1,32 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "target": "es5",
+    "lib": [ 
+      "esnext"
+    ],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "outDir": "lib",
+    "declaration": true,
+    "noUnusedParameters": false,
+    "noUnusedLocals": false
+  },
+  "exclude": [
+    "node_modules",
+    "lib-esm",
+    "lib",
+    "**/*.story*",
+    "**/*.spec*"
+  ],
+  "include": [
+    "src"
+  ]
+}

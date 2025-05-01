@@ -1,0 +1,29 @@
+{
+  "name": "bun-chrome-ext",
+  "module": "index.tsx",
+  "type": "module",
+  "scripts": {},
+  "devDependencies": {
+    "bun-types": "latest",
+    "@types/react": "18.2.37",
+    "@types/react-dom": "18.2.15",
+    "@types/chrome": "0.0.263",
+    "concurrently": "8.2.2",
+    "tailwindcss": "^3.4.1",
+    "postcss": "^8.4.35",
+    "autoprefixer": "^10.4.17",
+    "bun": "1.2.6"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "18.2.0",
+    "@supabase/supabase-js": "2.39.7",
+    "@lukebechtel/lab-ts-utils": "6.3.0",
+    "lodash": "4.17.21",
+    "zod": "^3.23.8",
+    "lucide-react": "^0.358.0"
+  }
+}

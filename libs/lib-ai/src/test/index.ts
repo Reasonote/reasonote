@@ -1,0 +1,1 @@
+export { createTestPrompt, TestPriompt } from './TestPriompt.priompt';

@@ -1,0 +1,3 @@
+[build]
+external = ["@supabase/supabase-js"]
+env = "inline"

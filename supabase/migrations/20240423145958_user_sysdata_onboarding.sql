@@ -1,0 +1,1 @@
+ALTER TABLE rsn_user_sysdata ADD COLUMN has_onboarded BOOLEAN DEFAULT FALSE; 

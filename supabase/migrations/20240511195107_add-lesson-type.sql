@@ -1,0 +1,1 @@
+ALTER TABLE lesson ADD COLUMN lesson_type VARCHAR(255);

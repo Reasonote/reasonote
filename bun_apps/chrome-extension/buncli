@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# This is a workaround for the fact that bun doens't somehow allow loading --env-file in the bunfig.toml...
+
+# Check if --env-file argument is passed
+env_file="../../.env"
+args=()
+
+# Process all arguments
+for arg in "$@"; do
+  if [[ $arg == --env-file=* ]]; then
+    env_file="${arg#--env-file=}"
+  else
+    # Add all other arguments to the new array
+    args+=("$arg")
+  fi
+done
+
+# Just run bun with the correct --env-file and config and pass everything else through
+bun --env-file="$env_file" "${args[@]}"

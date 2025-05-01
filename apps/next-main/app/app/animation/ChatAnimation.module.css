@@ -1,0 +1,61 @@
+.chat-container {
+    width: 60%;
+    padding: 20px;
+    border-radius: 8px;
+    background-color: #ffffff;
+    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+}
+
+.message {
+    max-width: 70%;
+    margin-bottom: 15px;
+    padding: 10px;
+    border-radius: 8px;
+    opacity: 0;
+    animation: slideIn 0.5s forwards;
+}
+
+.bot {
+    margin-left: 5px;
+    background-color: #e9e9e9;
+}
+
+.user {
+    margin-right: 5px;
+    background-color: #4db6ac;
+    align-self: flex-end;
+}
+
+@keyframes slideInBot {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideInUser {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.bot {
+    animation-name: slideInBot;
+}
+
+.user {
+    animation-name: slideInUser;
+}

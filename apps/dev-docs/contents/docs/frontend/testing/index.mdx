@@ -1,0 +1,112 @@
+---
+title: Testing
+description: Overview of testing in Reasonote
+---
+
+# Testing in Reasonote
+
+We use Vitest as our testing framework, with two main categories of tests:
+
+1. Unit Tests (`*.unit.spec.ts`): Tests which do not rely on any extra services to be running.
+2. API Tests (`*.api.spec.ts`): Tests which rely on the API to be running.
+3. e2e Tests (`*.e2e.spec.ts`): Tests which rely on the API & Frontend to be running.
+
+## Running Tests
+
+You can run tests using the following npm scripts:
+
+```bash
+# Run unit tests
+yarn test:unit
+
+# Run API tests (requires API to be running)
+yarn test:api
+
+# Run specific tests using pattern matching
+yarn test:unit -t "my-test-pattern"
+yarn test:api -t "my-test-pattern"
+
+# Watch mode
+yarn test:unit:watch
+yarn test:api:watch
+```
+
+## Test Configuration
+
+Our test setup uses a base configuration that's extended for each test type:
+
+- `vitest.config.base.ts` - Contains shared configuration
+- `vitest.config.unit.ts` - Configuration specific to unit tests
+- `vitest.config.api.ts` - Configuration specific to API tests
+
+## Writing Tests
+
+### Unit Tests
+
+Unit tests should be placed next to the code they're testing with the `.unit.spec.ts` extension:
+
+```typescript
+// MyComponent.unit.spec.ts
+import { describe, it, expect } from 'vitest'
+import { render } from '@testing-library/react'
+import MyComponent from './MyComponent'
+
+describe('MyComponent', () => {
+  it('renders correctly', () => {
+    const { getByText } = render(<MyComponent />)
+    expect(getByText('Hello')).toBeInTheDocument()
+  })
+})
+```
+
+### API Tests
+
+API tests should be placed next to the API routes they're testing with the `.api.spec.ts` extension:
+
+```typescript
+// route.api.spec.ts
+import { describe, it, expect } from 'vitest'
+import { EmailSubscriptionsRoute } from './routeSchema'
+
+describe('EmailSubscriptions API', () => {
+  it('updates subscription preferences', async () => {
+    const response = await EmailSubscriptionsRoute.call({
+      product_updates: true,
+      newsletter: false
+    })
+    
+    expect(response.data.product_updates).toBe(true)
+    expect(response.data.newsletter).toBe(false)
+  })
+})
+```
+
+## Best Practices
+
+1. **Test Location**: Place tests next to the code they're testing
+2. **Naming Convention**: Use `.unit.spec.ts` for unit tests and `.api.spec.ts` for API tests
+3. **Test Coverage**: Focus on testing business logic and user interactions
+4. **Mocking**: Use mocks for external dependencies and services
+5. **Test Description**: Write clear test descriptions that explain the expected behavior
+
+## Testing Tools
+
+- **Vitest**: Main testing framework
+- **@testing-library/react**: For testing React components
+- **@testing-library/react-hooks**: For testing React hooks
+- **jest-dom**: For DOM-specific assertions
+
+## Example Test Structure
+
+```
+/components
+  /MyComponent
+    MyComponent.tsx
+    MyComponent.unit.spec.ts
+/app
+  /api
+    /email-subscriptions
+      route.api.ts
+      route.api.spec.ts
+      routeSchema.ts
+``` 

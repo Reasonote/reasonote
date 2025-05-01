@@ -1,0 +1,225 @@
+# Context Injectors
+
+Context Injectors provide a way to dynamically inject contextual information into AI interactions. They are particularly useful for providing AI with relevant user data, course information, or any other context that helps generate more personalized and accurate responses.
+
+## Creating a Context Injector
+
+### 1. Define the Configuration Types
+
+First, create a configuration type file for your injector. This defines what configuration options your injector accepts:
+
+```typescript
+// libs/lib-ai-common/src/types/CtxInjector/Configs/MyCustomInjector.ts
+import z from 'zod';
+
+export const MyCustomInjectorConfigSchema = z.object({
+    userId: z.string().optional(),
+    customField: z.string(),
+});
+export type MyCustomInjectorConfig = z.infer<typeof MyCustomInjectorConfigSchema>;
+```
+
+### 2. Register the Type in the Registry
+
+Add your new injector to the CtxInjector registry:
+
+```typescript
+// libs/lib-ai-common/src/types/CtxInjector/Registry.ts
+import { MyCustomInjectorConfig } from './Configs/MyCustomInjector';
+
+export interface CtxInjectorRegistry {
+    // ... existing injectors ...
+    MyCustomInjector: CtxInjectorRegistryItemBaseRequiredConfig<MyCustomInjectorConfig>;
+}
+```
+
+### 3. Create the Injector Implementation
+
+Create a new class that extends `RNCtxInjector`:
+
+```typescript
+// libs/lib-ai/src/AIChat/ChatStream/Agent/CtxInjectors/MyCustomInjector.ts
+import { MyCustomInjectorConfig } from '@reasonote/lib-ai-common';
+import { AI } from '../../../../';
+import { RNCtxInjector } from '../RNCtxInjector';
+
+export class MyCustomInjector extends RNCtxInjector<MyCustomInjectorConfig> {
+    name: string = 'MyCustomInjector';
+    defaultConfig = null;
+
+    async _get(ai: AI, resolvedConfig: MyCustomInjectorConfig): Promise<{
+        name: string, 
+        description?: string, 
+        content: string
+    }> {
+        // Implement your logic here to fetch/generate context
+        const contextData = await someAsyncOperation(resolvedConfig);
+
+        return {
+            name: 'MyCustomInjector',
+            description: 'Provides custom context for XYZ purpose',
+            content: JSON.stringify(contextData)
+        };
+    }
+}
+```
+
+### 4. Register the Injector
+
+Register your injector in the initialization code:
+
+```typescript
+// libs/lib-ai/src/AIChat/ChatStream/Agent/CtxInjectors/index.ts
+import { RNCtxInjector } from '../RNCtxInjector';
+import { MyCustomInjector } from './MyCustomInjector';
+
+RNCtxInjector.register(MyCustomInjector);
+```
+
+## Using Context Injectors
+
+### In RNAgent Streams
+
+You can use context injectors in RNAgent streams like this:
+
+```typescript
+const response = await aib.RNAgentStream({
+    // ... other config ...
+    contextInjectors: {
+        MyCustomInjector: {
+            config: {
+                customField: 'some-value',
+                userId: '123'
+            }
+        },
+        BasicUserInfo: {},  // Injector with no config
+    },
+});
+```
+
+### In Object Generation
+
+Context injectors can also be used in object generation:
+
+```typescript
+const result = await aib.genObject({
+    prompt: 'Generate something with context',
+    schema: z.object({
+        // your schema here
+    }),
+    ctxInjectors: {
+        MyCustomInjector: {
+            config: {
+                customField: 'value',
+            }
+        }
+    }
+});
+```
+
+## Built-in Injectors
+
+### BasicUserInfo
+
+Injects basic user information with no required configuration:
+
+```typescript
+contextInjectors: {
+    BasicUserInfo: {}  // No config needed
+}
+```
+
+### Course
+
+Injects course-related information:
+
+```typescript
+contextInjectors: {
+    Course: {
+        config: {
+            courseId: '123'  // Required
+        }
+    }
+}
+```
+
+### RootSkill
+
+Injects skill-related information:
+
+```typescript
+contextInjectors: {
+    RootSkill: {
+        config: {
+            skillId: '123',
+            skillIdPath: ['path', 'to', 'skill'],
+            rsnUserId: 'user123'
+        }
+    }
+}
+```
+
+## Best Practices
+
+1. **Type Safety**: Always define Zod schemas for your configurations to ensure type safety.
+
+2. **Error Handling**: Implement proper error handling in your `_get` method:
+```typescript
+async _get(ai: AI, resolvedConfig: MyConfig) {
+    try {
+        // Your logic here
+    } catch (error) {
+        console.error('Error in MyCustomInjector:', error);
+        return {
+            name: this.name,
+            content: ''  // Return empty content on error
+        };
+    }
+}
+```
+
+3. **Performance**: Cache expensive operations when possible:
+```typescript
+class CachingInjector extends RNCtxInjector<Config> {
+    private cache = new Map<string, any>();
+    
+    async _get(ai: AI, config: Config) {
+        const cacheKey = JSON.stringify(config);
+        if (this.cache.has(cacheKey)) {
+            return this.cache.get(cacheKey);
+        }
+        // ... fetch data ...
+        this.cache.set(cacheKey, result);
+        return result;
+    }
+}
+```
+
+4. **Documentation**: Always include a clear description in your injector's return value to help the AI understand the context.
+
+## Common Issues and Solutions
+
+### Missing Registration
+If your injector isn't working, ensure it's properly registered:
+```typescript
+// Should be imported somewhere in your initialization code
+import './AIChat/ChatStream/Agent/CtxInjectors';
+```
+
+### Configuration Type Errors
+Make sure your configuration matches the defined schema:
+```typescript
+// ❌ Wrong
+contextInjectors: {
+    Course: {}  // Missing required courseId
+}
+
+// ✅ Correct
+contextInjectors: {
+    Course: {
+        config: {
+            courseId: '123'
+        }
+    }
+}
+``` 

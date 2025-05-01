@@ -1,0 +1,204 @@
+# RNAgent Documentation
+
+## Overview
+
+RNAgent is a powerful framework for building AI agents with structured capabilities, context injection, and message handling. It provides a modular approach to constructing AI interactions through three main components:
+
+1. Context Message Renderers (CMRs)
+2. Context Injectors
+3. Tools
+
+## Core Concepts
+
+### Messages and Context
+
+RNAgent works with several types of messages:
+
+```typescript
+// Core message types
+CoreMessage              // Base message type
+RNCoreContextMessage    // Context-specific messages
+CoreMessageWithId       // Messages with unique IDs
+CoreToolMessageWithId   // Tool messages with IDs
+CoreAssistantMessageWithId // Assistant messages with IDs
+```
+
+### Stream Generation
+
+The agent can be configured with various generation parameters:
+
+```typescript
+RNAgentGenArgs = {
+    model: LanguageModelTypeFromFunction
+    providerArgs?: any  // Provider-specific metadata
+}
+```
+
+## Components
+
+### 1. Context Message Renderers (CMRs)
+
+CMRs are responsible for rendering context messages that provide temporal or state-based information to the AI. They help maintain context awareness across interactions.
+
+```typescript
+interface RNAgentCMR {
+    name: string;
+    inSchema: z.ZodType<any>;  // Schema for validating context messages
+    get(message: RNCoreContextMessage): Promise<string>
+}
+```
+
+**Use Case Example:**
+- Tracking user progress in lessons
+- Maintaining state of user interactions
+- Providing temporal context (e.g., "user viewed lesson", "user completed lesson")
+
+### 2. Context Injectors
+
+Context Injectors provide additional context to the AI during execution. They can inject relevant information based on the current state or request.
+
+```typescript
+interface RNCtxInjector {
+    name: string;
+    config: any;
+    get(request: RNAgentStreamArgs): Promise<{
+        name: string, 
+        description?: string, 
+        content: string
+    }>
+}
+```
+
+**Use Case Example:**
+- Injecting user preferences
+- Adding system-wide configurations
+- Providing environmental context
+
+### 3. Tools
+
+Tools represent capabilities that the agent can use during execution. They are modular and can be composed together.
+
+```typescript
+interface RNAgentToolInvokeConfig<TConfig> {
+    name: string;
+    config?: TConfig;
+}
+```
+
+## Usage Example
+
+Here's a simplified example based on ClassroomAI implementation:
+
+```typescript
+const agentStream = await aib.RNAgentStream({
+    chatId: `classroom-${userId}-${skillId}`,
+    system: systemContent,
+    genArgs: {
+        model: "openai:gpt-4o-mini",
+        mode: "json",
+        providerArgs: {
+            structuredOutputs: true,
+        }
+    },
+    toolMode: 'object',
+    tools: [
+        { name: "suggestLessons" },
+        { name: "updateUserSkill" },
+        { name: "offerUserOptions" }
+    ],
+    messages: convertedMessages,
+    onPartialObject: (msgs) => {
+        // Handle partial responses
+    }
+});
+```
+
+## Execution Order
+
+RNAgent supports defining specific execution orders for its capabilities:
+
+```typescript
+type RNAgentExecOrderEntry = {
+    outputs: (RNAgentExecOrderEntryOutputMessage | RNAgentExecOrderEntryOutputToolCall)[]
+}
+```
+
+This allows you to:
+- Force tool calls before responses
+- Enforce specific message sequences
+- Control the flow of tool usage and message generation
+
+## Best Practices
+
+1. **Message Handling**
+   - Always handle partial outputs appropriately
+   - Track message completion states
+   - Use unique IDs for message tracking
+
+2. **Context Management**
+   - Use CMRs for temporal context
+   - Leverage Context Injectors for environmental state
+   - Keep context relevant and focused
+
+3. **Tool Configuration**
+   - Compose tools thoughtfully
+   - Consider tool compatibility
+   - Use appropriate tool modes ('array' or 'object')
+
+4. **Error Handling**
+   - Handle stream interruptions gracefully
+   - Validate tool outputs
+   - Manage context injection failures
+
+## Implementation Notes
+
+1. **Stream Processing**
+   - The framework supports streaming responses
+   - Partial objects can be processed as they arrive
+   - Completion states are tracked per message
+
+2. **Configuration**
+   - Tools can be configured individually
+   - Context injectors support deep config merging
+   - Execution order can be strictly defined
+
+3. **Integration**
+   - Works with various AI models
+   - Supports custom provider arguments
+   - Can be extended with new capabilities
+
+## Example: Classroom Implementation
+
+The ClassroomAI implementation demonstrates a practical use of RNAgent:
+
+1. **Context Setup**
+   - Injects user skill information
+   - Provides lesson context
+   - Maintains chat history
+
+2. **Tool Usage**
+   - Suggests lessons
+   - Updates user skills
+   - Offers interactive options
+
+3. **Message Processing**
+   - Handles streaming responses
+   - Tracks message completion
+   - Updates UI in real-time
+
+## Debugging and Testing
+
+1. **Message Validation**
+   - Use Zod schemas for message validation
+   - Verify context message formats
+   - Test tool outputs
+
+2. **Stream Testing**
+   - Test partial object handling
+   - Verify completion states
+   - Check error scenarios
+
+3. **Context Verification**
+   - Validate context injection
+   - Test temporal context changes
+   - Verify tool execution order 

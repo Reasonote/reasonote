@@ -1,0 +1,101 @@
+Reasonote — License & Dual‑Licensing Terms
+=============================================
+
+Last updated: 22 April 2025
+
+
+1. Overview
+-----------
+
+The Reasonote codebase is released under the GNU Affero General Public License, version 3 (or any later version) ("AGPL v3+").© 2025 Reasonote, Inc. All rights reserved.
+
+We also operate a dual‑license model: if AGPL v3 obligations are impractical for your use case (e.g., proprietary SaaS, embedded/OEM, internal enterprise deployment, or special nonprofit/educational usage), you may obtain a commercial license from Reasonote, Inc.
+
+📧 Contact: licensing@reasonote.com
+
+
+2. Dual‑Licensing Statement
+---------------------------
+
+Default license: AGPL v3+.
+
+Alternative license: Commercial terms available upon request.
+
+Copyright © Reasonote, Inc. Reasonote, Inc. reserves the exclusive right to re‑license original Reasonote code.
+
+Your options:
+
++------------------------------------------+--------------------------------------------------+
+| Need                                     | License Path                                     |
++------------------------------------------+--------------------------------------------------+
+| Open‑source project compatible with AGPL | Use under AGPL v3+, comply with copyleft &      |
+|                                          | network clause                                   |
++------------------------------------------+--------------------------------------------------+
+| Closed‑source SaaS / on‑prem / OEM       | Contact us for a commercial license             |
++------------------------------------------+--------------------------------------------------+
+| Nonprofit / education                    | Email us; no‑fee licenses available case‑by‑case |
++------------------------------------------+--------------------------------------------------+
+
+
+3. Third‑Party & Vendored Code
+-----------------------------
+
++---------------------------------+------------------------+--------+
+| Path                            | Upstream Project       | License|
++---------------------------------+------------------------+--------+
+| libs/utils/src/vendor/          | json‑schema‑to‑zod     | MIT    |
+| json-schema-to-zod              | (fork)                 |        |
++---------------------------------+------------------------+--------+
+| libs/lib-ai/src/drivers/chat    | Vercel AI SDK          | MIT    |
+|                                 | (vendored)             |        |
++---------------------------------+------------------------+--------+
+
+Binary distributions include bundled JS/TS libraries under their respective OSI‑approved licenses (MIT, BSD‑3‑Clause, Apache‑2.0, etc.). Each file retains its original SPDX identifier.
+
+
+4. Name & Logo Usage
+------------------
+
+The "Reasonote" wordmark and logo are trademarks of Reasonote, Inc. and are licensed under AGPL v3 with an additional marketing exception:
+
+You may reproduce the unmodified logo in books, blogs, slides, videos, or articles without applying AGPL v3 to your entire work if:
+
+• The logo is used solely to refer to the Reasonote project.
+• You include a link to https://reasonote.com.
+• The logo is not altered (no cropping, recoloring, or element changes). Proportional resizing is allowed.
+• Your work makes it clear it is your own creation, not endorsed or authored by Reasonote, Inc.
+
+Any other trademark use requires written permission.
+
+
+5. Contributor Licensing & CLA
+----------------------------
+
+All external contributions are accepted only under the terms of:
+
+• AGPL v3+, and
+• A Contributor License Agreement (CLA) that grants Reasonote, Inc. the right to offer your contributions under alternative/commercial licenses.
+
+Contributors sign the CLA electronically via GitHub/CLA‑Assistant when opening their first pull request. If your employer holds copyright, ensure they authorize the contribution.
+
+
+6. Obtaining Commercial Terms
+---------------------------
+
+Send an email to licensing@reasonote.com describing:
+
+• Company/organization name
+• Intended usage (SaaS, internal, OEM, etc.)
+• Deployment scale (users / servers)
+• Desired level of support/indemnity
+
+We'll respond with pricing and a short‑form commercial license.
+
+
+7. Complete AGPL v3 Text
+-----------------------
+
+The full GNU Affero General Public License, version 3 is included in LICENSES/AGPL-3.0.txt. If that file is missing, obtain it from https://www.gnu.org/licenses/agpl-3.0.txt.
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+

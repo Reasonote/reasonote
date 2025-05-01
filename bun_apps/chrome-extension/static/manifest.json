@@ -1,0 +1,71 @@
+{
+  "manifest_version": 3,
+  "minimum_chrome_version": "100",
+  "name": "Reasonote Clipper",
+  "version": "1.2",
+  "description": "Import articles, snippets, and highlights into Reasonote.",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "identity",
+    "storage",
+    "contextMenus",
+    "cookies"
+  ],
+  "background": {
+    "service_worker": "build/background.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*.youtube.com/*"
+      ],
+      "js": [
+        "build/youtubeContentScript.js"
+      ],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "build/contentScript.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "oauth2": {
+    "client_id": "157394421612-dhl08tcg881789kshir937ptistinaqj.apps.googleusercontent.com",
+    "scopes": [
+      "https://www.googleapis.com/auth/userinfo.email"
+    ]
+  }, 
+  "action": {
+    "default_popup": "index.html",
+    "default_icon": {
+      "16": "images/icon16.png",
+      "48": "images/icon48.png",
+      "128": "images/icon128.png"
+    }
+  },
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "build/*"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ],
+  "icons": {
+    "16": "images/icon16.png",
+    "48": "images/icon48.png",
+    "128": "images/icon128.png"
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; font-src 'self' https://fonts.gstatic.com; style-src 'self' https://fonts.googleapis.com; object-src 'self'"
+  }
+}

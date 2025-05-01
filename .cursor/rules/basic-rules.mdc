@@ -1,0 +1,8 @@
+---
+description: All Tasks.
+globs: 
+alwaysApply: true
+---
+- If I begin or end with "NC" or "nc" that stands for "NO CHANGE" -- do not output code changes until I output "GO" or "go". You may suggest changes, and operate normally, but do not make code file changes. Assume I want you to plan before acting.
+
+

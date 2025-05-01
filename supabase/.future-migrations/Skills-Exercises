@@ -1,0 +1,31 @@
+CREATE TABLE public.user_group (
+    id typed_uuid NOT NULL PRIMARY KEY DEFAULT (generate_typed_uuid('user_group')),
+    title text,
+    CONSTRAINT user_group_id_check_prefix CHECK (id ILIKE 'user_group__%')
+);
+
+CREATE TABLE public.skill (
+    id typed_uuid NOT NULL PRIMARY KEY DEFAULT (generate_typed_uuid('skill')),
+    title text,
+    CONSTRAINT skill_id_check_prefix CHECK (id ILIKE 'skill__%')
+);
+
+CREATE TABLE public.exercise (
+    id typed_uuid NOT NULL PRIMARY KEY DEFAULT (generate_typed_uuid('exercise')),
+    title text,
+    CONSTRAINT exercise_id_check_prefix CHECK (id ILIKE 'exercise__%')
+);
+
+CREATE TABLE public.exercise_skill (
+    id typed_uuid NOT NULL PRIMARY KEY DEFAULT (generate_typed_uuid('exercise_skill')),
+    exercise typed_uuid NOT NULL REFERENCES exercise(id) ON DELETE CASCADE,
+    skill typed_uuid NOT NULL REFERENCES skill(id) ON DELETE CASCADE,
+    CONSTRAINT exercise_skill_id_check_prefix CHECK (id ILIKE 'exercise_skill__%')
+);
+
+CREATE TABLE public.user_exercise (
+    id typed_uuid NOT NULL PRIMARY KEY DEFAULT (generate_typed_uuid('user_exercise')),
+    exercise typed_uuid NOT NULL REFERENCES exercise(id) ON DELETE CASCADE,
+    user_profile typed_uuid NOT NULL REFERENCES public.user_profile(id) ON DELETE CASCADE,
+    CONSTRAINT user_exercise_id_check_prefix CHECK (id ILIKE 'user_exercise__%')
+);

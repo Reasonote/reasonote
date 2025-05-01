@@ -1,0 +1,116 @@
+CREATE OR REPLACE FUNCTION public.get_linked_skills_with_scores(user_id text, input_skill_id text, start_date timestamp with time zone DEFAULT NULL::timestamp with time zone, end_date timestamp with time zone DEFAULT NULL::timestamp with time zone, ignore_activity_ids text[] DEFAULT NULL::text[])
+ RETURNS TABLE(skill_id text, skill_name text, path_to text[], path_to_links text[], min_normalized_score_upstream double precision, max_normalized_score_upstream double precision, average_normalized_score_upstream double precision, stddev_normalized_score_upstream double precision, activity_result_count_upstream bigint, all_scores double precision[], num_upstream_skills bigint, level_on_parent text, level_path text[])
+ LANGUAGE plpgsql
+AS $function$
+BEGIN
+    RETURN QUERY
+    WITH RECURSIVE linked_skills AS (
+        SELECT
+                s.id AS skill_id,
+                ARRAY[]::text[] as path,
+                ARRAY[]::text[] as skill_link_ids,
+                NULL::text AS level_on_parent,
+                ARRAY[]::text[] as level_path
+        FROM skill s
+        WHERE s.id = input_skill_id
+
+        UNION ALL
+
+        -- Recursive case
+        SELECT 
+            sl.upstream_skill,
+            ls.path || sl.upstream_skill,
+            ls.skill_link_ids || sl.id,
+            (sl.metadata::jsonb ->> 'levelOnParent')::text AS level_on_parent,
+            ls.level_path || (sl.metadata::jsonb ->> 'levelOnParent')::text AS level_path
+        FROM
+            skill_link sl
+        INNER JOIN 
+            linked_skills ls ON sl.downstream_skill = ls.skill_id
+        -- Prevent cycles
+        WHERE sl.upstream_skill <> ALL(ls.path) 
+    ),
+    all_user_scores AS (
+        SELECT
+            askl.skill,
+            uar.score_normalized
+        FROM
+            activity_skill askl
+        JOIN
+            user_activity_result uar ON askl.activity = uar.activity
+        WHERE 
+            uar._user = user_id
+            AND (start_date IS NULL OR uar.created_date >= start_date)
+            AND (end_date IS NULL OR uar.created_date <= end_date)
+            -- condition to ignore specified activity IDs
+            AND (ignore_activity_ids IS NULL OR uar.activity != ALL(ignore_activity_ids))
+    ),
+    skill_with_scores AS (
+        SELECT
+            ls.skill_id,
+            ARRAY_AGG(aus.score_normalized) AS path_scores,
+            -- Exclude self from count by subtracting 1.
+            COUNT(DISTINCT lss.skill_id) - 1 AS num_upstream_skills
+        FROM
+            linked_skills ls
+        JOIN
+            linked_skills lss ON lss.path @> ls.path
+        LEFT JOIN
+            all_user_scores aus ON aus.skill = lss.skill_id
+        GROUP BY
+            ls.skill_id
+    ),
+    unnested_scores AS (
+        SELECT
+            sws.skill_id,
+            unnest(path_scores) AS score
+        FROM
+            skill_with_scores sws
+    )
+    SELECT
+        sws.skill_id,
+        s._name AS skill_name,
+        ls.path AS path_to,
+        ls.skill_link_ids AS path_to_links,
+        MIN(us.score) AS min_normalized_score_upstream,
+        MAX(us.score) AS max_normalized_score_upstream,
+        AVG(us.score) AS average_normalized_score_upstream,
+        STDDEV(us.score) AS stddev_normalized_score_upstream,
+        COUNT(us.score) AS activity_result_count_upstream,
+        ARRAY_REMOVE(ARRAY_AGG(us.score), NULL) AS all_scores,
+        sws.num_upstream_skills,
+        ls.level_on_parent AS level_on_parent,
+        ls.level_path AS level_path
+    FROM 
+        skill_with_scores sws
+    JOIN 
+        linked_skills ls ON ls.skill_id = sws.skill_id 
+    JOIN 
+        skill s ON s.id = sws.skill_id
+    LEFT JOIN
+        unnested_scores us ON sws.skill_id = us.skill_id
+    GROUP BY
+        sws.skill_id, s._name, ls.path, ls.skill_link_ids, sws.num_upstream_skills, ls.level_on_parent, ls.level_path
+    ORDER BY
+        ARRAY_LENGTH(ls.path, 1);
+END;
+$function$
+;
+
+
+DELETE FROM public.skill_link
+WHERE
+  upstream_skill = downstream_skill
+  AND upstream_skill IS NOT NULL
+  AND downstream_skill IS NOT NULL;
+
+
+ALTER TABLE public.skill_link
+ADD CONSTRAINT skill_link_no_self_reference CHECK (
+  upstream_skill != downstream_skill
+  AND upstream_skill IS NOT NULL
+  AND downstream_skill IS NOT NULL
+);
+
+-- Add comment explaining the constraint
+COMMENT ON CONSTRAINT skill_link_no_self_reference ON public.skill_link IS 'Prevents a skill from being linked to itself';

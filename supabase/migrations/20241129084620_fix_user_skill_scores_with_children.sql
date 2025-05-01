@@ -1,0 +1,58 @@
+DROP FUNCTION IF EXISTS public.get_user_skill_scores_with_children;
+
+CREATE OR REPLACE FUNCTION public.get_user_skill_scores_with_children(user_id text, skill_ids text[], start_date timestamp with time zone DEFAULT NULL::timestamp with time zone, end_date timestamp with time zone DEFAULT NULL::timestamp with time zone)
+ RETURNS TABLE(skill_id text, skill_name text, average_normalized_score double precision, max_normalized_score double precision, min_normalized_score double precision, average_normalized_score_children double precision, max_normalized_score_children double precision, min_normalized_score_children double precision, activity_result_count bigint, activity_result_count_children bigint)
+ LANGUAGE plpgsql
+AS $function$
+BEGIN
+    RETURN QUERY
+    WITH child_skills AS (
+        SELECT DISTINCT linked_skill_id
+        FROM unnest(skill_ids) AS skill_id_array(skill_id),
+        LATERAL get_linked_skills_with_path(skill_id_array.skill_id, 'GET_UPSTREAM')
+    ),
+    parent_activity_scores AS (
+        SELECT DISTINCT ON (uar_parent.activity) 
+            uar_parent.activity,
+            uar_parent.score_normalized
+        FROM user_activity_result uar_parent
+        JOIN activity_skill ak_parent ON ak_parent.activity = uar_parent.activity
+        WHERE ak_parent.skill = ANY(skill_ids)
+        AND uar_parent._user = user_id
+        AND (start_date IS NULL OR uar_parent.created_date >= start_date)
+        AND (end_date IS NULL OR uar_parent.created_date <= end_date)
+        ORDER BY uar_parent.activity, uar_parent.created_date DESC
+    ),
+    child_activity_scores AS (
+        SELECT DISTINCT ON (uar_children.activity)
+            uar_children.activity,
+            uar_children.score_normalized
+        FROM user_activity_result uar_children
+        JOIN activity_skill ak_children ON ak_children.activity = uar_children.activity
+        WHERE ak_children.skill = ANY(ARRAY(SELECT linked_skill_id FROM child_skills))
+        AND uar_children._user = user_id
+        AND (start_date IS NULL OR uar_children.created_date >= start_date)
+        AND (end_date IS NULL OR uar_children.created_date <= end_date)
+        ORDER BY uar_children.activity, uar_children.created_date DESC
+    )
+    SELECT
+        s.id AS skill_id,
+        s._name AS skill_name,
+        COALESCE(AVG(pas.score_normalized), 0) AS average_normalized_score,
+        COALESCE(MAX(pas.score_normalized), 0) AS max_normalized_score,
+        COALESCE(MIN(pas.score_normalized), 0) AS min_normalized_score,
+        COALESCE((SELECT AVG(score_normalized) FROM child_activity_scores), 0) AS average_normalized_score_children,
+        COALESCE((SELECT MAX(score_normalized) FROM child_activity_scores), 0) AS max_normalized_score_children,
+        COALESCE((SELECT MIN(score_normalized) FROM child_activity_scores), 0) AS min_normalized_score_children,
+        COALESCE(COUNT(DISTINCT pas.activity), 0) AS activity_result_count,
+        COALESCE((SELECT COUNT(DISTINCT activity) FROM child_activity_scores), 0) AS activity_result_count_children
+    FROM
+        skill s
+    LEFT JOIN activity_skill ak ON s.id = ak.skill
+    LEFT JOIN parent_activity_scores pas ON ak.activity = pas.activity
+    WHERE
+        s.id = ANY(skill_ids)
+    GROUP BY
+        s.id;
+END;
+$function$;

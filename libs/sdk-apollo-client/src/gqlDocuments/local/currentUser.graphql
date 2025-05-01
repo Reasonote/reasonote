@@ -1,0 +1,15 @@
+
+"""
+This is the current user object. It is only local.
+"""
+type CurrentUser {
+    id: ID!
+}
+
+extend type Query {
+    """
+    LOCALLY-RESOLVED
+    The current user, as set via the `currentUserId` reactive variable. (See `ReasonoteApolloClient.vars.currentUserId` for more information)
+    """
+	getCurrentUser: CurrentUser
+}

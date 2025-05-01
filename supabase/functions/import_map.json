@@ -1,0 +1,8 @@
+{
+    "imports": {
+        "@/": "./",
+        "std/": "https://deno.land/std@0.184.0/",
+        "lodash": "https://cdn.skypack.dev/lodash?dts",
+        "openai": "https://esm.sh/openai@3.2.1"
+    }
+}

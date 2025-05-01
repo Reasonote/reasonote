@@ -1,0 +1,134 @@
+#__next,
+#BODY,
+#APP,
+#RSNT-APP,
+#RSNT-APP-INNER {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0 auto;
+    padding: 0;
+    color: 'white';
+}
+
+.rsn-full-center-container {
+    width: '100%';
+    height: '100%';
+    display: 'flex';
+    flex-direction: 'column';
+    justify-content: 'center';
+    align-items: 'center';
+    justify-items: 'center';
+    align-content: 'center';
+}
+
+.dark-mdx-editor a {
+    color: teal !important;
+}
+.dark-mdx-editor img {
+    max-width: 100%;
+}
+.dark-mdx-editor > div > div {
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.mdxeditor-root-contenteditable {
+    border-radius: 10px;
+    border: 1px solid teal;
+    /* overflow-y: auto;
+    height: 50px; */
+}
+
+.mdxeditor-root-contenteditable > h1 {
+    font-family: var(--mui-font-family-h4);
+    font-size: var(--mui-font-size-h4);
+    font-weight: var(--mui-font-weight-h4);
+    line-height: var(--mui-line-height-h4);
+    letter-spacing: var(--mui-letter-spacing-h4);
+}
+
+.mdxeditor-root-contenteditable > h2 {
+    font-family: var(--mui-font-family-h5);
+    font-size: var(--mui-font-size-h5);
+    font-weight: var(--mui-font-weight-h5);
+    line-height: var(--mui-line-height-h5);
+    letter-spacing: var(--mui-letter-spacing-h5);
+}
+
+.mdxeditor-root-contenteditable > h3 {
+    font-family: var(--mui-font-family-h6);
+    font-size: var(--mui-font-size-h6);
+    font-weight: var(--mui-font-weight-h6);
+    line-height: var(--mui-line-height-h6);
+    letter-spacing: var(--mui-letter-spacing-h6);
+}
+
+.mdxeditor-root-contenteditable > h4,
+.mdxeditor-root-contenteditable > h5,
+.mdxeditor-root-contenteditable > h6 {
+    font-family: var(--mui-font-family-subtitle1);
+    font-size: var(--mui-font-size-subtitle1);
+    font-weight: var(--mui-font-weight-subtitle1);
+    line-height: var(--mui-line-height-subtitle1);
+    letter-spacing: var(--mui-letter-spacing-subtitle1);
+}
+
+.mdxeditor-root-contenteditable-readonly button {
+    display: none;
+}
+
+/* @import url('@radix-ui/colors/tomato-dark.css');
+@import url('@radix-ui/colors/mauve-dark.css');
+
+.dark-mdx-editor {
+  --accentBase: var(--tomato-1);
+  --accentBgSubtle: var(--tomato-2);
+  --accentBg: var(--tomato-3);
+  --accentBgHover: var(--tomato-4);
+  --accentBgActive: var(--tomato-5);
+  --accentLine: var(--tomato-6);
+  --accentBorder: var(--tomato-7);
+  --accentBorderHover: var(--tomato-8);
+  --accentSolid: var(--tomato-9);
+  --accentSolidHover: var(--tomato-10);
+  --accentText: var(--tomato-11);
+  --accentTextContrast: var(--tomato-12);
+
+  --baseBase: var(--mauve-1);
+  --baseBgSubtle: var(--mauve-2);
+  --baseBg: var(--mauve-3);
+  --baseBgHover: var(--mauve-4);
+  --baseBgActive: var(--mauve-5);
+  --baseLine: var(--mauve-6);
+  --baseBorder: var(--mauve-7);
+  --baseBorderHover: var(--mauve-8);
+  --baseSolid: var(--mauve-9);
+  --baseSolidHover: var(--mauve-10);
+  --baseText: var(--mauve-11);
+  --baseTextContrast: var(--mauve-12);
+
+  --admonitionTipBg: var(--cyan4);
+  --admonitionTipBorder: var(--cyan8);
+  
+  --admonitionInfoBg: var(--grass4);
+  --admonitionInfoBorder: var(--grass8);
+
+  --admonitionCautionBg: var(--amber4);
+  --admonitionCautionBorder: var(--amber8);
+
+  --admonitionDangerBg: var(--red4);
+  --admonitionDangerBorder: var(--red8);
+
+  --admonitionNoteBg: var(--mauve-4);
+  --admonitionNoteBorder: var(--mauve-8);
+
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+  color: var(--baseText);
+  --basePageBg: black;
+  background: var(--basePageBg);
+} */

@@ -1,0 +1,16 @@
+export const AuthorNames = [
+  "William Shakespeare",
+  "Charles Dickens",
+  "Jane Austen",
+  "Mark Twain",
+  "Louisa May Alcott",
+  "Herman Melville",
+  "Charlotte Brontë",
+  "Dr. Seuss",
+  "Stephen King",
+  "J. K. Rowling",
+  "Agatha Christie",
+  "J. R. R. Tolkien",
+  "George Orwell",
+  "Ernest Hemingway",
+];

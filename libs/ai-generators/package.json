@@ -1,0 +1,75 @@
+{
+  "name": "@reasonote/ai-generators",
+  "version": "0.0.0",
+  "private": true,
+  "main": "src/",
+  "directories": {
+    "src": "src",
+    "test": "__tests__"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest watch",
+    "libbuild": "tsc && tsc --build tsconfig.esm.json"
+  },
+  "resolutions": {
+    "undici": "5.5.1"
+  },
+  "dependencies": {
+    "@babel/core": "^7.13.8",
+    "@types/lodash": "^4.14.168",
+    "@types/node": "^17.0.21",
+    "@types/uuid": "^8.3.0",
+    "ajv": "^8.6.2",
+    "openai": "4.72.0",
+    "langchain": "0.1.31",
+    "js-tiktoken": "1.0.10",
+    "async-mutex": "^0.3.2",
+    "axios": "^0.21.1",
+    "babel-loader": "^8.2.2",
+    "dataloader": "^2.1.0",
+    "dotenv": "16.0.3",
+    "dotenv-cli": "^4.0.0",
+    "lodash": "^4.17.21",
+    "uuid": "^8.3.2",
+    "xml2js": "^0.4.23",
+    "zod": "^3.23.8",
+    "@lukebechtel/lab-ts-utils": "6.4.0",
+    "eventsource-parser": "2.0.1",
+    "web-streams-polyfill": "4.0.0",
+    "@reasonote/lib-sdk": "*",
+    "@reasonote/lib-ai-common": "*",
+    "@reasonote/core": "*",
+    "@langchain/core": "0.1.54",
+    "ai": "4.2.3",
+    "@ai-sdk/provider": "0.0.26",
+    "@ai-sdk/openai": "0.0.72",
+    "@ai-sdk/anthropic": "1.2.9",
+    "pdf-parse": "1.1.1",
+    "mammoth": "1.8.0",
+    "zod-to-json-schema": "^3.24.4",
+    "rxjs": "7.8.1",
+    "vitest": "2.0.5",
+    "seedrandom": "3.0.5"
+  },
+  "devDependencies": {
+    "@types/jest": "^27.0.1",
+    "@types/xml2js": "^0.4.9",
+    "dotenv": "16.0.3",
+    "jest": "^27.1.0",
+    "jest-junit": "^13.0.0",
+    "ts-jest": "^27.0.5",
+    "ts-node-dev": "^1.1.8",
+    "ts-to-zod": "^1.11.0",
+    "typescript": "^4.1.3"
+  },
+  "jest-junit": {
+    "suiteName": "Services Integration Tests",
+    "outputDirectory": "./src/__tests__/test-results/",
+    "outputName": "results-junit.xml",
+    "classNameTemplate": "{classname}-{title}",
+    "titleTemplate": "{classname}-{title}",
+    "ancestorSeparator": " › ",
+    "usePathForSuiteName": "true"
+  }
+}

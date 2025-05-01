@@ -1,0 +1,7 @@
+---
+description: Use this whenever you call with AI genObj, or AI genStreamObj.
+globs: 
+alwaysApply: true
+---
+- Default to `openai:gpt-4o-mini`
+- Schemas passed to genObj CANNOT have `.min` or `.max`, as these are forbidden

@@ -1,0 +1,17 @@
+
+# The location of the schema we're going to generate from
+schema: 
+    - http://localhost:65432/graphql/v1:
+        headers:
+          Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0
+          apiKey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0
+documents: 'src/models/supabase-graphql/original-queries/**/*.graphql'
+generates:
+    ./src/models/supabase-graphql/supabase-graphql-codegen-types.ts:
+        plugins:
+            - typescript
+            - typescript-operations
+            - typescript-generic-sdk
+
+verbose: true
+debug: true

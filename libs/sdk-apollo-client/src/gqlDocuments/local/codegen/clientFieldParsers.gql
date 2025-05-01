@@ -1,0 +1,59 @@
+scalar ClientParsed_Annotation_cameraPlacement
+type Annotation {
+    cameraPlacement: ClientParsed_Annotation_cameraPlacement
+}
+
+
+
+scalar ClientParsed_AnnotationPoint3d_point
+type AnnotationPoint3d {
+    point: ClientParsed_AnnotationPoint3d_point
+}
+
+
+
+scalar ClientParsed_AnnotationPoint3d_direction
+type AnnotationPoint3d {
+    direction: ClientParsed_AnnotationPoint3d_direction
+}
+
+
+
+scalar ClientParsed_Annotation_unstructuredData
+type Annotation {
+    unstructuredData: ClientParsed_Annotation_unstructuredData
+}
+
+
+
+scalar ClientParsed_AnnotationLinearMeasurement_firstPoint
+type AnnotationLinearMeasurement {
+    firstPoint: ClientParsed_AnnotationLinearMeasurement_firstPoint
+}
+
+
+
+scalar ClientParsed_AnnotationLinearMeasurement_secondPoint
+type AnnotationLinearMeasurement {
+    secondPoint: ClientParsed_AnnotationLinearMeasurement_secondPoint
+}
+
+
+
+scalar ClientParsed_AnnotationLinearMeasurement_angleControlPoint
+type AnnotationLinearMeasurement {
+    angleControlPoint: ClientParsed_AnnotationLinearMeasurement_angleControlPoint
+}
+
+
+
+
+
+
+
+
+
+
+
+
+

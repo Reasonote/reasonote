@@ -1,0 +1,219 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@keyframes ripple {
+    0% {
+        width: 0;
+        height: 0;
+        opacity: 0.5;
+    }
+
+    100% {
+        width: 500px;
+        height: 500px;
+        opacity: 0;
+    }
+}
+
+@keyframes drawStroke {
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+
+.animate-draw-in path {
+    stroke-dasharray: 300;
+    stroke-dashoffset: 300;
+    animation: drawStroke 2s ease forwards;
+}
+
+.animate-draw-in-5s path {
+    stroke-dasharray: 300;
+    stroke-dashoffset: 300;
+    animation: drawStroke 5s ease forwards;
+}
+
+.animate-draw-in-10s path {
+    stroke-dasharray: 300;
+    stroke-dashoffset: 300;
+    animation: drawStroke 10s ease forwards;
+}
+
+.animate-draw-in-2s path {
+    stroke-dasharray: 300;
+    stroke-dashoffset: 300;
+    animation: drawStroke 2s ease forwards;
+}
+
+.animate-draw-in-1s path {
+    stroke-dasharray: 300;
+    stroke-dashoffset: 300;
+    animation: drawStroke 1s ease forwards;
+}
+
+.animate-draw-in-05s path {
+    stroke-dasharray: 300;
+    stroke-dashoffset: 300;
+    animation: drawStroke 0.5s ease forwards;
+}
+
+.animate-draw-in-025s path {
+    stroke-dasharray: 300;
+    stroke-dashoffset: 300;
+    animation: drawStroke 0.25s ease forwards;
+}
+
+.animate-draw-in-01s path {
+    stroke-dasharray: 300;
+    stroke-dashoffset: 300;
+    animation: drawStroke 0.1s ease forwards;
+}
+
+.animate-draw-in-7s path {
+    stroke-dasharray: 300;
+    stroke-dashoffset: 300;
+    animation: drawStroke 7s ease forwards;
+}
+
+.animate-ripple {
+    position: absolute;
+    width: 500px;
+    height: 500px;
+    animation: ripple 0.6s linear;
+}
+
+/* Typography styles */
+h1:not(.MuiTypography-root) {
+    font-family: var(--mui-font-family-h1);
+    font-size: var(--mui-font-size-h1);
+    font-weight: var(--mui-font-weight-h1);
+    line-height: var(--mui-line-height-h1);
+    letter-spacing: var(--mui-letter-spacing-h1);
+    margin-bottom: 0.5em;
+}
+
+h2:not(.MuiTypography-root) {
+    font-family: var(--mui-font-family-h2);
+    font-size: var(--mui-font-size-h2);
+    font-weight: var(--mui-font-weight-h2);
+    line-height: var(--mui-line-height-h2);
+    letter-spacing: var(--mui-letter-spacing-h2);
+}
+
+h3:not(.MuiTypography-root) {
+    font-family: var(--mui-font-family-h3);
+    font-size: var(--mui-font-size-h3);
+    font-weight: var(--mui-font-weight-h3);
+    line-height: var(--mui-line-height-h3);
+    letter-spacing: var(--mui-letter-spacing-h3);
+}
+
+h4:not(.MuiTypography-root) {
+    font-family: var(--mui-font-family-h4);
+    font-size: var(--mui-font-size-h4);
+    font-weight: var(--mui-font-weight-h4);
+    line-height: var(--mui-line-height-h4);
+    letter-spacing: var(--mui-letter-spacing-h4);
+}
+
+h5:not(.MuiTypography-root) {
+    font-family: var(--mui-font-family-h5);
+    font-size: var(--mui-font-size-h5);
+    font-weight: var(--mui-font-weight-h5);
+    line-height: var(--mui-line-height-h5);
+    letter-spacing: var(--mui-letter-spacing-h5);
+}
+
+h6:not(.MuiTypography-root) {
+    font-family: var(--mui-font-family-h6);
+    font-size: var(--mui-font-size-h6);
+    font-weight: var(--mui-font-weight-h6);
+    line-height: var(--mui-line-height-h6);
+    letter-spacing: var(--mui-letter-spacing-h6);
+}
+
+.subtitle1:not(.MuiTypography-root) {
+    font-family: var(--mui-font-family-subtitle1);
+    font-size: var(--mui-font-size-subtitle1);
+    font-weight: var(--mui-font-weight-subtitle1);
+    line-height: var(--mui-line-height-subtitle1);
+    letter-spacing: var(--mui-letter-spacing-subtitle1);
+}
+
+.subtitle2:not(.MuiTypography-root) {
+    font-family: var(--mui-font-family-subtitle2);
+    font-size: var(--mui-font-size-subtitle2);
+    font-weight: var(--mui-font-weight-subtitle2);
+    line-height: var(--mui-line-height-subtitle2);
+    letter-spacing: var(--mui-letter-spacing-subtitle2);
+}
+
+.body1:not(.MuiTypography-root) {
+    font-family: var(--mui-font-family-body1);
+    font-size: var(--mui-font-size-body1);
+    font-weight: var(--mui-font-weight-body1);
+    line-height: var(--mui-line-height-body1);
+    letter-spacing: var(--mui-letter-spacing-body1);
+}
+
+.body2:not(.MuiTypography-root) {
+    font-family: var(--mui-font-family-body2);
+    font-size: var(--mui-font-size-body2);
+    font-weight: var(--mui-font-weight-body2);
+    line-height: var(--mui-line-height-body2);
+    letter-spacing: var(--mui-letter-spacing-body2);
+}
+
+.button:not(.MuiTypography-root) {
+    font-family: var(--mui-font-family-button);
+    font-size: var(--mui-font-size-button);
+    font-weight: var(--mui-font-weight-button);
+    line-height: var(--mui-line-height-button);
+    letter-spacing: var(--mui-letter-spacing-button);
+}
+
+.caption:not(.MuiTypography-root) {
+    font-family: var(--mui-font-family-caption);
+    font-size: var(--mui-font-size-caption);
+    font-weight: var(--mui-font-weight-caption);
+    line-height: var(--mui-line-height-caption);
+    letter-spacing: var(--mui-letter-spacing-caption);
+}
+
+.overline:not(.MuiTypography-root) {
+    font-family: var(--mui-font-family-overline);
+    font-size: var(--mui-font-size-overline);
+    font-weight: var(--mui-font-weight-overline);
+    line-height: var(--mui-line-height-overline);
+    letter-spacing: var(--mui-letter-spacing-overline);
+}
+
+/* List styles */
+.ol-decimal-style {
+    list-style-type: decimal;
+    list-style-position: inside;
+    padding-left: 1.625em;  /* 26px, similar to tailwind's default */
+}
+
+.ol-decimal-style li {
+    padding-left: 0.375em;  /* 6px, for some spacing after the number */
+    margin-bottom: 0.25em;  /* 4px, adds some vertical spacing between items */
+}
+
+.ul-disc-style {
+    list-style-type: disc;
+    list-style-position: inside;
+    padding-left: 1.625em;  /* 26px, similar to tailwind's default */
+}
+
+.ul-disc-style li {
+    padding-left: 0.5em;  /* 6px, for some spacing after the number */
+    margin-bottom: 0.25em;  /* 4px, adds some vertical spacing between items */
+}
+
+/* handle Nested Lists */
+.ul-disc-style li li {
+    padding-left: 1em;  /* 6px, for some spacing after the number */
+    margin-bottom: 0.25em;  /* 4px, adds some vertical spacing between items */
+}

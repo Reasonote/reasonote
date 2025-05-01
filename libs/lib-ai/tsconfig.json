@@ -1,0 +1,51 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "target": "es2022",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "strict": true,
+    "strictNullChecks": true,
+    "noImplicitAny": true,
+    "strictPropertyInitialization": false,
+    "forceConsistentCasingInFileNames": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "outDir": "./dist",
+    "declaration": true,
+    "noUnusedParameters": false,
+    "noUnusedLocals": false,
+    "jsx": "react",
+    "jsxFactory": "Priompt.createElement",
+    "jsxFragmentFactory": "Priompt.Fragment",
+    "noEmit": false,
+    "baseUrl": ".",
+    "paths": {
+      "@reasonote/lib-ai": ["src"],
+      "@reasonote/lib-ai/*": ["src/*"]
+    }
+  },
+  "exclude": [
+    "node_modules",
+    "lib-esm",
+    "lib",
+    "dist",
+    "**/*.story*",
+    "**/*.spec*",
+    "**/*.test*",
+    "**/__tests__/**",
+    "**/__mocks__/**"
+  ],
+  "include": [
+    "src"
+  ]
+}

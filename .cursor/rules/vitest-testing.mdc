@@ -1,0 +1,310 @@
+---
+description: Vitest Testing Best Practices
+globs: *.spec.ts, *.test.ts
+alwaysApply: false
+---
+# Vitest Testing Best Practices
+
+Vitest is a fast and lightweight testing framework built on top of Vite, making it an excellent choice for modern JavaScript/TypeScript projects. Here are comprehensive best practices for effective testing with Vitest:
+
+## Setup and Configuration
+
+1. **Proper Configuration**
+   ```typescript
+   // vitest.config.ts
+   import { defineConfig } from 'vitest/config'
+   
+   export default defineConfig({
+     test: {
+       environment: 'jsdom', // or 'node' depending on your needs
+       globals: true, // allows using test, expect without imports
+       coverage: {
+         provider: 'v8', // or 'istanbul'
+         reporter: ['text', 'json', 'html'],
+         exclude: ['**/node_modules/**', '**/dist/**']
+       },
+     }
+   })
+   ```
+
+2. **Organize Tests Logically**
+   - Place tests close to the code they test (e.g., `Component.tsx` and `Component.test.tsx`)
+   - Or use a `__tests__` directory structure for larger projects
+
+
+## Testing the lib-ai Library
+
+When working with the `lib-ai` library, you must use a specific command to run tests:
+
+```bash
+yarn test:ai -- [EXTRA ARGS]
+```
+
+This command should be run from the workspace root, not from within the `lib-ai` directory itself. The command is configured to properly set up the environment variables and dependencies needed for AI-related tests.
+
+### Examples
+
+1. **Running all lib-ai tests**
+   ```bash
+   yarn test:ai
+   ```
+
+2. **Running a specific test**
+   ```bash
+   yarn test:ai -- -t 'cool-test-keyword'
+   ```
+
+3. **Running tests in watch mode**
+   ```bash
+   yarn test:ai -- --watch
+   ```
+
+4. **Running tests with coverage**
+   ```bash
+   yarn test:ai -- --coverage
+   ```
+
+5. **Running tests in a specific file**
+  ````bash
+  yarn test:ai [relative_path_from_lib-ai]
+  ````
+
+### Best Practices for lib-ai Tests
+
+1. **Do Not Mock AI Service Calls**
+   - Do not mock external AI service calls in tests unless specifically requested to do so
+
+2. **Test Both Success and Error Paths**
+   - Verify that your code handles API errors gracefully
+   - Test rate limiting and retry logic
+
+3. **Validate Input/Output Formats**
+   - Ensure that inputs to AI services are properly formatted
+   - Verify that responses are correctly parsed and transformed
+
+4. **Keep Tests Fast**
+   - Avoid unnecessary processing in tests
+   - Use smaller models or reduced token counts for testing when mocking isn't possible
+
+
+
+## Writing Effective Tests
+
+1. **Test Structure**
+   ```typescript
+   describe('Component or function name', () => {
+     beforeEach(() => {
+       // Setup code
+     })
+     
+     afterEach(() => {
+       // Cleanup code
+     })
+     
+     it('should do something specific', () => {
+       // Test code
+     })
+   })
+   ```
+
+2. **Naming Conventions**
+   - Use descriptive test names that explain the expected behavior
+   - Follow patterns like "should [expected behavior] when [condition]"
+
+3. **Arrange-Act-Assert Pattern**
+   ```typescript
+   it('should calculate total correctly', () => {
+     // Arrange
+     const items = [{ price: 10 }, { price: 20 }]
+     
+     // Act
+     const result = calculateTotal(items)
+     
+     // Assert
+     expect(result).toBe(30)
+   })
+   ```
+
+4. **Test Isolation**
+   - Each test should be independent and not rely on other tests
+   - Reset state between tests using `beforeEach` and `afterEach`
+
+## Testing Different Types of Code
+
+1. **Pure Functions**
+   ```typescript
+   it('should filter active items', () => {
+     const items = [
+       { id: 1, active: true },
+       { id: 2, active: false }
+     ]
+     
+     const result = filterActiveItems(items)
+     
+     expect(result).toEqual([{ id: 1, active: true }])
+   })
+   ```
+
+2. **React Components** (with Testing Library)
+   ```typescript
+   import { render, screen, fireEvent } from '@testing-library/react'
+   
+   it('should update counter when button is clicked', async () => {
+     render(<Counter />)
+     
+     expect(screen.getByText('Count: 0')).toBeInTheDocument()
+     
+     await fireEvent.click(screen.getByRole('button', { name: 'Increment' }))
+     
+     expect(screen.getByText('Count: 1')).toBeInTheDocument()
+   })
+   ```
+
+3. **Asynchronous Code**
+   ```typescript
+   it('should fetch data successfully', async () => {
+     // Mock API response
+     vi.spyOn(global, 'fetch').mockResolvedValue({
+       json: vi.fn().mockResolvedValue({ data: 'test' }),
+       ok: true
+     } as any)
+     
+     const result = await fetchData()
+     
+     expect(result).toEqual({ data: 'test' })
+   })
+   ```
+
+## Mocking
+
+1. **Function Mocks**
+   ```typescript
+   import { vi } from 'vitest'
+   
+   const mockFn = vi.fn()
+   mockFn.mockReturnValue('mocked value')
+   
+   // Verify calls
+   expect(mockFn).toHaveBeenCalledTimes(1)
+   expect(mockFn).toHaveBeenCalledWith('arg')
+   ```
+
+2. **Module Mocks**
+   ```typescript
+   // Mocking a module
+   vi.mock('./database', () => ({
+     query: vi.fn().mockResolvedValue([{ id: 1 }])
+   }))
+   ```
+
+3. **Timer Mocks**
+   ```typescript
+   it('should handle timeouts', () => {
+     vi.useFakeTimers()
+     
+     const callback = vi.fn()
+     setTimeout(callback, 1000)
+     
+     vi.advanceTimersByTime(1000)
+     expect(callback).toHaveBeenCalled()
+     
+     vi.useRealTimers()
+   })
+   ```
+
+## Testing Schema Validation (for your Zod schemas)
+
+```typescript
+import { SequenceActivityConfigSchema } from '../path/to/schema'
+
+describe('SequenceActivityConfigSchema', () => {
+  it('should validate a valid config', () => {
+    const validConfig = {
+      prompt: "Arrange these items in chronological order",
+      items: [
+        { id: "item1", label: "First event" },
+        { id: "item2", label: "Second event" },
+        { id: "item3", label: "Third event" },
+        { id: "item4", label: "Fourth event" }
+      ],
+      correctOrder: ["item1", "item2", "item3", "item4"]
+    }
+    
+    const result = SequenceActivityConfigSchema.safeParse(validConfig)
+    expect(result.success).toBe(true)
+  })
+  
+  it('should reject configs with too few items', () => {
+    const invalidConfig = {
+      prompt: "Arrange these items",
+      items: [
+        { id: "item1", label: "First" },
+        { id: "item2", label: "Second" }
+      ],
+      correctOrder: ["item1", "item2"]
+    }
+    
+    const result = SequenceActivityConfigSchema.safeParse(invalidConfig)
+    expect(result.success).toBe(false)
+  })
+  
+  it('should set default values correctly', () => {
+    const minimalConfig = {
+      prompt: "Arrange these items",
+      items: [
+        { id: "item1", label: "First" },
+        { id: "item2", label: "Second" },
+        { id: "item3", label: "Third" },
+        { id: "item4", label: "Fourth" }
+      ],
+      correctOrder: ["item1", "item2", "item3", "item4"]
+    }
+    
+    const result = SequenceActivityConfigSchema.parse(minimalConfig)
+    expect(result.type).toBe("sequence")
+    expect(result.version).toBe("0.0.1")
+    expect(result.aiScoringEnabled).toBe(true)
+  })
+})
+```
+
+## Advanced Practices
+
+1. **Snapshot Testing**
+   ```typescript
+   it('should match snapshot', () => {
+     const { container } = render(<Component />)
+     expect(container).toMatchSnapshot()
+   })
+   ```
+
+2. **Test Coverage**
+   - Run with `vitest run --coverage`
+   - Aim for high coverage but focus on critical paths
+   - Use `.vitest/coverage` to identify untested code
+
+3. **Custom Matchers**
+   ```typescript
+   expect.extend({
+     toBeWithinRange(received, floor, ceiling) {
+       const pass = received >= floor && received <= ceiling
+       return {
+         pass,
+         message: () => `expected ${received} to be within range ${floor}-${ceiling}`
+       }
+     }
+   })
+   ```
+
+4. **Parameterized Tests**
+   ```typescript
+   it.each([
+     [1, 1, 2],
+     [2, 2, 4],
+     [3, 3, 6]
+   ])('should add %i + %i to equal %i', (a, b, expected) => {
+     expect(a + b).toBe(expected)
+   })
+   ```
+
+By following these best practices, you'll create a robust test suite that helps maintain code quality and prevents regressions as your project evolves.

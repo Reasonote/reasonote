@@ -1,0 +1,33 @@
+---
+title: Material UI
+description: This section provides an overview of Material UI in Reasonote.
+---
+
+We primarily use Material UI for colors and themes in Reasonote.
+
+We occasionally use Tailwind for specific components.
+
+
+# Customizing Theme Colors
+
+To customize the theme colors, you can edit the `styles/theme.tsx` file in the `@reasonote/app-next-main` package:
+
+```tsx
+export interface AllPaletteColors {
+  // ...
+  // 1. Add your new color here
+  myFunColor: PaletteColor;
+}
+
+// 2. Update the theme to include your new color
+export const theme = createTheme({
+  // ...
+  palette: {
+    // ...
+    myFunColor: palette.augmentColor({ color: { main: "#FF0000" } }),
+  },
+});
+
+// 3. Use your new color
+<Chip color="myFunColor" />
+```

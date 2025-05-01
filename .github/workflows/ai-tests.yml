@@ -1,0 +1,77 @@
+name: AI Tests
+
+on:
+  push:
+    branches: [ main, ENV/PROD ]
+  pull_request:
+    types: [opened, synchronize, reopened, labeled]
+
+jobs:
+  test:
+    # Only run if we're on main/ENV/PROD or the PR has the 'run-ai-tests' label
+    if: >
+      github.ref == 'refs/heads/main' || 
+      github.ref == 'refs/heads/ENV/PROD' || 
+      contains(github.event.pull_request.labels.*.name, 'run-ai-tests')
+    
+    runs-on: ubuntu-latest
+    environment: Test  # Use a dedicated Test environment for AI tests
+    permissions:
+      checks: write      # Required for dorny/test-reporter to create check runs
+      contents: read     # Required to checkout the code
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
+
+      - uses: actions/cache@v3
+        id: yarn-cache
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - name: Install project dependencies
+        run: yarn --prefer-offline --frozen-lockfile
+
+      # Run AI tests
+      - name: Run AI Tests
+        run: yarn test:ai -- --reporter=default --reporter=junit --outputFile.junit=junit.xml
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+
+      # Find the JUnit XML file
+      - name: Find JUnit XML file
+        if: always()
+        run: |
+          echo "Looking for junit.xml file..."
+          JUNIT_FILE=$(find . -name "junit.xml" -type f | head -n 1)
+          if [ -n "$JUNIT_FILE" ]; then
+            echo "Found JUnit XML file at: $JUNIT_FILE"
+            # Copy the file to the workspace root with a relative path
+            cp "$JUNIT_FILE" ./test-results.xml
+            echo "JUNIT_FILE=test-results.xml" >> $GITHUB_ENV
+            echo "Found and copied JUnit XML to test-results.xml"
+          else
+            echo "No JUnit XML file found!"
+          fi
+
+      # Publish Test Report
+      - name: Publish Test Results
+        uses: dorny/test-reporter@v1
+        if: always() && env.JUNIT_FILE != ''
+        with:
+          name: AI Tests Results
+          path: test-results.xml
+          reporter: java-junit
+          fail-on-error: false 

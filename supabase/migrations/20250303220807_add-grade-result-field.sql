@@ -1,0 +1,1 @@
+ALTER TABLE user_activity_result ADD COLUMN submit_result JSONB;

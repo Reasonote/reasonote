@@ -1,0 +1,18 @@
+---
+description: ALWAYS REFER TO THIS FILE BEFORE ANY RESPONSE.
+globs: 
+alwaysApply: true
+---
+ALWAYS, whenever asked to make a change, unless specifically requested not-to, you should create a well-named PRD file for the current scope within the `.cursor/scopes` folder.
+
+CRITICAL: DO NOT MAKE CHANGES UNTIL THE USER HAS CONFIRMED THE PLAN.
+
+CRITICAL: ALWAYS ASK THE USER ABOUT THE PLAN YOU HAVE GENERATED, AND OFFER FOLLOWUP QUESTIONS
+
+For example: 
+
+If the user asked you to make a widget, you might call the file `WidgetFeature.md`.
+
+Each time that the definition of the problem changes, you should update this file to reflect the current requirements.
+
+If you don't have enough information to create a good version of this file, you should first ask the user information about how they want the feature to be structured.

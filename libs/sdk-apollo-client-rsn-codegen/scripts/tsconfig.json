@@ -1,0 +1,31 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "lib": [
+      "esnext"
+    ],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "types": []
+  },
+  "include": [
+    ".",
+    "../../sdk-apollo-client/scripts/loader.js",
+    "../../sdk-apollo-client/scripts/rsn-codegen-plugin"
+  ],
+  "exclude": [
+    "node_modules",
+    "../../node_modules/*",
+    "../../../node_modules",
+    "../node_modules",
+  ]
+}
