@@ -12,6 +12,7 @@ Key features:
 - 🌐 **Open Source**: Built on open-source foundations, so you can see under the hood and make it your own
 
 
+
 ## 👉 Getting Started 👈
 
 > **System Compatibility:** For the optimal experience, we recommend using macOS or Linux-derived systems. If you're on Windows, please use WSL (Windows Subsystem for Linux) as Reasonote has limited testing on native Windows environments.
