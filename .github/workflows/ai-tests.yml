@@ -11,7 +11,7 @@ jobs:
     # Only run if we're on main/ENV/PROD or the PR has the 'run-ai-tests' label
     if: >
       github.ref == 'refs/heads/main' || 
-      github.ref == 'refs/heads/ENV/PROD' || 
+      github.ref == 'refs/heads/staging' || 
       contains(github.event.pull_request.labels.*.name, 'run-ai-tests')
     
     runs-on: ubuntu-latest
