@@ -65,9 +65,6 @@ NOTE: some test commands will be changing in the near future.
 ### Unit Tests
 `yarn test:vitest` -- Runs unit tests at the top level of the monorepo.
 
-### AI Generation Tests
-`yarn test:aigen -- -t [test-name]` -- Runs a specific AI Generation test. Use this because we do not want to unncessarily run all the tests (they are testing AI calls, which can be slow and expensive).
-
 ## Installing New Dependencies In The Monorepo
 
 Usually, you should install new dependencies in a specific app or package, rather than in the root.
