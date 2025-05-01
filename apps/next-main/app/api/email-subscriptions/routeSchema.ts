@@ -9,13 +9,20 @@ export const EmailSubscriptionsRoute = new ApiRoute({
     product_updates: z.boolean().optional(),
     edtech_updates: z.boolean().optional(),
     newsletter: z.boolean().optional(),
+    email: z.string().email().optional(),
   }),
-  responseSchema: z.object({
-    id: z.string(),
-    rsn_user_id: z.string(),
-    product_updates: z.boolean(),
-    edtech_updates: z.boolean(),
-    newsletter: z.boolean(),
-    account_updates: z.boolean(),
-  }),
+  responseSchema: z.union([
+    z.object({
+      id: z.string(),
+      rsn_user_id: z.string(),
+      product_updates: z.boolean(),
+      edtech_updates: z.boolean(),
+      newsletter: z.boolean(),
+      account_updates: z.boolean(),
+    }),
+    z.object({
+      success: z.boolean(),
+      message: z.string(),
+    })
+  ]),
 });
