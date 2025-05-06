@@ -29,8 +29,7 @@ Key features:
     - [Node.js](https://nodejs.org/en/)
     - [Yarn](https://classic.yarnpkg.com/en/docs/install/#mac-stable)
     - [Bun](https://bun.sh/docs/installation)
-    - [Docker](https://docs.docker.com/get-docker/)
-    - [Docker Compose](https://docs.docker.com/compose/install/)
+    - [Docker](https://docs.docker.com/get-docker/) & [Docker Compose](https://docs.docker.com/compose/install/)
 2. `git clone` this repository
 3. `cd [DIRECTORY_YOU_CLONED_TO]`
   
