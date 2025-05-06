@@ -275,10 +275,15 @@ export default function OpenSourcingReasonotePage() {
             {trimLines(`
               <br/>
               We believe systematic improvements to education will improve the world. As such, education is far too important to be locked behind proprietary walls. We've seen the bad that came from "enshittification", and we've seen the good that came from Wikipedia and other open-source tools. We want to build a robust future for AI-powered learning.
-              
+              <br/> 
+              <br/>
               We believe education should foster both mastery of existing knowledge and the curiosity to question it - creating learners who can stand at the frontier of knowledge and then push it forward through first-principles thinking.
-              
+              <br/>
+              <br/>
               Finally, we believe that making the product community-driven can give us a much broader perspective, to ensure the product is useful in a wide array of domains and circumstances. This will help us discover use cases we haven't yet considered.
+              <br/>
+              <br/>
+              And frankly, we just think open source is more fun. :)
             `)}
           </MuiMarkdownDefault>
         </Box>
@@ -338,9 +343,9 @@ export default function OpenSourcingReasonotePage() {
               - **Technical deep dives**—working with LLMs, the tools we chose, prompting strategies, streaming podcast generation, and more.
               - **Cognitive-science insights**—optimal cognitive load, boosting learning efficiency, and related research.
 
-              Subscribe to stay updated!
-              
-              *Choose your interests when subscribing – receive all updates or just the engineering/education content that matters to you.*
+              <br/>
+              <br/>
+              ⬇️ ***Subscribe below to stay updated!***
             `)}
           </MuiMarkdownDefault>
         </Box>
@@ -361,7 +366,7 @@ export default function OpenSourcingReasonotePage() {
               - **[Star the Github repo](https://github.com/reasonote/reasonote)** – help others discover the project.
               - **[Contribute to the project](https://github.com/reasonote/reasonote)** – make it yours.
               - **[Join our Discord](https://discord.gg/8VRBVyDP2g)** – to chat with the team and other users.
-              - **Subscribe Below** – for updates and technical deep-dives.
+              - **⬇️ Subscribe Below** – for updates and technical deep-dives.
               - **[Donate to the project](https://github.com/sponsors/reasonote)** – help us build the future of education.
               - **[Email us](mailto:hello@reasonote.com)** – for business inquiries, or to ask questions.
             `)}
