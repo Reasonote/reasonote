@@ -2,7 +2,7 @@
 
 ## What Is Reasonote? 🚀
 
-Reasonote is your personal AI learning assistant - a hub for mastering the information you value most. It's an intelligent knowledge management platform that helps you capture, organize, and deeply understand complex information.
+[Reasonote](https://reasonote.com) is your personal AI learning assistant - a hub for mastering the information you value most. It's an intelligent knowledge management platform that helps you capture, organize, and deeply understand complex information.
 
 Key features:
 - 📄 **Document Processing**: Upload PDFs or text files and Reasonote automatically extracts the knowledge
@@ -11,6 +11,13 @@ Key features:
 - ✏️ **AI-Generated Practice Activities**: Master material with AI-generated practice activities with citations to source material
 - 🌐 **Open Source**: Built on open-source foundations, so you can see under the hood and make it your own
 
+
+
+[🚀 Check Out the Live Demo](https://reasonote.com/app/)
+
+[🏠 Visit the Homepage](https://reasonote.com)
+
+[📝 Read Our Blog](https://reasonote.com/blog)
 
 
 ## 👉 Getting Started 👈
@@ -22,8 +29,7 @@ Key features:
     - [Node.js](https://nodejs.org/en/)
     - [Yarn](https://classic.yarnpkg.com/en/docs/install/#mac-stable)
     - [Bun](https://bun.sh/docs/installation)
-    - [Docker](https://docs.docker.com/get-docker/)
-    - [Docker Compose](https://docs.docker.com/compose/install/)
+    - [Docker](https://docs.docker.com/get-docker/) & [Docker Compose](https://docs.docker.com/compose/install/)
 2. `git clone` this repository
 3. `cd [DIRECTORY_YOU_CLONED_TO]`
   
@@ -31,6 +37,7 @@ Key features:
 Reasonote is a Full-Stack application with the following components:
 - Postgres (Supabase) DB for persistence (includes auto-generated Rest/GraphQL APIs, Real-Time change detection, and Auth)
 - Next.js Frontend
+- Bun Workers (Vectorization, etc)
 
 To Get Started:
 1. Populate your `.env` file with the correct values. You can use the `.env.example` file as a template. Any `REQUIRED` values should be filled out for basic functionality. `OPTIONAL` values are not required, but may be needed for certain features.
