@@ -123,6 +123,7 @@ export default function OpenSourcingReasonotePage() {
                   - Personalized but lacking structured progression
                   - Difficult to track learning progress
                   - Limited mechanisms for retention and assessment
+
               We think learning can be the best of both worlds -- structured, but dynamic. Individualized, but grounded.
               We wanted something better -- so we built it.
               And today, we're making that code public.
@@ -238,6 +239,7 @@ export default function OpenSourcingReasonotePage() {
               - Plugin SDK – hot‑reloadable activity + grader modules
               - Importers – Notion, Roam, Obsidian, YouTube transcripts
               - Portable learner profiles – carry your knowledge graph between apps
+
               We'll publish deep‑dives as we ship. Subscribe below to follow our progress.
               Our vision is ambitious. We need community support and contributions to achieve this scope. By extending the interface to accommodate diverse learning needs, you help make Reasonote more valuable for everyone.
               Our long-term vision is to fundamentally transform how people learn in the digital age, where:
@@ -260,10 +262,12 @@ export default function OpenSourcingReasonotePage() {
           <MuiMarkdownDefault>
             {trimLines(`
               We're working on a series of in-depth articles exploring both the technical and educational aspects of Reasonote. Subscribe to stay updated:
+
               **Learning Science:**
               - **Prerequisite Thinking** – Why mastering fundamentals first transforms learning efficiency
               - **Optimizing Cognitive Load** – Techniques we use to present information at the right pace
               - **Climbing Bloom's Taxonomy** – Moving beyond memorization to deeper understanding
+
               **Engineering Insights:**
               - **Skill Tree Generation with AI** – How we automatically map knowledge dependencies in any content
               - **Streaming Podcast Generation** – The technical architecture behind turning documents into audio learning experiences
