@@ -13,6 +13,11 @@ Key features:
 
 
 
+[🚀 Check Out the Live Demo](https://reasonote.com/app/)
+[🏠 Visit the Homepage](https://reasonote.com)
+[📝 Read Our Blog](https://reasonote.com/blog)
+
+
 ## 👉 Getting Started 👈
 
 > **System Compatibility:** For the optimal experience, we recommend using macOS or Linux-derived systems. If you're on Windows, please use WSL (Windows Subsystem for Linux) as Reasonote has limited testing on native Windows environments.
