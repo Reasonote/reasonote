@@ -2,7 +2,7 @@
 
 ## What Is Reasonote? 🚀
 
-Reasonote is your personal AI learning assistant - a hub for mastering the information you value most. It's an intelligent knowledge management platform that helps you capture, organize, and deeply understand complex information.
+[Reasonote](https://reasonote.com) is your personal AI learning assistant - a hub for mastering the information you value most. It's an intelligent knowledge management platform that helps you capture, organize, and deeply understand complex information.
 
 Key features:
 - 📄 **Document Processing**: Upload PDFs or text files and Reasonote automatically extracts the knowledge
