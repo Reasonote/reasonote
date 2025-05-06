@@ -14,7 +14,9 @@ Key features:
 
 
 [🚀 Check Out the Live Demo](https://reasonote.com/app/)
+
 [🏠 Visit the Homepage](https://reasonote.com)
+
 [📝 Read Our Blog](https://reasonote.com/blog)
 
 
