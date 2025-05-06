@@ -38,6 +38,7 @@ Key features:
 Reasonote is a Full-Stack application with the following components:
 - Postgres (Supabase) DB for persistence (includes auto-generated Rest/GraphQL APIs, Real-Time change detection, and Auth)
 - Next.js Frontend
+- Bun Workers (Vectorization, etc)
 
 To Get Started:
 1. Populate your `.env` file with the correct values. You can use the `.env.example` file as a template. Any `REQUIRED` values should be filled out for basic functionality. `OPTIONAL` values are not required, but may be needed for certain features.
