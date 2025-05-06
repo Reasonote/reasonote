@@ -23,7 +23,6 @@ import {
   useTheme,
 } from "@mui/material";
 
-import bloomsTaxonomyImage from "./assets/blooms-taxonomy-revised.jpeg";
 // Import knowledge graph image and Bloom's taxonomy image
 import knowledgeGraphImage from "./assets/student-knowledge-graph.png";
 
@@ -52,7 +51,7 @@ export default function OpenSourcingReasonotePage() {
         sx={{ mb: 6 }}
       >
         <Txt variant="h3" fontWeight="bold">
-          Reasonote Is Open-Source
+          Reasonote Is Now Open-Source: Building the Future of Adaptive Learning
         </Txt>
         <Typography variant="h6" color="text.secondary" gutterBottom>
           Convert any content into an adaptive course -- open source, graph‑aware, and extensible.
@@ -88,7 +87,7 @@ export default function OpenSourcingReasonotePage() {
       <Stack spacing={4} sx={{ maxWidth: 800, mx: 'auto' }}>
         <MuiMarkdownDefault>
           {trimLines(`
-            Today, we're excited to announce that Reasonote is going fully open-source. We believe the future of education is open, and we're committed to making that future a reality.
+            Today, we're excited to announce that Reasonote is going open-source. We believe the future of education is open, and we're committed to making that future a reality.
             In a world overflowing with information but lacking effective learning tools, we've built the platform we always wished existed -- one that adapts to your learning style while providing the structure needed for true mastery.
           `)}
         </MuiMarkdownDefault>
@@ -108,25 +107,30 @@ export default function OpenSourcingReasonotePage() {
         </Box>
 
         <Box sx={{ mb: 4 }}>
-          <Txt variant="h5" fontWeight="bold" sx={{ mb: 2 }}>
-            Why We're Doing This
+          <Txt variant="h4" fontWeight="bold" sx={{ mb: 2 }}>
+            The Problem We're Solving
           </Txt>
+          <br/>
 
           <MuiMarkdownDefault>
             {trimLines(`
-              Most "online learning" still feels like reading a textbook in a web browser.
-              As lifelong learners and curious individuals, we've observed that current learning platforms generally fall into two categories:
-              1. **Pre-made courses** offering complete but inflexible learning experiences
-                  - Well-structured but fixed curricula that rarely align with individual needs
-                  - Material often lacks personal relevance, resulting in single-digit completion rates
-              2. **Chatbots and AI assistants** providing unstructured, user-led learning
-                  - Personalized but lacking structured progression
-                  - Difficult to track learning progress
-                  - Limited mechanisms for retention and assessment
+              Education today faces fundamental challenges that limit learner potential:
+              <br/>
+              <br/>
+              
+              ### Traditional Education's Limitations
+              
+              - One-size-fits-none curriculum that moves at the same pace regardless of individual understanding
+              - Impersonal learning environments due to high student-teacher ratios
+              - Limited "why" context where students are told what to learn but rarely why it matters
+              - Fear of failure that discourages experimentation and first-principles thinking
+              
+              <br/>
+              ### Current EdTech Shortcomings
+              
+              Having been both learners and teachers, we've observed that learning platforms fall into two categories: **pre-made courses** that offer complete but inflexible learning experiences, and **chatbots or AI assistants** that provide unstructured, user-led learning but lack any structured progression.
 
-              We think learning can be the best of both worlds -- structured, but dynamic. Individualized, but grounded.
-              We wanted something better -- so we built it.
-              And today, we're making that code public.
+              We think learning can be the best of both worlds -- structured, but dynamic, individualized yet grounded. Mastery and curiosity thriving together.
             `)}
           </MuiMarkdownDefault>
         </Box>
@@ -137,14 +141,17 @@ export default function OpenSourcingReasonotePage() {
           <Txt variant="h5" fontWeight="bold" sx={{ mb: 2 }}>
             How Reasonote Works
           </Txt>
+          <br/>
 
           <MuiMarkdownDefault>
             {trimLines(`
-              **1. Drop in content.** PDF, slide deck, research paper — anything text-based.
-              **2. Watch it grow.** Reasonote maps the concepts into a directed graph: what depends on what.
-              **3. Learn & review.** It serves activities (Flashcards, MCQs, Cloze Cards, AI Roleplays, and more) and schedules reviews along the graph so you study what matters most.
-              **4. Take it with you.** Hit *Generate podcast* and listen on your commute.
-              No separate "flashcard deck," no manual tagging—just upload and learn.
+              Reasonote solves these problems by creating personalized AI-Generated interactive courses — including Skill Trees, Lessons, Activities, Feedback, Assistance and Interactive Podcasts — to scaffold a person's journey through the process of understanding a concept.
+              <br/>
+              <br/>
+              1. **Drop in content**: PDF, slide deck, research paper — anything text-based
+              2. **Watch it transform**: Our system maps concepts into a knowledge graph
+              3. **Learn optimally**: Dynamic lessons and activities follow your personal learning edge
+              4. **Listen anywhere**: Generate personalized podcasts from your materials
             `)}
           </MuiMarkdownDefault>
         </Box>
@@ -153,12 +160,12 @@ export default function OpenSourcingReasonotePage() {
 
         <Box sx={{ mb: 4 }}>
           <Txt variant="h5" fontWeight="bold" sx={{ mb: 2 }}>
-            What Makes Reasonote Unique
+            Other Features We Think Are Pretty Neat
           </Txt>
 
           <MuiMarkdownDefault>
             {trimLines(`
-              Here's what sets Reasonote apart:
+              <br/>
               - **Smart learning pathways:** We map out how concepts connect and build on each other, so you always learn things in the right order.
               - **Intelligent review scheduling:** We remember what you know and what you don't, prioritizing reviews based on how concepts relate to each other, not just isolated facts.
               - **Beyond simple memorization:** We offer activities that develop your ability to analyze, evaluate, and create - not just memorize facts.
@@ -168,9 +175,13 @@ export default function OpenSourcingReasonotePage() {
               - **Truly open:** The entire codebase is open source, so you can inspect it, modify it, run it yourself, and keep complete control of your learning data.
             `)}
           </MuiMarkdownDefault>
+        </Box>
 
+        <Divider />
+
+        <Box sx={{ mb: 2, mt: 2 }}>
           {/* Knowledge Graph Image */}
-          <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
+          <Box sx={{ display: 'flex', justifyContent: 'center' }}>
             <Box
               sx={{
                 position: 'relative',
@@ -205,7 +216,7 @@ export default function OpenSourcingReasonotePage() {
                   fontSize: '0.75rem',
                 }}
               >
-                Knowledge graph visualization
+                Common-Knowledge Graph
               </Box>
             </Box>
           </Box>
@@ -214,15 +225,65 @@ export default function OpenSourcingReasonotePage() {
         <Divider />
 
         <Box sx={{ mb: 4 }}>
+          <Txt variant="h5" fontWeight="bold" sx={{ mb: 2, mt: 4 }}>
+            Key Innovations That Make Reasonote Unique
+          </Txt>
+          <br/>
+
+          <MuiMarkdownDefault>
+            {trimLines(`
+              ### 1. Fully Generative, Grounded In Sources
+              
+              Unlike traditional educational platforms that rely on pre-written content, every aspect of Reasonote's learning experience is dynamically generated by AI, while staying grounded in your source material. This includes the curriculum structure, explanations, examples, practice activities, and personalized feedback - all generated from and validated against your original content. The AI adapts the content and difficulty based on your goals and interests, creating an individualized learning journey that evolves with you while ensuring accuracy to the source material.
+              <br/>
+              <br/>
+              ### 2. Skill Tree & DAG-SRS-1 Algorithm
+              
+              Unlike Anki, Duolingo, or Quizlet — we map prerequisite relationships between concepts (as a Directed Acyclic Graph) and combine this with spaced repetition. This means you'll learn concepts in-order, and when you're ready. For instance — you'll learn the concept of ***velocity*** before the concept of ***acceleration***, because our system knows it's a prerequisite and you're prepared.
+              <br/>
+              <br/>
+              While "Spaced Repetition for Skill Sequencing" is a well-studied method for information retention, most implementations are concept-specific and don't account for prerequisite relationships between skills. Our DAG-SRS-1 algorithm combines prerequisite relationships and performance scores to determine the best next skill to learn, ensuring a logical learning progression.
+              <br/>
+              <br/>
+              ### 3. AI-Generated Activity Abstraction
+              
+              We've gone beyond basic flashcards to prevent "overfitting" in learning. Our system generates eight different activity types (roleplay, sequencing, term-matching, etc.) that move past memorization to ensure deeper conceptual understanding.
+              <br/>
+              <br/>
+              Developers can create new activity types by specifying three components:
+
+              - A generator (TS) that creates the activity
+              - A renderer (React) that displays it
+              - A grader (TS) that evaluates responses
+              <br/>
+              <br/>
+              Each component has access to AI calls to make the experience as interactive as desired.
+            `)}
+          </MuiMarkdownDefault>
+        </Box>
+
+        <Divider />
+
+        
+
+        <Box sx={{ mb: 4 }}>
           <Txt variant="h5" fontWeight="bold" sx={{ mb: 2 }}>
-            Open Source
+            Why Open Source?
           </Txt>
 
           <MuiMarkdownDefault>
             {trimLines(`
-              We believe learning is a fundamental right and everyone should have access to high-quality education regardless of resources. Open-sourcing Reasonote is a step toward this vision, allowing people to run the project themselves and maintain ownership of their learning data.
-              We're concerned about data usage in privately-owned platforms. Such ownership creates opportunities for data monetization, potentially leading to predatory advertising and misaligned incentives where companies prioritize keeping users on the platform rather than optimizing their learning experience.
-              You can read more about our open source licensing strategy in [our Github Repo's \`LICENSE\` file.](https://github.com/Reasonote/Reasonote/blob/main/LICENSE)
+              <br/>
+              We believe systematic improvements to education will improve the world. As such, education is far too important to be locked behind proprietary walls. We've seen the bad that came from "enshittification", and we've seen the good that came from Wikipedia and other open-source tools. We want to build a robust future for AI-powered learning.
+              <br/> 
+              <br/>
+              We believe education should foster both mastery of existing knowledge and the curiosity to question it - creating learners who can stand at the frontier of knowledge and then push it forward through first-principles thinking.
+              <br/>
+              <br/>
+              Finally, we believe that making the product community-driven can give us a much broader perspective, to ensure the product is useful in a wide array of domains and circumstances. This will help us discover use cases we haven't yet considered.
+              <br/>
+              <br/>
+              And frankly, we just think open source is more fun. :)
             `)}
           </MuiMarkdownDefault>
         </Box>
@@ -231,23 +292,38 @@ export default function OpenSourcingReasonotePage() {
 
         <Box sx={{ mb: 4 }}>
           <Txt variant="h5" fontWeight="bold" sx={{ mb: 2 }}>
-            Road Ahead (Next Six Months)
+            Our Tech Stack
           </Txt>
 
           <MuiMarkdownDefault>
             {trimLines(`
-              - Plugin SDK – hot‑reloadable activity + grader modules
-              - Importers – Notion, Roam, Obsidian, YouTube transcripts
-              - Portable learner profiles – carry your knowledge graph between apps
+              <br/>
+              - TypeScript + React frontend
+              - Node.js + Bun backend
+              - Postgres database via Supabase
+              - OpenAI / Anthropic for AI (other provider support is on-roadmap)
+            `)}
+          </MuiMarkdownDefault>
+        </Box>
 
-              We'll publish deep‑dives as we ship. Subscribe below to follow our progress.
-              Our vision is ambitious. We need community support and contributions to achieve this scope. By extending the interface to accommodate diverse learning needs, you help make Reasonote more valuable for everyone.
-              Our long-term vision is to fundamentally transform how people learn in the digital age, where:
-              - Learning is truly personalized to your prior knowledge and learning style
-              - Knowledge acquisition is dramatically more efficient
-              - Education is democratized and accessible to everyone
-              - Learning becomes lifelong by default, helping people maintain and update their understanding continuously as knowledge evolves rapidly in our changing world
-              - Communities can collaboratively build and share knowledge journeys, making expertise accessible across traditional barriers
+        <Divider />
+
+        <Box sx={{ mb: 4 }}>
+          <Txt variant="h5" fontWeight="bold" sx={{ mb: 2 }}>
+            The Roadmap Ahead
+          </Txt>
+
+          <MuiMarkdownDefault>
+            {trimLines(`
+              <br/>
+              We're still quite early! Currently, you can upload documents you want to learn from, and Skill Trees, Lessons, Activities, Feedback, and Interactive Podcasts are all generated for you.
+              
+              Soon, we'll support:
+              
+              - Learning from videos, audio, and webpages
+              - AI-generated diagrams using Mermaid
+              - More activity types (Feel free to suggest or author your own!)
+              - Advanced visualizations and analytics
             `)}
           </MuiMarkdownDefault>
         </Box>
@@ -261,62 +337,17 @@ export default function OpenSourcingReasonotePage() {
 
           <MuiMarkdownDefault>
             {trimLines(`
-              We're working on a series of in-depth articles exploring both the technical and educational aspects of Reasonote. Subscribe to stay updated:
+              <br/>
+              In the spirit of open source, over the next few weeks, we'll share what we've learned while building Reasonote:
 
-              **Learning Science:**
-              - **Prerequisite Thinking** – Why mastering fundamentals first transforms learning efficiency
-              - **Optimizing Cognitive Load** – Techniques we use to present information at the right pace
-              - **Climbing Bloom's Taxonomy** – Moving beyond memorization to deeper understanding
+              - **Technical deep dives**—working with LLMs, the tools we chose, prompting strategies, streaming podcast generation, and more.
+              - **Cognitive-science insights**—optimal cognitive load, boosting learning efficiency, and related research.
 
-              **Engineering Insights:**
-              - **Skill Tree Generation with AI** – How we automatically map knowledge dependencies in any content
-              - **Streaming Podcast Generation** – The technical architecture behind turning documents into audio learning experiences
-              - **Building with PGVector and Supabase** – Our approach to vectorization for semantic understanding
-              *Choose your interests when subscribing – receive all updates or just the engineering/education content that matters to you.*
+              <br/>
+              <br/>
+              ⬇️ ***Subscribe below to stay updated!***
             `)}
           </MuiMarkdownDefault>
-
-          {/* Bloom's Taxonomy Image */}
-          <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
-            <Box
-              sx={{
-                position: 'relative',
-                width: '100%',
-                maxWidth: 600,
-                height: 'auto',
-                borderRadius: 2,
-                overflow: 'hidden',
-                boxShadow: theme.shadows[3],
-                border: `1px solid ${theme.palette.divider}`,
-              }}
-            >
-              <img
-                src={bloomsTaxonomyImage.src}
-                alt="Revised Bloom's Taxonomy showing the hierarchy of learning objectives"
-                style={{ 
-                  width: '100%', 
-                  height: 'auto', 
-                  objectFit: 'cover',
-                  display: 'block'
-                }}
-              />
-              <Box
-                sx={{
-                  position: 'absolute',
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  bgcolor: 'rgba(0,0,0,0.6)',
-                  color: 'white',
-                  p: 1.5,
-                  textAlign: 'center',
-                  fontSize: '0.8rem',
-                }}
-              >
-                Bloom's Taxonomy: Moving from memorization to creation
-              </Box>
-            </Box>
-          </Box>
         </Box>
 
         <Divider />
@@ -328,29 +359,21 @@ export default function OpenSourcingReasonotePage() {
 
           <MuiMarkdownDefault>
             {trimLines(`
-              1. **Try the demo** – five minutes beats a thousand words.
-              2. **Star the repo** – help others discover the project.
-              3. **Clone & tinker** – make it yours.
-              4. **Subscribe** – for updates and technical deep-dives.
-              5. **Sponsor** – if you want to accelerate research, the button's in the README.
+              <br/>
+              We're excited to see what you all build with Reasonote! Here are some ways to get involved:
+
+              - **[Try the app](https://reasonote.com/app/)** – five minutes beats a thousand words.
+              - **[Star the Github repo](https://github.com/reasonote/reasonote)** – help others discover the project.
+              - **[Contribute to the project](https://github.com/reasonote/reasonote)** – make it yours.
+              - **[Join our Discord](https://discord.gg/8VRBVyDP2g)** – to chat with the team and other users.
+              - **⬇️ Subscribe Below** – for updates and technical deep-dives.
+              - **[Donate to the project](https://github.com/sponsors/reasonote)** – help us build the future of education.
+              - **[Email us](mailto:hello@reasonote.com)** – for business inquiries, or to ask questions.
             `)}
           </MuiMarkdownDefault>
         </Box>
 
         <Divider />
-
-        <Box sx={{ mb: 4 }}>
-          <Txt variant="h5" fontWeight="bold" sx={{ mb: 2 }}>
-            For Organizations
-          </Txt>
-
-          <MuiMarkdownDefault>
-            {trimLines(`
-              While Reasonote is free for individual use, we offer commercial licensing and support for teams looking to implement adaptive learning at scale. If you're interested in deploying Reasonote within your organization, enhancing employee training, or integrating our technology with your existing learning systems, [reach out to our team](mailto:business@reasonote.com).
-              Together, we can build a future where everyone has access to personalized, effective learning tools that adapt to their unique needs and interests—making knowledge and expertise truly accessible in a rapidly changing world.
-            `)}
-          </MuiMarkdownDefault>
-        </Box>
 
         {/* CTA Footer with Subscribe */}
         <Box sx={{ textAlign: 'center', mt: 6, mb: 4 }}>

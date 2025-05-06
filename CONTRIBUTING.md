@@ -13,9 +13,9 @@ We follow the Contributor Covenant v2.1. By participating, you agree to abide by
 2 — Ways to Contribute
 --------------------
 
-• Bug reports / feature requests → open a GitHub Issue and follow the template.
-• Small fixes (≤ 15 lines) → open a pull‑request directly.
-• Larger changes / new features → create an Issue first; we'll discuss scope and direction before you write code.
+- Bug reports / feature requests → open a GitHub Issue and follow the template.
+- Small fixes (≤ 15 lines) → open a pull‑request directly.
+- Larger changes / new features → create an Issue first; we'll discuss scope and direction before you write code.
 
 
 3 — Development Setup
@@ -23,28 +23,28 @@ We follow the Contributor Covenant v2.1. By participating, you agree to abide by
 
 Please refer to the README.md file for detailed setup and running instructions. The README contains the most up-to-date information on:
 
-• Prerequisites installation
-• Environment setup
-• Running the application
-• Development tools
+- Prerequisites installation
+- Environment setup
+- Running the application
+- Development tools
 
 
 4 — Commit & PR Guidelines
 ------------------------
 
-• Branch from main → git checkout -b fix/bug‑title.
-• Write tests and pass yarn test & yarn lint.
-• Follow Conventional Commits (feat: …, fix: …).
-• Keep PRs focused; unrelated changes belong in separate PRs.
-• Add/update changelog entry in CHANGELOG.md.
+- Branch from main → git checkout -b fix/bug‑title.
+- Write tests and pass yarn test & yarn lint.
+- Follow Conventional Commits (feat: …, fix: …).
+- Keep PRs focused; unrelated changes belong in separate PRs.
+- Add/update changelog entry in CHANGELOG.md.
 
 ### Deployment Flow
 
-• Feature branches should be created from `staging` → git checkout -b feature/your-feature staging
-• PRs are merged into `staging` first for testing
-• The `staging` branch is automatically deployed to dev.reasonote.com
-• Once verified on staging, changes are promoted to `main`
-• The `main` branch is automatically deployed to reasonote.com (production)
+- Feature branches should be created from `staging` → git checkout -b feature/your-feature staging
+- PRs are merged into `staging` first for testing
+- The `staging` branch is automatically deployed to dev.reasonote.com
+- Once verified on staging, changes are promoted to `main`
+- The `main` branch is automatically deployed to reasonote.com (production)
 
 
 5 — Licensing of Contributions
@@ -66,9 +66,9 @@ For substantial contributions (>20 lines of code or any new files) you will be a
 7 — Style & Tooling
 -----------------
 
-• Languages: TypeScript
-• Formatters: prettier
-• Linters: eslint
+- Languages: TypeScript
+- Formatters: prettier
+- Linters: eslint
 
 Run yarn lint:fix before pushing.
 
