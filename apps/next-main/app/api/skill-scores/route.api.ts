@@ -15,13 +15,14 @@ type SkillType = {
   _name: string;
   emoji: string | null;
   root_skill_id: string | null;
+  skill_link: SkillLinkType[];
 };
 
 /** Type representing a skill link fetched directly from the skill_link table */
 type SkillLinkType = {
   id: string;
-  upstream_skill: string;
-  downstream_skill: string;
+  upstream_skill: string | null;
+  downstream_skill: string | null;
 };
 
 /** Type representing an activity skill association fetched from the activity_skill table */
@@ -94,9 +95,9 @@ export const {POST} = makeServerApiHandlerV3({
       const skill = skillRes.data;
       const rootSkillId = skill.root_skill_id || skill.id;
 
-      // Get all skills with the same root_skill_id
+      // Get all skills, and skill_links with the same root_skill_id
       const relatedSkillsRes = await supabase.from("skill")
-        .select("id, _name, emoji, root_skill_id")
+        .select("id, _name, emoji, root_skill_id, skill_link!skill_link_downstream_skill_fkey(id, upstream_skill, downstream_skill)")
         .eq("root_skill_id", rootSkillId);
       
       if (relatedSkillsRes.error) throw relatedSkillsRes.error;
@@ -109,45 +110,18 @@ export const {POST} = makeServerApiHandlerV3({
       
       if (!rootSkillIncluded) {
         const rootSkillRes = await supabase.from("skill")
-          .select("id, _name, emoji, root_skill_id")
+          .select("id, _name, emoji, root_skill_id, skill_link!skill_link_downstream_skill_fkey(id, upstream_skill, downstream_skill)")
           .eq("id", rootSkillId)
           .single();
         
         if (rootSkillRes.error) throw rootSkillRes.error;
-        allSkills.push(rootSkillRes.data);
+        allSkills.push({...rootSkillRes.data, skill_link: []});
       }
       
       // Get all skill links between these skills
       const skillIds = allSkills.map(s => s.id);
       
-      // Check for any sample activity skills and user activity results
-      // This is to help diagnose any data issues
-      const sampleActivitySkillsRes = await supabase.from("activity_skill")
-        .select("id, activity, skill")
-        .limit(10);
-        
-      if (sampleActivitySkillsRes.error) throw sampleActivitySkillsRes.error;
-      
-      logger.log('Sample of all activity-skill associations:', sampleActivitySkillsRes.data);
-      
-      // Check if there are any activity results for this user at all
-      const sampleUserActivityResultsRes = await supabase.from("user_activity_result")
-        .select("id, activity, _user, score_normalized")
-        .eq("_user", userId)
-        .limit(10);
-        
-      if (sampleUserActivityResultsRes.error) throw sampleUserActivityResultsRes.error;
-      
-      logger.log('Sample of all user activity results for this user:', sampleUserActivityResultsRes.data);
-      
-      const skillLinksRes = await supabase.from("skill_link")
-        .select("id, upstream_skill, downstream_skill")
-        .in("upstream_skill", skillIds)
-        .in("downstream_skill", skillIds);
-      
-      if (skillLinksRes.error) throw skillLinksRes.error;
-      
-      const skillLinks: SkillLinkType[] = skillLinksRes.data.filter(
+      const skillLinks: SkillLinkType[] = allSkills.flatMap(s => s.skill_link).filter(
         link => link.upstream_skill !== null && link.downstream_skill !== null
       ) as SkillLinkType[];
       
@@ -269,15 +243,29 @@ export const {POST} = makeServerApiHandlerV3({
       // Add edges based on skill links
       // In the DAG, upstream skills are parents of downstream skills
       skillLinks.forEach(link => {
+        const downstreamSkillId = link.downstream_skill;
+        const upstreamSkillId = link.upstream_skill;
+        if (!downstreamSkillId || !upstreamSkillId) {
+          logger.warn(`WARNING: Missing downstream or upstream skill for link ${link.id}`);
+          return;
+        }
+
         // In our domain, upstream_skill is the prerequisite/parent of downstream_skill
         collector.addEdge({
-          fromId: link.downstream_skill,
-          toId: link.upstream_skill,
+          fromId: downstreamSkillId,
+          toId: upstreamSkillId,
           direction: 'to_child',
           id: link.id
         });
         logger.log(`Added edge from ${link.upstream_skill} to ${link.downstream_skill} with ID ${link.id}`);
       });
+
+
+      if (collector.getNumRoots() !== 1) {
+        logger.warn(`WARNING: Expected 1 root skill, got ${collector.getNumRoots()}`);
+        const rootIds = collector.getRootIds();
+        logger.warn(`Root IDs: ${rootIds.join(', ')}`);
+      }
       
       //-------------------------------------------------------------
       // PHASE 2: Run the DAGScoreCollector algorithm
