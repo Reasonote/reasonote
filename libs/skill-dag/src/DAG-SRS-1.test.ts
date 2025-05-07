@@ -14,8 +14,8 @@ describe('DAGScoreCollector', () => {
     collector.addNode({ id: 'B', scores: [50] });
     collector.addNode({ id: 'C', scores: [75] });
     
-    collector.addEdges('A', ['B'], 'to_child');
-    collector.addEdges('B', ['C'], 'to_child');
+    collector.addEdge({ fromId: 'A', toId: 'B', direction: 'to_child', id: 'AB' });
+    collector.addEdge({ fromId: 'B', toId: 'C', direction: 'to_child', id: 'BC' });
 
     const allScores = collector.collectAllScores();
 
@@ -37,9 +37,9 @@ describe('DAGScoreCollector', () => {
     collector.addNode({ id: 'D', scores: [90] });        // D1
     
     // Set up relationships
-    collector.addEdges('A', ['B', 'C'], 'to_child');
-    collector.addEdges('B', ['D'], 'to_child');
-    collector.addEdges('C', ['D'], 'to_child');
+    collector.addEdges('A', ['B', 'C'], 'to_child', ['AB', 'AC']);
+    collector.addEdges('B', ['D'], 'to_child', ['BD']);
+    collector.addEdges('C', ['D'], 'to_child', ['CD']);
 
     const allScores = collector.collectAllScores();
 
@@ -65,9 +65,9 @@ describe('DAGScoreCollector', () => {
     collector.addNode({ id: 'C', scores: [30] });
     
     // Create a cycle: A -> B -> C -> A
-    collector.addEdges('A', ['B'], 'to_child');
-    collector.addEdges('B', ['C'], 'to_child');
-    collector.addEdges('C', ['A'], 'to_child'); // This creates a cycle!
+    collector.addEdge({ fromId: 'A', toId: 'B', direction: 'to_child', id: 'AB' });
+    collector.addEdge({ fromId: 'B', toId: 'C', direction: 'to_child', id: 'BC' });
+    collector.addEdge({ fromId: 'C', toId: 'A', direction: 'to_child', id: 'CA' }); // This creates a cycle!
     
     // This should complete without hanging
     const allScores = collector.collectAllScores();
@@ -103,8 +103,8 @@ describe('DAGScoreCollector', () => {
     collector.addNode({ id: 'C', scores: [140, 150] });  // C1, C2
     
     // Set up relationships
-    collector.addEdges('A', ['B'], 'to_child');
-    collector.addEdges('B', ['C'], 'to_child');
+    collector.addEdge({ fromId: 'A', toId: 'B', direction: 'to_child', id: 'AB' });
+    collector.addEdge({ fromId: 'B', toId: 'C', direction: 'to_child', id: 'BC' });
 
     const allScores = collector.collectAllScores();
 
@@ -119,7 +119,7 @@ describe('DAGScoreCollector', () => {
     collector.addNode({ id: 'A' });
     collector.addNode({ id: 'B', scores: [100] });
     
-    collector.addEdges('A', ['B'], 'to_child');
+    collector.addEdge({ fromId: 'A', toId: 'B', direction: 'to_child', id: 'AB' });
 
     const allScores = collector.collectAllScores();
 
@@ -142,7 +142,13 @@ describe('DAGScoreCollector', () => {
     
     // The error now happens immediately when adding the edge
     expect(() => 
-      collector.addEdge('A', 'B', 'to_child', { createRefsIfNotExistent: false })
+      collector.addEdge({ 
+        fromId: 'A', 
+        toId: 'B', 
+        direction: 'to_child', 
+        id: 'AB',
+        config: { createRefsIfNotExistent: false } 
+      })
     ).toThrow('Node B not found and createRefsIfNotExistent is false');
   });
 
@@ -155,8 +161,8 @@ describe('DAGScoreCollector', () => {
     collector.addNode({ id: 'C', scores: [30] });
     
     // Set up relationships
-    collector.addEdges('A', ['C'], 'to_child');
-    collector.addEdges('B', ['C'], 'to_child');
+    collector.addEdge({ fromId: 'A', toId: 'C', direction: 'to_child', id: 'AC' });
+    collector.addEdge({ fromId: 'B', toId: 'C', direction: 'to_child', id: 'BC' });
     
     const allScores = collector.collectAllScores();
     
@@ -170,6 +176,52 @@ describe('DAGScoreCollector', () => {
     expect(allScores.get('C')).toEqual([30]);
   });
 
+  // Test for descendants field
+  it('should include descendants in node results', () => {
+    const collector = new DAGScoreCollector();
+    collector.addNode({ id: 'A', scores: [100] });
+    collector.addNode({ id: 'B', scores: [50] });
+    collector.addNode({ id: 'C', scores: [75] });
+    collector.addNode({ id: 'D', scores: [80] });
+    
+    collector.addEdge({ fromId: 'A', toId: 'B', direction: 'to_child', id: 'AB' });
+    collector.addEdge({ fromId: 'B', toId: 'C', direction: 'to_child', id: 'BC' });
+    collector.addEdge({ fromId: 'A', toId: 'D', direction: 'to_child', id: 'AD' });
+
+    const nodeScores = collector.calculateNodeScores();
+    
+    // A should have all nodes as descendants (A, B, C, D)
+    expect(nodeScores.get('A')?.descendants.sort()).toEqual(['A', 'B', 'C', 'D'].sort());
+    
+    // B should have B and C as descendants
+    expect(nodeScores.get('B')?.descendants.sort()).toEqual(['B', 'C'].sort());
+    
+    // C should have only itself as a descendant
+    expect(nodeScores.get('C')?.descendants).toEqual(['C']);
+    
+    // D should have only itself as a descendant
+    expect(nodeScores.get('D')?.descendants).toEqual(['D']);
+  });
+
+  // Test the getEdgeId method
+  it('should store and retrieve edge IDs correctly', () => {
+    const collector = new DAGScoreCollector();
+    
+    collector.addEdge({ fromId: 'A', toId: 'B', direction: 'to_child', id: 'edge1' });
+    collector.addEdge({ fromId: 'B', toId: 'C', direction: 'to_child', id: 'edge2' });
+    collector.addEdge({ fromId: 'X', toId: 'Y', direction: 'to_parent', id: 'edge3' });
+    
+    // Check regular edges
+    expect(collector.getEdgeId('A', 'B')).toEqual('edge1');
+    expect(collector.getEdgeId('B', 'C')).toEqual('edge2');
+    
+    // For to_parent direction, the edge is stored with reversed direction
+    expect(collector.getEdgeId('Y', 'X')).toEqual('edge3');
+    
+    // Non-existent edges should return undefined
+    expect(collector.getEdgeId('A', 'C')).toBeUndefined();
+  });
+
   // Tests for new API
   describe('Node and Edge Management', () => {
     it('should preserve relationships when overwriting nodes', () => {
@@ -178,7 +230,7 @@ describe('DAGScoreCollector', () => {
       // Add initial nodes and relationship
       collector.addNode({ id: 'A', scores: [10] });
       collector.addNode({ id: 'B', scores: [20] });
-      collector.addEdges('A', ['B'], 'to_child');
+      collector.addEdge({ fromId: 'A', toId: 'B', direction: 'to_child', id: 'AB' });
       
       // Overwrite node A with new scores
       collector.addNode({ id: 'A', scores: [30] });
@@ -196,7 +248,7 @@ describe('DAGScoreCollector', () => {
       collector.addNode({ id: 'B', scores: [20] });
       
       // Add edge with B as parent of A
-      collector.addEdges('A', ['B'], 'to_parent');
+      collector.addEdge({ fromId: 'A', toId: 'B', direction: 'to_parent', id: 'AB' });
       
       const allScores = collector.collectAllScores();
       
@@ -211,7 +263,7 @@ describe('DAGScoreCollector', () => {
       const collector = new DAGScoreCollector();
       
       // Add edge between non-existent nodes
-      collector.addEdges('A', ['B'], 'to_child');
+      collector.addEdge({ fromId: 'A', toId: 'B', direction: 'to_child', id: 'AB' });
       
       // Add scores to the auto-created nodes
       collector.addNode({ id: 'A', scores: [10] });
@@ -228,7 +280,7 @@ describe('DAGScoreCollector', () => {
       
       // Should throw for non-existent fromId
       expect(() => 
-        collector.addEdge('A', 'B', 'to_child', { createRefsIfNotExistent: false })
+        collector.addEdge({ fromId: 'A', toId: 'B', direction: 'to_child', id: 'AB', config: { createRefsIfNotExistent: false } })
       ).toThrow('Node A not found');
       
       // Add node A, but B still doesn't exist
@@ -236,7 +288,7 @@ describe('DAGScoreCollector', () => {
       
       // Should throw for non-existent toId
       expect(() => 
-        collector.addEdge('A', 'B', 'to_child', { createRefsIfNotExistent: false })
+        collector.addEdge({ fromId: 'A', toId: 'B', direction: 'to_child', id: 'AB', config: { createRefsIfNotExistent: false } })
       ).toThrow('Node B not found');
     });
     
@@ -250,7 +302,7 @@ describe('DAGScoreCollector', () => {
       collector.addNode({ id: 'D', scores: [40] });
       
       // Add multiple children at once
-      collector.addEdges('A', ['B', 'C', 'D'], 'to_child');
+      collector.addEdges('A', ['B', 'C', 'D'], 'to_child', ['AB', 'AC', 'AD']);
       
       const allScores = collector.collectAllScores();
       
@@ -261,6 +313,11 @@ describe('DAGScoreCollector', () => {
       expect(allScores.get('B')).toEqual([20]);
       expect(allScores.get('C')).toEqual([30]);
       expect(allScores.get('D')).toEqual([40]);
+      
+      // Edge IDs should be stored correctly
+      expect(collector.getEdgeId('A', 'B')).toEqual('AB');
+      expect(collector.getEdgeId('A', 'C')).toEqual('AC');
+      expect(collector.getEdgeId('A', 'D')).toEqual('AD');
     });
     
     it('should support adding multiple parents with addEdges', () => {
@@ -273,7 +330,7 @@ describe('DAGScoreCollector', () => {
       collector.addNode({ id: 'D', scores: [40] });
       
       // Add multiple parents at once
-      collector.addEdges('D', ['A', 'B', 'C'], 'to_parent');
+      collector.addEdges('D', ['A', 'B', 'C'], 'to_parent', ['DA', 'DB', 'DC']);
       
       const allScores = collector.collectAllScores();
       
@@ -284,6 +341,11 @@ describe('DAGScoreCollector', () => {
       
       // D should have only its own score
       expect(allScores.get('D')).toEqual([40]);
+      
+      // Edge IDs should be stored correctly
+      expect(collector.getEdgeId('A', 'D')).toEqual('DA');
+      expect(collector.getEdgeId('B', 'D')).toEqual('DB');
+      expect(collector.getEdgeId('C', 'D')).toEqual('DC');
     });
     
     it('should handle autoCreation with addEdges', () => {
@@ -293,7 +355,7 @@ describe('DAGScoreCollector', () => {
       collector.addNode({ id: 'A', scores: [10] });
       
       // Add edges to non-existent nodes
-      collector.addEdges('A', ['B', 'C', 'D'], 'to_child');
+      collector.addEdges('A', ['B', 'C', 'D'], 'to_child', ['AB', 'AC', 'AD']);
       
       // Add scores to auto-created nodes
       collector.addNode({ id: 'B', scores: [20] });
@@ -312,8 +374,22 @@ describe('DAGScoreCollector', () => {
       
       // Now that our API immediately throws on missing nodes, this should throw
       expect(() => 
-        collector.addEdges('A', ['B'], 'to_child', { createRefsIfNotExistent: false })
+        collector.addEdge({ fromId: 'A', toId: 'B', direction: 'to_child', id: 'AB', config: { createRefsIfNotExistent: false } })
       ).toThrow('Node B not found and createRefsIfNotExistent is false');
+    });
+    
+    it('should throw an error when edge IDs array length doesn\'t match toIds array length', () => {
+      const collector = new DAGScoreCollector();
+      
+      // Add nodes
+      collector.addNode({ id: 'A', scores: [10] });
+      collector.addNode({ id: 'B', scores: [20] });
+      collector.addNode({ id: 'C', scores: [30] });
+      
+      // Try to add edges with mismatched arrays
+      expect(() => 
+        collector.addEdges('A', ['B', 'C'], 'to_child', ['AB'])
+      ).toThrow('Number of target nodes (2) does not match number of edge IDs (1)');
     });
   });
 
@@ -325,8 +401,8 @@ describe('DAGScoreCollector', () => {
       collector.addNode({ id: 'B', scores: [50, 60, 70] });
       collector.addNode({ id: 'C', scores: [90] });
       
-      collector.addEdges('A', ['B'], 'to_child');
-      collector.addEdges('B', ['C'], 'to_child');
+      collector.addEdge({ fromId: 'A', toId: 'B', direction: 'to_child', id: 'AB' });
+      collector.addEdge({ fromId: 'B', toId: 'C', direction: 'to_child', id: 'BC' });
       
       const nodeScores = collector.calculateNodeScores();
       
@@ -340,7 +416,7 @@ describe('DAGScoreCollector', () => {
       collector.addNode({ id: 'A' });
       collector.addNode({ id: 'B', scores: [100] });
       
-      collector.addEdges('A', ['B'], 'to_child');
+      collector.addEdge({ fromId: 'A', toId: 'B', direction: 'to_child', id: 'AB' });
       
       const nodeScores = collector.calculateNodeScores();
       
@@ -353,8 +429,8 @@ describe('DAGScoreCollector', () => {
       collector.addNode({ id: 'B', scores: [50] });
       collector.addNode({ id: 'C', scores: [75] });
       
-      collector.addEdges('A', ['B'], 'to_child');
-      collector.addEdges('B', ['C'], 'to_child');
+      collector.addEdge({ fromId: 'A', toId: 'B', direction: 'to_child', id: 'AB' });
+      collector.addEdge({ fromId: 'B', toId: 'C', direction: 'to_child', id: 'BC' });
       
       const nodeScores = collector.calculateNodeScores();
       
@@ -375,9 +451,10 @@ describe('DAGScoreCollector', () => {
       collector.addNode({ id: 'C', scores: [70, 80] });
       collector.addNode({ id: 'D', scores: [90] });
       
-      collector.addEdges('A', ['B', 'C'], 'to_child');
-      collector.addEdges('B', ['D'], 'to_child');
-      collector.addEdges('C', ['D'], 'to_child');
+      collector.addEdge({ fromId: 'A', toId: 'B', direction: 'to_child', id: 'AB' });
+      collector.addEdge({ fromId: 'A', toId: 'C', direction: 'to_child', id: 'AC' });
+      collector.addEdge({ fromId: 'B', toId: 'D', direction: 'to_child', id: 'BD' });
+      collector.addEdge({ fromId: 'C', toId: 'D', direction: 'to_child', id: 'CD' });
       
       const nodeScores = collector.calculateNodeScores();
       
@@ -402,9 +479,11 @@ describe('DAGScoreCollector', () => {
       collector.addNode({ id: 'D', scores: [90, 100] });
       collector.addNode({ id: 'E', scores: [110, 120, 130] });
       
-      collector.addEdges('A', ['B', 'C'], 'to_child');
-      collector.addEdges('B', ['D'], 'to_child');
-      collector.addEdges('C', ['D', 'E'], 'to_child');
+      collector.addEdge({ fromId: 'A', toId: 'B', direction: 'to_child', id: 'AB' });
+      collector.addEdge({ fromId: 'A', toId: 'C', direction: 'to_child', id: 'AC' });
+      collector.addEdge({ fromId: 'B', toId: 'D', direction: 'to_child', id: 'BD' });
+      collector.addEdge({ fromId: 'C', toId: 'D', direction: 'to_child', id: 'CD' });
+      collector.addEdge({ fromId: 'C', toId: 'E', direction: 'to_child', id: 'CE' });
       
       const nodeScores = collector.calculateNodeScores();
       
@@ -426,7 +505,7 @@ describe('DAGScoreCollector', () => {
       expect(nodeScores.get('A')?.full_score).toEqual(expectedAvg);
     });
   });
-
+  
   // Performance tests for large DAGs
   describe('Large DAG Performance', () => {
     it('should process a large DAG (100_000 nodes) efficiently (under 2 seconds)', () => {
@@ -448,18 +527,33 @@ describe('DAGScoreCollector', () => {
         const childIndexB = i * 2 + 2;
         
         if (childIndexA < totalNodes) {
-          collector.addEdges(`node_${i}`, [`node_${childIndexA}`], 'to_child');
+          collector.addEdge({
+            fromId: `node_${i}`,
+            toId: `node_${childIndexA}`,
+            direction: 'to_child',
+            id: `edge_${i}_${childIndexA}`
+          });
         }
         
         if (childIndexB < totalNodes) {
-          collector.addEdges(`node_${i}`, [`node_${childIndexB}`], 'to_child');
+          collector.addEdge({
+            fromId: `node_${i}`,
+            toId: `node_${childIndexB}`,
+            direction: 'to_child',
+            id: `edge_${i}_${childIndexB}`
+          });
         }
       }
       
       // Add some cross-connections to make it a DAG and not just a tree
       // Connect every 100th node to node_0 to create more complex paths
       for (let i = 100; i < totalNodes; i += 100) {
-        collector.addEdges(`node_${i}`, [`node_0`], 'to_child');
+        collector.addEdge({
+          fromId: `node_${i}`,
+          toId: `node_0`,
+          direction: 'to_child',
+          id: `edge_${i}_0`
+        });
       }
       
       console.log('Starting performance test...');
@@ -498,6 +592,11 @@ describe('DAGScoreCollector', () => {
       const node150Scores = nodeScores.get('node_150')?.all_scores || [];
       expect(node150Scores).toContain(301 % 100); // Score from node_301
       expect(node150Scores).toContain(302 % 100); // Score from node_302
+      
+      // Check descendants list is correct
+      const node5Descendants = nodeScores.get('node_5')?.descendants || [];
+      expect(node5Descendants).toContain('node_11');
+      expect(node5Descendants).toContain('node_12');
     });
     
     it('should handle a wide DAG with many direct children', () => {
@@ -508,14 +607,16 @@ describe('DAGScoreCollector', () => {
       
       // Create 2000 child nodes
       const children = [];
+      const edgeIds = [];
       for (let i = 0; i < 2000; i++) {
         const childId = `child_${i}`;
         collector.addNode({ id: childId, scores: [i % 100] });
         children.push(childId);
+        edgeIds.push(`edge_root_${i}`);
       }
       
       // Connect root to all children
-      collector.addEdges('root', children, 'to_child');
+      collector.addEdges('root', children, 'to_child', edgeIds);
       
       const startTime = performance.now();
       
@@ -538,6 +639,13 @@ describe('DAGScoreCollector', () => {
       expect(rootScores).toContain(42 % 100); // Score from child_42
       expect(rootScores).toContain(123 % 100); // Score from child_123
       expect(rootScores).toContain(999 % 100); // Score from child_999
+      
+      // Check descendants list is correct
+      const rootDescendants = nodeScores.get('root')?.descendants || [];
+      expect(rootDescendants).toContain('child_42');
+      expect(rootDescendants).toContain('child_123');
+      expect(rootDescendants).toContain('child_999');
+      expect(rootDescendants.length).toBe(2001); // root + all children
       
       // Test a few random children to make sure they only have their own scores
       expect(nodeScores.get('child_42')?.all_scores.length).toBe(1);

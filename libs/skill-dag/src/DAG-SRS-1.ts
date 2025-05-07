@@ -25,6 +25,15 @@ const DEFAULT_NODE_CONFIG: DAGSRSNodeConfig = {
 // Edge direction type
 export type EdgeDirection = 'to_child' | 'to_parent';
 
+// Edge parameters for adding a single edge
+export interface DAGSRSEdgeParams {
+  fromId: string;
+  toId: string;
+  direction: EdgeDirection;
+  id: string;
+  config?: DAGSRSEdgeConfig;
+}
+
 // Configuration for edge addition
 export interface DAGSRSEdgeConfig {
   createRefsIfNotExistent?: boolean;
@@ -41,13 +50,16 @@ interface NodeResult {
   all_scores: number[];
   direct_score: number;
   full_score: number;
+  descendants: string[]; // List of all descendants (including self)
 }
 
 export class DAGScoreCollector {
   private nodes: Map<string, DAGSRSNodeInternal>;
+  private edgeIds: Map<string, string>; // Map of "fromId->toId" to edge ID
 
   constructor() {
     this.nodes = new Map();
+    this.edgeIds = new Map();
   }
 
   // Add a node to the DAG (no relationships)
@@ -76,7 +88,8 @@ export class DAGScoreCollector {
   }
   
   // Add an edge between two nodes
-  addEdge(fromId: string, toId: string, direction: EdgeDirection, config: DAGSRSEdgeConfig = DEFAULT_EDGE_CONFIG): void {
+  addEdge(params: DAGSRSEdgeParams): void {
+    const { fromId, toId, direction, id, config = DEFAULT_EDGE_CONFIG } = params;
     const { createRefsIfNotExistent } = { ...DEFAULT_EDGE_CONFIG, ...config };
     
     // Create nodes if they don't exist and createRefsIfNotExistent is true
@@ -105,18 +118,39 @@ export class DAGScoreCollector {
       // fromNode has toNode as a child
       fromNode.children.add(toId);
       toNode.parents.add(fromId);
+      
+      // Store the edge ID
+      this.edgeIds.set(`${fromId}->${toId}`, id);
     } else {
       // fromNode has toNode as a parent
       fromNode.parents.add(toId);
       toNode.children.add(fromId);
+      
+      // Store the edge ID
+      this.edgeIds.set(`${toId}->${fromId}`, id);
     }
   }
   
   // Add multiple edges from one source node
-  addEdges(fromId: string, toIds: string[], direction: EdgeDirection, config: DAGSRSEdgeConfig = DEFAULT_EDGE_CONFIG): void {
-    for (const toId of toIds) {
-      this.addEdge(fromId, toId, direction, config);
+  addEdges(fromId: string, toIds: string[], direction: EdgeDirection, edgeIds: string[], config: DAGSRSEdgeConfig = DEFAULT_EDGE_CONFIG): void {
+    if (toIds.length !== edgeIds.length) {
+      throw new Error(`Number of target nodes (${toIds.length}) does not match number of edge IDs (${edgeIds.length})`);
     }
+    
+    for (let i = 0; i < toIds.length; i++) {
+      this.addEdge({
+        fromId,
+        toId: toIds[i],
+        direction,
+        id: edgeIds[i],
+        config
+      });
+    }
+  }
+  
+  // Get an edge ID by its from and to node IDs
+  getEdgeId(fromId: string, toId: string): string | undefined {
+    return this.edgeIds.get(`${fromId}->${toId}`);
   }
 
   private findLeaves(): string[] {
@@ -217,18 +251,21 @@ export class DAGScoreCollector {
   // Calculate both direct_score and full_score
   calculateNodeScores(): Map<string, NodeResult> {
     const allScores = this.collectAllScores();
+    const allDescendants = this.collectAllDescendants();
     const nodeResults = new Map<string, NodeResult>();
     
     for (const [nodeId, scores] of Array.from(allScores.entries())) {
       const node = this.nodes.get(nodeId)!;
       const directScore = this.calculateAverage(node.scores);
       const fullScore = this.calculateAverage(scores);
+      const descendants = Array.from(allDescendants.get(nodeId) || new Set<string>());
       
       nodeResults.set(nodeId, {
         id: nodeId,
         all_scores: scores,
         direct_score: directScore,
-        full_score: fullScore
+        full_score: fullScore,
+        descendants
       });
     }
     
