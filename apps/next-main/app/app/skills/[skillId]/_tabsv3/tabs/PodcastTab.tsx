@@ -21,7 +21,6 @@ import {ToolTabRendererProps} from "../ToolTabsInterface";
 
 export const PodcastTabRenderer = ({
   skillId,
-  skillTree,
   loading,
   error
 }: ToolTabRendererProps) => {

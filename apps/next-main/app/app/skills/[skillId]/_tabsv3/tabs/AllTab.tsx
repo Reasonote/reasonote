@@ -20,7 +20,6 @@ import {getAllRegisteredTabs} from "./_TabsRegistry";
 
 export const AllTabRenderer = ({ 
   skillId, 
-  skillTree,
   loading,
   error 
 }: ToolTabRendererProps) => {

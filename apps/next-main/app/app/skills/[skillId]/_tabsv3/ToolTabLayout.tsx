@@ -5,7 +5,7 @@ import {
   useState,
 } from "react";
 
-import {useSkillSimpleTree} from "@/clientOnly/hooks/useSkillSimpleTree";
+import {useSkillScores} from "@/clientOnly/hooks/useSkillScores";
 import {
   Box,
   Grid,
@@ -26,9 +26,7 @@ export const ToolTabLayout = ({
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [selectedSkillId, setSelectedSkillId] = useState<string>(skillId);
-  const { data: skillTree, loading, error, refetch } = useSkillSimpleTree({ 
-    topicOrId: skillId 
-  });
+  const {loading, error} = useSkillScores({topicOrId: skillId});
 
   // When skillId changes (top-level skill changes), update the selected skill
   useEffect(() => {
@@ -43,12 +41,10 @@ export const ToolTabLayout = ({
   // Create the props to pass to children
   const childrenProps: ToolTabRendererProps = {
     skillId: selectedSkillId,
-    skillTree,
     loading,
     error: error instanceof Error ? error : error ? new Error(String(error)) : null
   };
 
-  console.log('skillTree', skillTree);
 
   return (
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>

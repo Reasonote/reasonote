@@ -73,7 +73,7 @@ const allTab = registerToolTab({
   label: 'All',
   icon: HomeIcon,
   color: '#673ab7', // Deep purple
-  renderer: ({ skillId, skillTree, loading, error }) => (
+  renderer: ({ skillId, loading, error }) => (
     <AllTab skillId={skillId} />
   ),
   hideOnAllToolsPage: true,
@@ -95,7 +95,7 @@ const lessonsTab = registerToolTab({
   label: 'Lessons',
   icon: MenuBookIcon,
   color: '#4CAF50', // Green
-  renderer: ({ skillId, skillTree, loading, error }) => (
+  renderer: ({ skillId, loading, error }) => (
     <LessonsTab skillId={skillId} />
   ),
 });
@@ -107,7 +107,7 @@ const sourcesTab = registerToolTab({
   label: 'Resources',
   icon: SourceIcon,
   color: '#795548', // Brown
-  renderer: ({ skillId, skillTree, loading, error }) => (
+  renderer: ({ skillId,  loading, error }) => (
     <SourcesTab skillId={skillId} />
   ),
   hideFromTabsBar: true, // Mark this tab to be hidden from the tabs bar
@@ -118,7 +118,7 @@ const practiceTab = registerToolTab({
   label: 'Practice',
   icon: FitnessCenter,
   color: '#795548', // Brown
-  renderer: ({ skillId, skillTree, loading, error }) => (
+  renderer: ({ skillId,  loading, error }) => (
     <PracticeTab skillId={skillId} />
   ),
 });
@@ -128,7 +128,7 @@ const podcastTab = registerToolTab({
   label: 'Podcast',
   icon: PodcastsIcon,
   color: '#9C27B0', // Purple
-  renderer: ({ skillId, skillTree, loading, error }) => (
+  renderer: ({ skillId,  loading, error }) => (
     <PodcastTab skillId={skillId} />
   ),
 });
@@ -139,7 +139,7 @@ const outlineTab = registerToolTab({
   label: 'Outline',
   icon: DescriptionIcon,
   color: '#2196F3', // Blue
-  renderer: ({ skillId, skillTree, loading, error }) => (
+  renderer: ({ skillId,  loading, error }) => (
     <OutlineTab skillId={skillId} />
   ),
 });
@@ -149,7 +149,7 @@ const treeTab = registerToolTab({
   label: 'Tree',
   icon: AccountTree,
   color: '#2196F3', // Blue
-  renderer: ({ skillId, skillTree, loading, error }) => (
+  renderer: ({ skillId, loading, error }) => (
     <TreeTab skillId={skillId} />
   ),
 });
@@ -218,5 +218,5 @@ export function ToolTabsRenderer({
   const allTabs = Array.from(tabRegistry.values());
   const selectedTab = allTabs.find(tab => tab.id === selectedTabId) || orderedTabs[0];
   
-  return selectedTab.renderer({ skillId, skillTree, loading: skillTreeLoading, error: skillTreeError as Error | null });
+  return selectedTab.renderer({ skillId, loading: skillTreeLoading, error: skillTreeError as Error | null });
 }
