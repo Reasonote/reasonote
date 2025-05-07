@@ -1,9 +1,9 @@
 import {z} from "zod";
 
 import {isTypedUuidV4} from "@lukebechtel/lab-ts-utils";
-import {DAGScoreCollector} from "@reasonote/dag-srs";
 import {createSimpleLogger} from "@reasonote/lib-utils";
 
+import {DAGScoreCollector} from "../../../../../libs/skill-dag/src";
 import {makeServerApiHandlerV3} from "../helpers/serverApiHandlerV3";
 import {SkillScoresRoute} from "./routeSchema";
 
@@ -270,8 +270,13 @@ export const {POST} = makeServerApiHandlerV3({
       // In the DAG, upstream skills are parents of downstream skills
       skillLinks.forEach(link => {
         // In our domain, upstream_skill is the prerequisite/parent of downstream_skill
-        collector.addEdge(link.upstream_skill, link.downstream_skill, 'to_child');
-        logger.log(`Added edge from ${link.upstream_skill} to ${link.downstream_skill}`);
+        collector.addEdge({
+          fromId: link.downstream_skill,
+          toId: link.upstream_skill,
+          direction: 'to_child',
+          id: link.id
+        });
+        logger.log(`Added edge from ${link.upstream_skill} to ${link.downstream_skill} with ID ${link.id}`);
       });
       
       //-------------------------------------------------------------
@@ -289,57 +294,89 @@ export const {POST} = makeServerApiHandlerV3({
       //-------------------------------------------------------------
       logger.log('PHASE 3: Converting DAG results to API response format');
       
-      // Create a graph representation for building paths (parent to child direction)
-      const parentToChildGraph = new Map<string, {to: string, linkId: string}[]>();
+      // Create a map of path to links for each skill
+      // We'll build the paths using the descendants information
+      const skillToPaths = new Map<string, { path_to: string[], path_to_links: string[] }>();
       
-      // Initialize graph with empty arrays for all skills
+      // For all skills, initialize with a direct path from the requested skill
       allSkills.forEach(skill => {
-        parentToChildGraph.set(skill.id, []);
+        if (skill.id === skillId) {
+          // For the requested skill itself, the path is just itself
+          skillToPaths.set(skill.id, { path_to: [skill.id], path_to_links: [] });
+        } else {
+          // For other skills, we'll compute paths later if they're descendants
+          skillToPaths.set(skill.id, { path_to: [], path_to_links: [] });
+        }
       });
       
-      // Add links to the graph
-      skillLinks.forEach(link => {
-        const parentId = link.upstream_skill;
-        const childId = link.downstream_skill;
+      // Check if the requested skill has a node result
+      const requestedSkillResult = nodeScores.get(skillId);
+      if (requestedSkillResult) {
+        // Get all descendants of the requested skill
+        const descendants = requestedSkillResult.descendants;
         
-        // Add the parent-to-child connection
-        const connections = parentToChildGraph.get(parentId) || [];
-        connections.push({ to: childId, linkId: link.id });
-        parentToChildGraph.set(parentId, connections);
-      });
-      
-      // Perform BFS to find paths from the input skill (as root) to all other skills
-      const paths = new Map<string, {skillPath: string[], linkPath: string[]}>();
-      
-      // Initialize with the input skill as the root
-      paths.set(skillId, {skillPath: [skillId], linkPath: []});
-      
-      // Queue for BFS
-      const queue: string[] = [skillId];
-      const visited = new Set<string>([skillId]);
-      
-      while (queue.length > 0) {
-        const currentSkillId = queue.shift()!;
-        const currentPath = paths.get(currentSkillId)!;
-        
-        // Process all child links from this skill
-        const links = parentToChildGraph.get(currentSkillId) || [];
-        for (const link of links) {
-          if (!visited.has(link.to)) {
-            visited.add(link.to);
+        // For each descendant, try to build a path from the requested skill
+        for (const descendantId of descendants) {
+          if (descendantId === skillId) continue; // Skip the skill itself
+          
+          // Build a path by searching for edges between nodes
+          const path = [skillId];
+          const links: string[] = [];
+          
+          // Simple BFS to find a path
+          const visited = new Set<string>([skillId]);
+          const queue: string[] = [skillId];
+          const parent = new Map<string, string>(); // child -> parent mapping
+          
+          let found = false;
+          
+          while (queue.length > 0 && !found) {
+            const current = queue.shift()!;
             
-            // Create new path by extending the current path
-            const newSkillPath = [...currentPath.skillPath, link.to];
-            const newLinkPath = [...currentPath.linkPath, link.linkId];
+            // Get all children of current node
+            const nodeResult = nodeScores.get(current);
+            if (!nodeResult) continue;
             
-            // Store the path
-            paths.set(link.to, {
-              skillPath: newSkillPath,
-              linkPath: newLinkPath
-            });
+            for (const childId of nodeResult.descendants) {
+              // Skip itself and already visited nodes
+              if (childId === current || visited.has(childId)) continue;
+              
+              // Check if this is a direct child (has an edge from current to child)
+              const edgeId = collector.getEdgeId(current, childId);
+              if (!edgeId) continue; // No direct edge
+              
+              visited.add(childId);
+              parent.set(childId, current);
+              queue.push(childId);
+              
+              // If we found the descendant, build the path
+              if (childId === descendantId) {
+                found = true;
+                break;
+              }
+            }
+          }
+          
+          // If we found a path, reconstruct it
+          if (found) {
+            let current = descendantId;
+            const reversePath = [current];
             
-            // Add to queue for further exploration
-            queue.push(link.to);
+            while (current !== skillId) {
+              const parentId = parent.get(current);
+              if (!parentId) break;
+              
+              // Get the link ID between parent and current
+              const edgeId = collector.getEdgeId(parentId, current);
+              if (edgeId) {
+                links.unshift(edgeId);
+              }
+              
+              current = parentId;
+              reversePath.unshift(current);
+            }
+            
+            skillToPaths.set(descendantId, { path_to: reversePath, path_to_links: links });
           }
         }
       }
@@ -356,8 +393,8 @@ export const {POST} = makeServerApiHandlerV3({
           continue;
         }
         
-        // Get path info - default to simple path with just this skill if no path found
-        const path = paths.get(skill.id) || {skillPath: [skill.id], linkPath: []};
+        // Get path info
+        const { path_to, path_to_links } = skillToPaths.get(skill.id) || { path_to: [], path_to_links: [] };
         
         // Calculate statistics from all_scores
         const allScores = nodeResult.all_scores;
@@ -372,17 +409,13 @@ export const {POST} = makeServerApiHandlerV3({
         transformedData.push({
           skill_id: skill.id,
           skill_name: skill._name,
-          path_to: path.skillPath,
-          path_to_links: path.linkPath,
           min_normalized_score_upstream: min,
           max_normalized_score_upstream: max,
           average_normalized_score_upstream: average,
           stddev_normalized_score_upstream: stdDev,
           activity_result_count_upstream: activityResultCount,
           all_scores: allScores,
-          num_upstream_skills: path.skillPath.length - 1,
-          level_on_parent: 'INTRO',
-          level_path: Array(path.skillPath.length).fill('INTRO').slice(1)
+          num_upstream_skills: nodeResult.descendants.length - 1,
         });
       }
       

@@ -12,8 +12,6 @@ export const SkillScoresRoute = new ApiRoute({
     z.object({
       skill_id: z.string(),
       skill_name: z.string(),
-      path_to: z.array(z.string()),
-      path_to_links: z.array(z.string()),
       min_normalized_score_upstream: z.number(),
       max_normalized_score_upstream: z.number(),
       average_normalized_score_upstream: z.number(),
@@ -21,8 +19,6 @@ export const SkillScoresRoute = new ApiRoute({
       activity_result_count_upstream: z.number(),
       all_scores: z.array(z.number()),
       num_upstream_skills: z.number(),
-      level_on_parent: z.string(),
-      level_path: z.array(z.string()),
     })
   ),
 }); 
