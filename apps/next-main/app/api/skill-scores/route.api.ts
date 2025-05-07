@@ -409,6 +409,7 @@ export const {POST} = makeServerApiHandlerV3({
         transformedData.push({
           skill_id: skill.id,
           skill_name: skill._name,
+          path_to: collector.firstParentPath(skill.id),
           min_normalized_score_upstream: min,
           max_normalized_score_upstream: max,
           average_normalized_score_upstream: average,
@@ -416,6 +417,8 @@ export const {POST} = makeServerApiHandlerV3({
           activity_result_count_upstream: activityResultCount,
           all_scores: allScores,
           num_upstream_skills: nodeResult.descendants.length - 1,
+          // TODO: hack
+          level_on_parent: "INTRO",
         });
       }
       
