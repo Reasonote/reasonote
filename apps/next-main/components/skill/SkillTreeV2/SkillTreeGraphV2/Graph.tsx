@@ -29,6 +29,7 @@ import Dagre from "@dagrejs/dagre";
 import {notEmpty} from "@lukebechtel/lab-ts-utils";
 import {
   Add,
+  Palette,
   SwapHoriz,
   SwapVert,
 } from "@mui/icons-material";
@@ -269,6 +270,7 @@ export function SkillTreeGraphV2({
   const [key, setKey] = useState(0);
   const [showLayoutHint, setShowLayoutHint] = useState(true);
   const [hasInitialized, setHasInitialized] = useState(false);
+  const [enableScoreColoring, setEnableScoreColoring] = useState<boolean>(true);
   /**What nodes are we deepening? */
   const [nodesDeepening, setNodesDeepening] = useState<Set<string>>(new Set());
   const { sb } = useSupabase();
@@ -493,6 +495,7 @@ export function SkillTreeGraphV2({
             activityCount: 0,
             // TODO: get score
             score: undefined,
+            enableScoreColoring,
             selected: node.id === selectedNode,
             selectedNodeId: selectedNode,
             parentIds,
@@ -636,7 +639,7 @@ export function SkillTreeGraphV2({
       height: Math.max(300, dimensions.height)
     });
     return { nodes: layoutedNodes, edges: layoutedEdges };
-  }, [showActivityCount, showScore, collapsedNodes, selectedNode, router, onCreateLessonOverride, onPodcastOverride, refetch, centerOnNode, showAllRootChildren, rankDir]);
+  }, [showActivityCount, showScore, collapsedNodes, selectedNode, router, onCreateLessonOverride, onPodcastOverride, refetch, centerOnNode, showAllRootChildren, rankDir, enableScoreColoring, canEdit, nodesDeepening, onAddSubskillByName, onDelete, onDeepen]);
 
   useEffect(() => {
     if (skillTreeData) {
@@ -786,6 +789,28 @@ export function SkillTreeGraphV2({
                 }}
               >
                 <Add />
+              </IconButton>
+            </Tooltip>
+          </Zoom>
+
+          <Zoom in={true}>
+            <Tooltip title={enableScoreColoring ? "Disable score coloring" : "Enable score coloring"}>
+              <IconButton
+                onClick={() => {
+                  setEnableScoreColoring(prev => !prev);
+                  // Force re-render of nodes with new coloring applied
+                  setKey(k => k + 1);
+                }}
+                sx={{
+                  bgcolor: 'background.paper',
+                  '&:hover': {
+                    bgcolor: 'background.default',
+                  },
+                  mr: 1,
+                  color: enableScoreColoring ? theme.palette.primary.main : 'inherit',
+                }}
+              >
+                <Palette />
               </IconButton>
             </Tooltip>
           </Zoom>

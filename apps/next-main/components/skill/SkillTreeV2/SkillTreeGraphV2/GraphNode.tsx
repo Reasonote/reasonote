@@ -136,7 +136,10 @@ export const CustomNode = ({ data }: { data: SkillTreeV2GraphNodeDataSkill }) =>
 
   const normalizedScore = data.score ?? 0;
   const showScore = !isNaN(normalizedScore) && normalizedScore !== null;
-  const backgroundColor = showScore && data.activityCount && data.activityCount > 0 && data.score ? getColorForScore(data.score) : theme.palette.gray.dark;
+  
+  const backgroundColor = showScore && data.activityCount && data.activityCount > 0 && data.score && data.enableScoreColoring !== false
+    ? getColorForScore(data.score)
+    : theme.palette.gray.dark;
 
   const totalChildCount = data.totalChildCount || 0;
 
