@@ -4,7 +4,6 @@ export type TreeFromSkillsWithScores = {
     skill_id: string;
     skill_name: string;
     path_to: string[];
-    path_to_links: string[];
     min_normalized_score_upstream: number;
     max_normalized_score_upstream: number;
     average_normalized_score_upstream: number;
