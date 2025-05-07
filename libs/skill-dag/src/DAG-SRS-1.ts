@@ -153,10 +153,20 @@ export class DAGScoreCollector {
     return this.edgeIds.get(`${fromId}->${toId}`);
   }
 
-  private findLeaves(): string[] {
-    return Array.from(this.nodes.values())
-      .filter(node => node.children.size === 0)
-      .map(node => node.id);
+  // Calculate the first path to a top-level parent, by recursively getting the first parent 
+  firstParentPath(fromId: string): string[] {
+    const node = this.nodes.get(fromId);
+    if (!node) {
+      throw new Error(`Node ${fromId} not found`);
+    }
+
+    const firstParent = node.parents.values()?.next()?.value;
+
+    if (!firstParent) {
+      return [fromId];
+    }
+
+    return [...this.firstParentPath(firstParent), fromId];
   }
 
   private calculateAverage(scores: number[]): number {
