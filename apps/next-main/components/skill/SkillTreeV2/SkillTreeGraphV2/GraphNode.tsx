@@ -377,7 +377,7 @@ export const CustomNode = ({ data }: { data: SkillTreeV2GraphNodeDataSkill }) =>
                 size="small"
                 onClick={(e) => {
                   e.stopPropagation();
-                  console.log('toggle collapse', data.id, data.isCollapsed, data.onToggleCollapse)
+                  console.debug('toggle collapse', data.id, data.isCollapsed)
                   data.onToggleCollapse?.(data.id);
                 }}
                 sx={{
