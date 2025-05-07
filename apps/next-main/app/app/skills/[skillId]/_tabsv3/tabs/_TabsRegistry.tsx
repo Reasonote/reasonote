@@ -1,7 +1,10 @@
 'use client'
 
 import {useSkillSimpleTree} from "@/clientOnly/hooks/useSkillSimpleTree";
-import {FitnessCenter} from "@mui/icons-material";
+import {
+  AccountTree,
+  FitnessCenter,
+} from "@mui/icons-material";
 import DescriptionIcon from "@mui/icons-material/Description";
 import HomeIcon from "@mui/icons-material/Home";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
@@ -19,6 +22,7 @@ import {OutlineTab} from "./OutlineTab";
 import {PodcastTab} from "./PodcastTab";
 import {PracticeTab} from "./PracticeTab";
 import {SourcesTab} from "./SourcesTab";
+import {TreeTab} from "./TreeTab";
 
 // Registry for tabs
 const tabRegistry = new Map<string, ToolTabConfig>();
@@ -140,6 +144,16 @@ const outlineTab = registerToolTab({
   ),
 });
 
+const treeTab = registerToolTab({
+  id: 'tree',
+  label: 'Tree',
+  icon: AccountTree,
+  color: '#2196F3', // Blue
+  renderer: ({ skillId, skillTree, loading, error }) => (
+    <TreeTab skillId={skillId} />
+  ),
+});
+
 // Default tab ordering
 const DEFAULT_TAB_ORDER: string[] = [
   'all',     // All tab first
@@ -147,7 +161,8 @@ const DEFAULT_TAB_ORDER: string[] = [
   'lessons',
   'videos',
   'practice',
-  'podcast'
+  'podcast',
+  'tree'
 ];
 
 /**
