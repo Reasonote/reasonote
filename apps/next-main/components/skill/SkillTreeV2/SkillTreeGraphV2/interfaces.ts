@@ -37,6 +37,7 @@ export interface SkillTreeV2GraphNodeDataSkill {
     totalChildCount: number;
     editDisabled?: boolean;
     onDelete?: (skillId: string) => void;
+    enableScoreColoring?: boolean;
 }
 
 export type SkillTreeV2GraphNodeData = SkillTreeV2GraphNodeDataSkill | SkillTreeV2GraphNodeDataShowMore;

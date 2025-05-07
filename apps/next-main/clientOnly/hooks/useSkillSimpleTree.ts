@@ -17,6 +17,9 @@ interface UseSkillSimpleTreeProps {
     topicOrId: string;
 }
 
+
+// TODO: When we're seeking the full tree, we may want to get the full tree back from the
+// route, but we shouldn't be trying to do weird path-based things...
 export function useSkillSimpleTree({topicOrId}: UseSkillSimpleTreeProps) {
     const {sb} = useSupabase();
     const isId = isTypedUuidV4(topicOrId);

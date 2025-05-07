@@ -19,7 +19,7 @@ import {
 import {aib} from "@/clientOnly/ai/aib";
 import {oneShotAIClient} from "@/clientOnly/ai/oneShotAIClient";
 import {useRsnUser} from "@/clientOnly/hooks/useRsnUser";
-import {useUserSkillLevel} from "@/clientOnly/hooks/useUserSkillLevel";
+// import {useUserSkillLevel} from "@/clientOnly/hooks/useUserSkillLevel";
 import {useUserSkills} from "@/clientOnly/hooks/useUserSkills";
 import {
   gql,
@@ -189,9 +189,9 @@ export function SkillChip({ topicOrId, lessonId, onSimpleClick, rootSkillId, onA
     });
   }, [ac, token]);
 
-  const {
-    level
-  } = useUserSkillLevel({topicOrId});
+  // const {
+  //   level
+  // } = useUserSkillLevel({topicOrId});
 
   const skillData = useSkillFlatFragLoader(topicOrId);
   const skillDataLoading = skillData.loading;
@@ -408,7 +408,8 @@ export function SkillChip({ topicOrId, lessonId, onSimpleClick, rootSkillId, onA
         disableAddDelete={disableAddDelete}
         isAlreadyAdded={isAlreadyAdded}
         isLoading={loading}
-        level={disableLevelIndicator ? undefined : level}
+        // level={disableLevelIndicator ? undefined : level}
+        level={undefined}
         skillName={safeSkillName}
         skillId={skillData.data?.id}
         addSkillIconOverride={rest.addSkillIconOverride}

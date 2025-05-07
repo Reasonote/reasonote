@@ -6,7 +6,6 @@ import {
 } from "react";
 
 import {SvgIconProps} from "@mui/material";
-import {SimpleSkillTreeNode} from "@reasonote/lib-ai-common";
 
 // Define the interface for each tool tab
 export interface ToolTabConfig {
@@ -24,7 +23,6 @@ export interface ToolTabConfig {
 // Props that will be passed to each tab's renderer component
 export interface ToolTabRendererProps {
   skillId: string;
-  skillTree?: SimpleSkillTreeNode | null;
   loading?: boolean;
   error?: Error | null;
 }

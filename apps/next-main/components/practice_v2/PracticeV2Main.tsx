@@ -77,8 +77,6 @@ export function PracticeV2Main({ skillId, allowedActivityTypes, disableSkillChip
   });
 
 
-
-
   const generateTopics = useCallback(async ({
     numTopics,
     customPrompt = '',
