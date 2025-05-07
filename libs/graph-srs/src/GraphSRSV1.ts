@@ -1,5 +1,5 @@
 // Internal node representation
-interface DAGSRSNodeInternal {
+interface GraphSRSV1NodeInternal {
   id: string;
   scores: number[];
   children: Set<string>;
@@ -7,40 +7,40 @@ interface DAGSRSNodeInternal {
 }
 
 // Public interface for adding nodes
-export interface DAGSRSNode {
+export interface GraphSRSV1Node {
   id: string;
   scores?: number[];
 }
 
 // Configuration for node addition
-export interface DAGSRSNodeConfig {
+export interface GraphSRSV1NodeConfig {
   overwriteIfExists?: boolean;
 }
 
 // Default node configuration
-const DEFAULT_NODE_CONFIG: DAGSRSNodeConfig = {
+const DEFAULT_NODE_CONFIG: GraphSRSV1NodeConfig = {
   overwriteIfExists: true
 };
 
 // Edge direction type
-export type EdgeDirection = 'to_child' | 'to_parent';
+export type GraphSRSV1EdgeDirection = 'to_child' | 'to_parent';
 
 // Edge parameters for adding a single edge
-export interface DAGSRSEdgeParams {
+export interface GraphSRSV1EdgeParams {
   fromId: string;
   toId: string;
-  direction: EdgeDirection;
+  direction: GraphSRSV1EdgeDirection;
   id: string;
-  config?: DAGSRSEdgeConfig;
+  config?: GraphSRSV1EdgeConfig;
 }
 
 // Configuration for edge addition
-export interface DAGSRSEdgeConfig {
+export interface GraphSRSV1EdgeConfig {
   createRefsIfNotExistent?: boolean;
 }
 
 // Default edge configuration
-const DEFAULT_EDGE_CONFIG: DAGSRSEdgeConfig = {
+const DEFAULT_EDGE_CONFIG: GraphSRSV1EdgeConfig = {
   createRefsIfNotExistent: true
 };
 
@@ -53,8 +53,8 @@ interface NodeResult {
   descendants: string[]; // List of all descendants (including self)
 }
 
-export class DAGScoreCollector {
-  private nodes: Map<string, DAGSRSNodeInternal>;
+export class GraphSRSV1Runner {
+  private nodes: Map<string, GraphSRSV1NodeInternal>;
   private edgeIds: Map<string, string>; // Map of "fromId->toId" to edge ID
 
   constructor() {
@@ -63,7 +63,7 @@ export class DAGScoreCollector {
   }
 
   // Add a node to the DAG (no relationships)
-  addNode(node: DAGSRSNode, config: DAGSRSNodeConfig = DEFAULT_NODE_CONFIG): void {
+  addNode(node: GraphSRSV1Node, config: GraphSRSV1NodeConfig = DEFAULT_NODE_CONFIG): void {
     const { id, scores = [] } = node;
     const { overwriteIfExists } = { ...DEFAULT_NODE_CONFIG, ...config };
     
@@ -88,7 +88,7 @@ export class DAGScoreCollector {
   }
   
   // Add an edge between two nodes
-  addEdge(params: DAGSRSEdgeParams): void {
+  addEdge(params: GraphSRSV1EdgeParams): void {
     const { fromId, toId, direction, id, config = DEFAULT_EDGE_CONFIG } = params;
     const { createRefsIfNotExistent } = { ...DEFAULT_EDGE_CONFIG, ...config };
     
@@ -132,7 +132,7 @@ export class DAGScoreCollector {
   }
   
   // Add multiple edges from one source node
-  addEdges(fromId: string, toIds: string[], direction: EdgeDirection, edgeIds: string[], config: DAGSRSEdgeConfig = DEFAULT_EDGE_CONFIG): void {
+  addEdges(fromId: string, toIds: string[], direction: GraphSRSV1EdgeDirection, edgeIds: string[], config: GraphSRSV1EdgeConfig = DEFAULT_EDGE_CONFIG): void {
     if (toIds.length !== edgeIds.length) {
       throw new Error(`Number of target nodes (${toIds.length}) does not match number of edge IDs (${edgeIds.length})`);
     }

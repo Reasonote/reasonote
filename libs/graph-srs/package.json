@@ -1,5 +1,5 @@
 {
-  "name": "@reasonote/dag-srs",
+  "name": "@reasonote/graph-srs",
   "type": "module",
   "version": "0.0.0",
   "main": "./src/index.ts",

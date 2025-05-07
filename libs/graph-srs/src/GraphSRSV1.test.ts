@@ -4,12 +4,12 @@ import {
     it,
 } from "vitest";
 
-import { DAGScoreCollector } from "./DAG-SRS-1";
+import { GraphSRSV1Runner } from "./GraphSRSV1";
 
-describe('DAGScoreCollector', () => {
+describe('GraphSRSV1Runner', () => {
   // Tests for collectAllScores
   it('should correctly collect scores for a simple linear DAG', () => {
-    const collector = new DAGScoreCollector();
+    const collector = new GraphSRSV1Runner();
     collector.addNode({ id: 'A', scores: [100] });
     collector.addNode({ id: 'B', scores: [50] });
     collector.addNode({ id: 'C', scores: [75] });
@@ -25,7 +25,7 @@ describe('DAGScoreCollector', () => {
   });
 
   it('should correctly collect scores for a branching DAG', () => {
-    const collector = new DAGScoreCollector();
+    const collector = new GraphSRSV1Runner();
     // Using unique scores to track their origin:
     // A1: A's first test
     // B1, B2: B's two tests
@@ -57,7 +57,7 @@ describe('DAGScoreCollector', () => {
   });
 
   it('should handle circular references without infinite recursion', () => {
-    const collector = new DAGScoreCollector();
+    const collector = new GraphSRSV1Runner();
     
     // Create nodes
     collector.addNode({ id: 'A', scores: [10] });
@@ -93,7 +93,7 @@ describe('DAGScoreCollector', () => {
   });
 
   it('should handle multiple test scores for the same node', () => {
-    const collector = new DAGScoreCollector();
+    const collector = new GraphSRSV1Runner();
     // Using unique scores to track their origin:
     // A1, A2: A's two tests
     // B1, B2: B's two tests
@@ -115,7 +115,7 @@ describe('DAGScoreCollector', () => {
   });
 
   it('should handle a node with no scores', () => {
-    const collector = new DAGScoreCollector();
+    const collector = new GraphSRSV1Runner();
     collector.addNode({ id: 'A' });
     collector.addNode({ id: 'B', scores: [100] });
     
@@ -128,7 +128,7 @@ describe('DAGScoreCollector', () => {
   });
 
   it('should handle a node with no children', () => {
-    const collector = new DAGScoreCollector();
+    const collector = new GraphSRSV1Runner();
     collector.addNode({ id: 'A', scores: [100] });
 
     const allScores = collector.collectAllScores();
@@ -137,7 +137,7 @@ describe('DAGScoreCollector', () => {
   });
 
   it('should throw an error for non-existent nodes', () => {
-    const collector = new DAGScoreCollector();
+    const collector = new GraphSRSV1Runner();
     collector.addNode({ id: 'A', scores: [100] });
     
     // The error now happens immediately when adding the edge
@@ -153,7 +153,7 @@ describe('DAGScoreCollector', () => {
   });
 
   it('should properly propagate scores from children to parents', () => {
-    const collector = new DAGScoreCollector();
+    const collector = new GraphSRSV1Runner();
     
     // Add nodes
     collector.addNode({ id: 'A', scores: [10] });
@@ -178,7 +178,7 @@ describe('DAGScoreCollector', () => {
 
   // Test for descendants field
   it('should include descendants in node results', () => {
-    const collector = new DAGScoreCollector();
+    const collector = new GraphSRSV1Runner();
     collector.addNode({ id: 'A', scores: [100] });
     collector.addNode({ id: 'B', scores: [50] });
     collector.addNode({ id: 'C', scores: [75] });
@@ -205,7 +205,7 @@ describe('DAGScoreCollector', () => {
 
   // Test the getEdgeId method
   it('should store and retrieve edge IDs correctly', () => {
-    const collector = new DAGScoreCollector();
+    const collector = new GraphSRSV1Runner();
     
     collector.addEdge({ fromId: 'A', toId: 'B', direction: 'to_child', id: 'edge1' });
     collector.addEdge({ fromId: 'B', toId: 'C', direction: 'to_child', id: 'edge2' });
@@ -225,7 +225,7 @@ describe('DAGScoreCollector', () => {
   // Tests for new API
   describe('Node and Edge Management', () => {
     it('should preserve relationships when overwriting nodes', () => {
-      const collector = new DAGScoreCollector();
+      const collector = new GraphSRSV1Runner();
       
       // Add initial nodes and relationship
       collector.addNode({ id: 'A', scores: [10] });
@@ -242,7 +242,7 @@ describe('DAGScoreCollector', () => {
     });
     
     it('should support to_parent direction when adding edges', () => {
-      const collector = new DAGScoreCollector();
+      const collector = new GraphSRSV1Runner();
       
       collector.addNode({ id: 'A', scores: [10] });
       collector.addNode({ id: 'B', scores: [20] });
@@ -260,7 +260,7 @@ describe('DAGScoreCollector', () => {
     });
     
     it('should create nodes automatically when adding edges', () => {
-      const collector = new DAGScoreCollector();
+      const collector = new GraphSRSV1Runner();
       
       // Add edge between non-existent nodes
       collector.addEdge({ fromId: 'A', toId: 'B', direction: 'to_child', id: 'AB' });
@@ -276,7 +276,7 @@ describe('DAGScoreCollector', () => {
     });
     
     it('should throw an error when createRefsIfNotExistent is false', () => {
-      const collector = new DAGScoreCollector();
+      const collector = new GraphSRSV1Runner();
       
       // Should throw for non-existent fromId
       expect(() => 
@@ -293,7 +293,7 @@ describe('DAGScoreCollector', () => {
     });
     
     it('should support adding multiple edges with addEdges', () => {
-      const collector = new DAGScoreCollector();
+      const collector = new GraphSRSV1Runner();
       
       // Add nodes
       collector.addNode({ id: 'A', scores: [10] });
@@ -321,7 +321,7 @@ describe('DAGScoreCollector', () => {
     });
     
     it('should support adding multiple parents with addEdges', () => {
-      const collector = new DAGScoreCollector();
+      const collector = new GraphSRSV1Runner();
       
       // Add nodes
       collector.addNode({ id: 'A', scores: [10] });
@@ -349,7 +349,7 @@ describe('DAGScoreCollector', () => {
     });
     
     it('should handle autoCreation with addEdges', () => {
-      const collector = new DAGScoreCollector();
+      const collector = new GraphSRSV1Runner();
       
       // Only create source node
       collector.addNode({ id: 'A', scores: [10] });
@@ -369,7 +369,7 @@ describe('DAGScoreCollector', () => {
     });
 
     it('should throw an error when nodes are missing', () => {
-      const collector = new DAGScoreCollector();
+      const collector = new GraphSRSV1Runner();
       collector.addNode({ id: 'A', scores: [100] });
       
       // Now that our API immediately throws on missing nodes, this should throw
@@ -379,7 +379,7 @@ describe('DAGScoreCollector', () => {
     });
     
     it('should throw an error when edge IDs array length doesn\'t match toIds array length', () => {
-      const collector = new DAGScoreCollector();
+      const collector = new GraphSRSV1Runner();
       
       // Add nodes
       collector.addNode({ id: 'A', scores: [10] });
@@ -396,7 +396,7 @@ describe('DAGScoreCollector', () => {
   // Tests for average calculations (direct_score and full_score)
   describe('Average Calculations', () => {
     it('should correctly calculate direct_score for nodes', () => {
-      const collector = new DAGScoreCollector();
+      const collector = new GraphSRSV1Runner();
       collector.addNode({ id: 'A', scores: [100, 200] });
       collector.addNode({ id: 'B', scores: [50, 60, 70] });
       collector.addNode({ id: 'C', scores: [90] });
@@ -412,7 +412,7 @@ describe('DAGScoreCollector', () => {
     });
     
     it('should handle empty scores for direct_score', () => {
-      const collector = new DAGScoreCollector();
+      const collector = new GraphSRSV1Runner();
       collector.addNode({ id: 'A' });
       collector.addNode({ id: 'B', scores: [100] });
       
@@ -424,7 +424,7 @@ describe('DAGScoreCollector', () => {
     });
     
     it('should correctly calculate full_score for a simple linear DAG', () => {
-      const collector = new DAGScoreCollector();
+      const collector = new GraphSRSV1Runner();
       collector.addNode({ id: 'A', scores: [100] });
       collector.addNode({ id: 'B', scores: [50] });
       collector.addNode({ id: 'C', scores: [75] });
@@ -445,7 +445,7 @@ describe('DAGScoreCollector', () => {
     });
     
     it('should correctly calculate full_score for a branching DAG', () => {
-      const collector = new DAGScoreCollector();
+      const collector = new GraphSRSV1Runner();
       collector.addNode({ id: 'A', scores: [100] });
       collector.addNode({ id: 'B', scores: [50, 60] });
       collector.addNode({ id: 'C', scores: [70, 80] });
@@ -472,7 +472,7 @@ describe('DAGScoreCollector', () => {
     });
     
     it('should handle complex score distributions', () => {
-      const collector = new DAGScoreCollector();
+      const collector = new GraphSRSV1Runner();
       collector.addNode({ id: 'A', scores: [10, 20, 30] });
       collector.addNode({ id: 'B', scores: [40, 50] });
       collector.addNode({ id: 'C', scores: [60, 70, 80] });
@@ -509,7 +509,7 @@ describe('DAGScoreCollector', () => {
   // Performance tests for large DAGs
   describe('Large DAG Performance', () => {
     it('should process a large DAG (100_000 nodes) efficiently (under 2 seconds)', () => {
-      const collector = new DAGScoreCollector();
+      const collector = new GraphSRSV1Runner();
       
       // Create a large DAG with 100_000 nodes (a tree with 10 levels, branching factor of 2)
       const totalNodes = 100_000;
@@ -600,7 +600,7 @@ describe('DAGScoreCollector', () => {
     });
     
     it('should handle a wide DAG with many direct children', () => {
-      const collector = new DAGScoreCollector();
+      const collector = new GraphSRSV1Runner();
       
       // Create one root node with 2000 direct children
       collector.addNode({ id: 'root', scores: [100] });

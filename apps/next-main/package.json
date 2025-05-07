@@ -57,7 +57,7 @@
     "@reasonote/lib-ai": "*",
     "@reasonote/lib-sdk-apollo-client-react": "*",
     "@reasonote/transformers-js-react-helpers": "1.0.4",
-    "@reasonote/dag-srs": "*",
+    "@reasonote/graph-srs": "*",
     "@reasonote/utils-notion": "*",
     "@sendgrid/mail": "8.1.3",
     "@stripe/react-stripe-js": "3.1.1",

@@ -1,9 +1,9 @@
 import {z} from "zod";
 
 import {isTypedUuidV4} from "@lukebechtel/lab-ts-utils";
+import {GraphSRSV1Runner} from "@reasonote/graph-srs";
 import {createSimpleLogger} from "@reasonote/lib-utils";
 
-import {DAGScoreCollector} from "../../../../../libs/skill-dag/src";
 import {makeServerApiHandlerV3} from "../helpers/serverApiHandlerV3";
 import {SkillScoresRoute} from "./routeSchema";
 
@@ -209,7 +209,7 @@ export const {POST} = makeServerApiHandlerV3({
       //-------------------------------------------------------------
       logger.log('PHASE 1: Converting skills data to DAG format');
       
-      const collector = new DAGScoreCollector();
+      const collector = new GraphSRSV1Runner();
       
       // Map to track activity result IDs used for each skill
       const skillToResultIds = new Map<string, Set<string>>();
