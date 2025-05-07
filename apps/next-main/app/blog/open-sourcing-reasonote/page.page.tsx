@@ -277,9 +277,6 @@ export default function OpenSourcingReasonotePage() {
               We believe systematic improvements to education will improve the world. As such, education is far too important to be locked behind proprietary walls. We've seen the bad that came from "enshittification", and we've seen the good that came from Wikipedia and other open-source tools. We want to build a robust future for AI-powered learning.
               <br/> 
               <br/>
-              We believe education should foster both mastery of existing knowledge and the curiosity to question it - creating learners who can stand at the frontier of knowledge and then push it forward through first-principles thinking.
-              <br/>
-              <br/>
               Finally, we believe that making the product community-driven can give us a much broader perspective, to ensure the product is useful in a wide array of domains and circumstances. This will help us discover use cases we haven't yet considered.
               <br/>
               <br/>
