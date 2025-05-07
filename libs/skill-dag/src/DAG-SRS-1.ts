@@ -153,6 +153,14 @@ export class DAGScoreCollector {
     return this.edgeIds.get(`${fromId}->${toId}`);
   }
 
+  getNumRoots(): number {
+    return Array.from(this.nodes.values()).filter(node => node.parents.size === 0).length;
+  }
+
+  getRootIds(): string[] {
+    return Array.from(this.nodes.values()).filter(node => node.parents.size === 0).map(node => node.id);
+  }
+
   // Calculate the first path to a top-level parent, by recursively getting the first parent 
   firstParentPath(fromId: string): string[] {
     const node = this.nodes.get(fromId);
