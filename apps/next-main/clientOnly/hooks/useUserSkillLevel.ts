@@ -125,3 +125,5 @@
 //     error: error
 //   }
 // }
+
+export default 1;
