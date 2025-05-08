@@ -22,12 +22,18 @@ export const AddToSkillTreeRouteHandler: RouteHandler<typeof SkillsAddToSkillTre
         }, { status: 404 });
     }
 
+
+    // Fetch the skill that we're adding.
     const parentSkills = parsedReq.skill.parentSkillIds ? (await supabase.from('skill').select('id, _name').in('id', parsedReq.skill.parentSkillIds).then(({ data }) => data))?.filter(notEmpty) : undefined;
     const parentSkillsOrderd = _.sortBy(parentSkills, (skill) => {
         return parsedReq.skill.parentSkillIds?.indexOf(skill.id);
     })
 
-    const root_skill_id = parentSkills?.[0]?.id;
+
+    // Get the initial skill.
+    const initialSkill = (await supabase.from('skill').select('*').eq('id', parsedReq.skill.id).single()).data;
+
+    const root_skill_id = parentSkills?.[0]?.id ?? initialSkill?.root_skill_id;
 
     // Check if skill is part of a course that the user has access to
     const { data: courseData } = await supabase
@@ -45,19 +51,32 @@ export const AddToSkillTreeRouteHandler: RouteHandler<typeof SkillsAddToSkillTre
     }
 
     // If the input does not have an id, we need to create it.
-    const skillId = parsedReq.skill.id ?? (await supabase.from('skill').insert({
-        _name: parsedReq.skill.name ?? '',
-        root_skill_id: root_skill_id,
-    }).select('id, _name, _description').single()).data?.id;
+    let skillId: string | undefined;
+    if (!parsedReq.skill.id) {
+        logger.log('Skill does not have an id, creating it...');
+        skillId = (await supabase.from('skill').insert({
+            _name: parsedReq.skill.name ?? '',
+            root_skill_id: root_skill_id,
+        }).select('id, _name, _description').single()).data?.id;
+    }
+    else {
+        skillId = parsedReq.skill.id;
+    }
 
     if (!skillId) {
-        throw new Error(`Failed to create skill ${parsedReq.skill.name}!`)
+        throw new Error(`Failed to get or create skill ${parsedReq.skill.name}!`)
     }
 
     const { data: treeData, error: treeError } = await supabase.rpc('get_linked_skills_with_scores', {
         input_skill_id: skillId,
         user_id: rsnUserId,
     })
+
+    // Debug check -- look for any skills that are duplicates
+    const duplicateSkills = treeData?.filter((sk) => treeData?.find((tsk) => tsk.skill_name.toLowerCase().trim() === sk.skill_name.toLowerCase().trim() && tsk.skill_id !== sk.skill_id));
+    if (duplicateSkills?.length) {
+        logger.warn(`Duplicate skills found in tree: ${JSON.stringify(duplicateSkills.map((sk) => sk.skill_name), null, 2)}`);
+    }
 
     if (!treeData) {
         return NextResponse.json({
@@ -66,10 +85,21 @@ export const AddToSkillTreeRouteHandler: RouteHandler<typeof SkillsAddToSkillTre
     }
 
     const skillsToAddWithIds = parsedReq.skillsToAdd?.filter((sk) => sk.id) ?? [];
-    const skillsToAddWithoutIds = parsedReq.skillsToAdd?.filter((sk) => !sk.id) ?? [];
+
+    console.log('skillsToAddWithoutIds Pre Filter: ', parsedReq.skillsToAdd?.filter((sk) => !sk.id));
+    const skillsToAddWithoutIds = parsedReq.skillsToAdd
+        ?.filter((sk) => !sk.id)
+        ?.filter((sk) => !treeData.find((tsk) => tsk.skill_name.toLowerCase().trim() === sk.name?.toLowerCase().trim()))
+         ?? 
+        [];
+    console.log('skillsToAddWithoutIds Post Filter: ', skillsToAddWithoutIds);
+
+    console.log(`skillsToAddWithIds: ${JSON.stringify(skillsToAddWithIds, null, 2)}`);
+    console.log(`skillsToAddWithoutIds: ${JSON.stringify(skillsToAddWithoutIds, null, 2)}`);
 
     const skillsToAddWithIdsFetched = (await supabase.from('skill').select('id, _name, _description').in('id', skillsToAddWithIds.map((sk) => sk.id)))?.data
         ?? [];
+
 
     const skillsToAddWithoutIdsCreated = (
         await supabase.from('skill').insert(
@@ -89,6 +119,8 @@ export const AddToSkillTreeRouteHandler: RouteHandler<typeof SkillsAddToSkillTre
         ...skillsToAddWithIdsFetched,
         ...skillsToAddWithoutIdsCreated,
     ]
+
+    logger.debug(`allSkillsToAdd: ${JSON.stringify(allSkillsToAdd, null, 2)}`);
 
     // Filter the skills by those that aren't already in the tree.
     // TODO: this is done by name...
@@ -112,7 +144,9 @@ export const AddToSkillTreeRouteHandler: RouteHandler<typeof SkillsAddToSkillTre
     const parentContextString = parentSkillsOrderd ? `In the context of: ${parentSkillsOrderd.map((skl) => skl._name).join(',')}` : '';
 
     if (allSkillsToAdd.length < 1) {
+        console.log('No skills to add, skipping...');
         return {
+            
             skillsAdded: []
         }
     }
@@ -233,12 +267,23 @@ export const AddToSkillTreeRouteHandler: RouteHandler<typeof SkillsAddToSkillTre
         ],
     })
 
+    // TODO: replace this back...
     const outSkills = aiResult.object?.skills;
 
-    // logger.debug(`AI Result: ${JSON.stringify(aiResult, null, 2)}`);
+    logger.debug(`outSkills: ${JSON.stringify(outSkills, null, 2)}`);
+
+    // Refetch the tree data to get the new skills.
+    const { data: treeDataWithNewSkills } = await supabase.rpc('get_linked_skills_with_scores', {
+        input_skill_id: skillId,
+        user_id: rsnUserId,
+    })
+
+    if (!treeDataWithNewSkills) {
+        throw new Error(`Error fetching new skills from AI! (aiResult: ${JSON.stringify(aiResult, null, 2)})`)
+    }
 
     const getSkillFromCaches = (name: string) => {
-        const skillFromTreeData = treeData.find((skill) => skill.skill_name.toLowerCase().trim() === name.toLowerCase().trim());
+        const skillFromTreeData = treeDataWithNewSkills?.find((skill) => skill.skill_name.toLowerCase().trim() === name.toLowerCase().trim());
         if (skillFromTreeData) {
             return {
                 id: skillFromTreeData.skill_id,
@@ -254,6 +299,8 @@ export const AddToSkillTreeRouteHandler: RouteHandler<typeof SkillsAddToSkillTre
     if (!outSkills) {
         throw new Error(`Error fetching new skills from AI! (aiResult: ${JSON.stringify(aiResult, null, 2)})`)
     }
+
+
 
     // For each skill in outSkills:
     // 1. Find its parent skill by name in the original list, using a lowercase / trim string matching
@@ -273,7 +320,7 @@ export const AddToSkillTreeRouteHandler: RouteHandler<typeof SkillsAddToSkillTre
 
         var thisSkill = getSkillFromCaches(sk.skillName);
         if (!thisSkill) {
-            console.warn("We didnt' find a suggested skill. creating one...")
+            console.warn(`We didn't find the skill "${sk.skillName}" suggested by the AI in the tree, creating it...`)
             const newSkill = (await supabase.from('skill').insert({
                 _name: sk.skillName,
                 _description: '',
@@ -282,6 +329,9 @@ export const AddToSkillTreeRouteHandler: RouteHandler<typeof SkillsAddToSkillTre
             if (newSkill) {
                 thisSkill = newSkill;
             }
+        }
+        else {
+            console.log(`Skill "${sk.skillName}" already exists (id: ${thisSkill.id}), using that one...`);
         }
 
         if (!thisSkill) {
@@ -305,6 +355,7 @@ export const AddToSkillTreeRouteHandler: RouteHandler<typeof SkillsAddToSkillTre
             name: sk.skillName,
             id: thisSkill.id,
             link: linkCreatedResult.data?.id,
+            parentSkillId: parentSkill.id,
         };
     }))
 
