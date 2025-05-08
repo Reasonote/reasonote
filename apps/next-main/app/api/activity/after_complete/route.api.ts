@@ -95,7 +95,7 @@ export const POST = makeServerApiHandlerV2({
             activityConfig: parsedReq.activityResult.activityConfig
         })
 
-        logger.debug({ skillsForActivity })
+        logger.debug(`Skills Created for activity ${parsedReq.activityId}, under root skill ${rootSkillId}: ${JSON.stringify(skillsForActivity, null, 2)}`)
 
         // Check if the root skill is part of a course
         const { data: courseData } = await supabase
@@ -105,7 +105,7 @@ export const POST = makeServerApiHandlerV2({
 
         // If the root skill is not part of a course, add it to the tree.
         if (!courseData || courseData.length === 0) {
-            console.log('Skill is not part of a course, adding subskills to tree');
+            console.log('Skill is NOT part of a course, adding subskills to tree');
             ////////////////////////////////////////////////////
             // Create Missing Skills
             const missingSkills = skillsForActivity.filter(skill => {
