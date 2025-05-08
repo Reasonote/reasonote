@@ -24,6 +24,7 @@ import {
 import {
   useSkillEditPermissions,
 } from "@/clientOnly/hooks/useSkillEditPermissions";
+import {useSkillScores} from "@/clientOnly/hooks/useSkillScores";
 import {useSupabase} from "@/components/supabase/SupabaseProvider";
 import Dagre from "@dagrejs/dagre";
 import {notEmpty} from "@lukebechtel/lab-ts-utils";
@@ -279,6 +280,8 @@ export function SkillTreeGraphV2({
   const prevNodeCount = useRef(0);
   const [canEdit, setCanEdit] = useState(true);
 
+  const {data: scores} = useSkillScores({topicOrId: rootSkillId})
+
   // Add this near the other refs
   const seenNodeIds = useRef<Set<string>>(new Set());
 
@@ -492,9 +495,9 @@ export function SkillTreeGraphV2({
             canEdit,
             isHidden: false,
             // TODO: get activity count
-            activityCount: 0,
+            activityCount: scores?.find(s => s.skill_id === node.id)?.activity_result_count_upstream ?? 0,
             // TODO: get score
-            score: undefined,
+            score: scores?.find(s => s.skill_id === node.id)?.average_normalized_score_upstream,
             enableScoreColoring,
             selected: node.id === selectedNode,
             selectedNodeId: selectedNode,
@@ -647,7 +650,7 @@ export function SkillTreeGraphV2({
       setNodes(newNodes);
       setEdges(newEdges);
     }
-  }, [skillTreeData, convertToGraphData]);
+  }, [skillTreeData, convertToGraphData, scores]);
 
   useEffect(() => {
     nodesRef.current = nodes;
