@@ -87,6 +87,7 @@ interface PracticeSessionProps {
     allowedActivityTypes: string[];
     setAllowedActivityTypes: (allowedActivityTypes: string[]) => void;
     onSubtopicsInRotationChange: (subTopics: SubTopic[]) => void;
+    onGenerateTopics?: () => void;
 }
 
 interface TopicProgress {
@@ -148,7 +149,7 @@ interface ActivityFromStream {
     type_config: any;
 }
 
-export function PracticeSessionV2({ skillId, allSubTopics, subTopics, onBack, allowedActivityTypes, setAllowedActivityTypes, onSubtopicsInRotationChange }: PracticeSessionProps) {
+export function PracticeSessionV2({ skillId, allSubTopics, subTopics, onBack, allowedActivityTypes, setAllowedActivityTypes, onSubtopicsInRotationChange, onGenerateTopics }: PracticeSessionProps) {
     const ac = useApolloClient();
     const { sb } = useSupabase();
     const router = useRouter();
@@ -893,6 +894,22 @@ export function PracticeSessionV2({ skillId, allSubTopics, subTopics, onBack, al
         }
     }, [subTopics]);
 
+    // Handle the button click based on whether topics exist
+    const handleTopicButtonClick = useCallback(() => {
+        if (allSubTopics.length === 0) {
+            // If no topics exist and we have a generation handler, call it
+            if (onGenerateTopics) {
+                onGenerateTopics();
+            } else {
+                // Fallback to opening the selector if no generator provided
+                setIsTopicSelectorOpen(true);
+            }
+        } else {
+            // If topics exist, just open the selector
+            setIsTopicSelectorOpen(true);
+        }
+    }, [allSubTopics.length, onGenerateTopics, setIsTopicSelectorOpen]);
+
     return (
         <>
             <Stack
@@ -996,10 +1013,10 @@ export function PracticeSessionV2({ skillId, allSubTopics, subTopics, onBack, al
                                             </Txt>
                                             <Button
                                                 variant="contained"
-                                                onClick={() => setIsTopicSelectorOpen(true)}
+                                                onClick={handleTopicButtonClick}
                                                 startIcon={<Add />}
                                             >
-                                                Select a Topic
+                                                {allSubTopics.length === 0 ? "Generate Topics" : "Select a Topic"}
                                             </Button>
                                         </Stack>
                                     ) : topicActivityQueues[currentTopic.id]?.generationError &&
