@@ -404,7 +404,9 @@ export function SkillTreeEditor({
         }
 
         // Return the maximum path length for this skill
-        return Math.max(...skillPaths.map(skill => skill.path_to.length));
+        // TODO: this is a hack, and is inaccurate, because a skill can have multiple parents.
+        // Ultimately, this entire component needs to be refactored to consider the fact that this is not a TREE but a DAG.
+        return Math.max(...skillPaths.map(skill => skill.num_upstream_skills));
     }
 
     function convertSkillTreeToNodesAndEdges(

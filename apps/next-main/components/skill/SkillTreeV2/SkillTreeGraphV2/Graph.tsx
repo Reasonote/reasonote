@@ -24,11 +24,13 @@ import {
 import {
   useSkillEditPermissions,
 } from "@/clientOnly/hooks/useSkillEditPermissions";
+import {useSkillScores} from "@/clientOnly/hooks/useSkillScores";
 import {useSupabase} from "@/components/supabase/SupabaseProvider";
 import Dagre from "@dagrejs/dagre";
 import {notEmpty} from "@lukebechtel/lab-ts-utils";
 import {
   Add,
+  Palette,
   SwapHoriz,
   SwapVert,
 } from "@mui/icons-material";
@@ -269,6 +271,7 @@ export function SkillTreeGraphV2({
   const [key, setKey] = useState(0);
   const [showLayoutHint, setShowLayoutHint] = useState(true);
   const [hasInitialized, setHasInitialized] = useState(false);
+  const [enableScoreColoring, setEnableScoreColoring] = useState<boolean>(true);
   /**What nodes are we deepening? */
   const [nodesDeepening, setNodesDeepening] = useState<Set<string>>(new Set());
   const { sb } = useSupabase();
@@ -276,6 +279,8 @@ export function SkillTreeGraphV2({
   // Add a ref to track previous node count
   const prevNodeCount = useRef(0);
   const [canEdit, setCanEdit] = useState(true);
+
+  const {data: scores} = useSkillScores({topicOrId: rootSkillId})
 
   // Add this near the other refs
   const seenNodeIds = useRef<Set<string>>(new Set());
@@ -490,9 +495,10 @@ export function SkillTreeGraphV2({
             canEdit,
             isHidden: false,
             // TODO: get activity count
-            activityCount: 0,
+            activityCount: scores?.find(s => s.skill_id === node.id)?.activity_result_count_upstream ?? 0,
             // TODO: get score
-            score: undefined,
+            score: scores?.find(s => s.skill_id === node.id)?.average_normalized_score_upstream,
+            enableScoreColoring,
             selected: node.id === selectedNode,
             selectedNodeId: selectedNode,
             parentIds,
@@ -636,7 +642,7 @@ export function SkillTreeGraphV2({
       height: Math.max(300, dimensions.height)
     });
     return { nodes: layoutedNodes, edges: layoutedEdges };
-  }, [showActivityCount, showScore, collapsedNodes, selectedNode, router, onCreateLessonOverride, onPodcastOverride, refetch, centerOnNode, showAllRootChildren, rankDir]);
+  }, [showActivityCount, showScore, collapsedNodes, selectedNode, router, onCreateLessonOverride, onPodcastOverride, refetch, centerOnNode, showAllRootChildren, rankDir, enableScoreColoring, canEdit, nodesDeepening, onAddSubskillByName, onDelete, onDeepen]);
 
   useEffect(() => {
     if (skillTreeData) {
@@ -644,7 +650,7 @@ export function SkillTreeGraphV2({
       setNodes(newNodes);
       setEdges(newEdges);
     }
-  }, [skillTreeData, convertToGraphData]);
+  }, [skillTreeData, convertToGraphData, scores]);
 
   useEffect(() => {
     nodesRef.current = nodes;
@@ -786,6 +792,28 @@ export function SkillTreeGraphV2({
                 }}
               >
                 <Add />
+              </IconButton>
+            </Tooltip>
+          </Zoom>
+
+          <Zoom in={true}>
+            <Tooltip title={enableScoreColoring ? "Disable score coloring" : "Enable score coloring"}>
+              <IconButton
+                onClick={() => {
+                  setEnableScoreColoring(prev => !prev);
+                  // Force re-render of nodes with new coloring applied
+                  setKey(k => k + 1);
+                }}
+                sx={{
+                  bgcolor: 'background.paper',
+                  '&:hover': {
+                    bgcolor: 'background.default',
+                  },
+                  mr: 1,
+                  color: enableScoreColoring ? theme.palette.primary.main : 'inherit',
+                }}
+              >
+                <Palette />
               </IconButton>
             </Tooltip>
           </Zoom>

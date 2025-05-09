@@ -22,9 +22,6 @@ const getYouTubeVideoId = (url: string): string | null => {
 
 export const SourcesTabRenderer = ({ 
   skillId, 
-  skillTree,
-  loading: treeLoading,
-  error: treeError
 }: ToolTabRendererProps) => {
   
   // NOTE: This component might become unused if resource browsing

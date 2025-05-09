@@ -1,0 +1,65 @@
+{
+  "name": "@reasonote/graph-srs",
+  "type": "module",
+  "version": "0.0.0",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "license": "MIT",
+  "scripts": {
+    "test": "vitest run --passWithNoTests",
+    "format": "yarn lint:fix && yarn prettier_run:fix",
+    "format:check": "yarn prettier_run:check && yarn lint",
+    "prettier_run:fix": "prettier --write \"src/**/*.ts*\"",
+    "prettier_run:check": "prettier --check \"src/**/*.ts*\"",
+    "lint": "eslint \"src/**/*.ts*\"",
+    "lint:fix": "eslint \"src/**/*.ts*\" --fix"
+  },
+  "dependencies": {
+    "lodash": "^4.17.21",
+    "zod": "^3.23.8",
+    "ai": "4.2.3",
+    "@reasonote/lib-utils": "*",
+    "@reasonote/core": "*"
+  },
+  "devDependencies": {
+    "eslint": "^8.38.0",
+    "@typescript-eslint/eslint-plugin": "^5.58.0",
+    "@typescript-eslint/parser": "^5.58.0",
+    "eslint-config-standard-with-typescript": "34.0.1",
+    "eslint-config-custom": "*",
+    "eslint-config-prettier": "8.8.0",
+    "eslint-plugin-import": "2.27.5",
+    "eslint-plugin-n": "15.7.0",
+    "eslint-plugin-promise": "6.1.1",
+    "tsconfig": "*",
+    "prettier": "2.8.7",
+    "typescript": "^4.5.2",
+    "vitest": "2.1.8"
+  },
+  "prettier": {
+    "trailingComma": "all",
+    "tabWidth": 4
+  },
+  "eslintConfig": {
+    "env": {
+        "browser": true,
+        "es2021": true,
+        "node": true
+    },
+    "extends": [
+        "standard-with-typescript",
+        "prettier"
+    ],
+    "overrides": [],
+    "parserOptions": {
+        "ecmaVersion": "latest",
+        "sourceType": "module",
+        "project": "./tsconfig.json"
+    },
+    "rules": {
+        "indent": "off",
+        "no-empty": "warn",
+        "@typescript-eslint/strict-boolean-expressions": "warn"
+    }
+  }
+}

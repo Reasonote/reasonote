@@ -136,7 +136,18 @@ export const CustomNode = ({ data }: { data: SkillTreeV2GraphNodeDataSkill }) =>
 
   const normalizedScore = data.score ?? 0;
   const showScore = !isNaN(normalizedScore) && normalizedScore !== null;
-  const backgroundColor = showScore && data.activityCount && data.activityCount > 0 && data.score ? getColorForScore(data.score) : theme.palette.gray.dark;
+
+  const backgroundColor = showScore && data.activityCount && data.activityCount > 0 && data.score !== undefined && data.enableScoreColoring !== false
+    ? getColorForScore(data.score)
+    : theme.palette.gray.dark;
+
+  console.log({
+    showScore,
+    activityCount: data.activityCount,
+    score: data.score,
+    enableScoreColoring: data.enableScoreColoring,
+    backgroundColor,
+  })
 
   const totalChildCount = data.totalChildCount || 0;
 
@@ -346,6 +357,7 @@ export const CustomNode = ({ data }: { data: SkillTreeV2GraphNodeDataSkill }) =>
           data.onClick?.(data.id);
         }}
       >
+        {/* <div>{backgroundColor}</div> */}
         <div style={{
           fontWeight: 'bold',
           textAlign: 'center',
@@ -377,7 +389,7 @@ export const CustomNode = ({ data }: { data: SkillTreeV2GraphNodeDataSkill }) =>
                 size="small"
                 onClick={(e) => {
                   e.stopPropagation();
-                  console.log('toggle collapse', data.id, data.isCollapsed, data.onToggleCollapse)
+                  console.debug('toggle collapse', data.id, data.isCollapsed)
                   data.onToggleCollapse?.(data.id);
                 }}
                 sx={{
