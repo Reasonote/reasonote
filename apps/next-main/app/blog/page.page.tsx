@@ -25,7 +25,7 @@ const blogPosts = [
   {
     id: 'cursor-readonly-rules',
     title: 'Cursor: Readonly Rules',
-    description: 'How to make AI assistants think before they act with a simple cursorrule',
+    description: 'How to make AI assistants think before they act with a simple rule',
     date: 'May 9, 2025',
     slug: '/blog/cursor-readonly-rules'
   },
