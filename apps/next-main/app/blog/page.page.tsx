@@ -23,10 +23,17 @@ import {
 // Blog post data
 const blogPosts = [
   {
+    id: 'cursor-readonly-rules',
+    title: 'Cursor: Readonly Rules',
+    description: 'How to make AI assistants think before they act with a simple cursorrule',
+    date: 'May 9, 2025',
+    slug: '/blog/cursor-readonly-rules'
+  },
+  {
     id: 'open-sourcing-reasonote',
     title: 'Open-Sourcing Reasonote',
     description: 'Convert any content into an adaptive course -- open source, graph‑aware, and extensible.',
-    date: 'May 2023',
+    date: 'May 2, 2025',
     slug: '/blog/open-sourcing-reasonote'
   },
   // Add more blog posts as they become available
