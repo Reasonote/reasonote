@@ -3,6 +3,11 @@ description: All Tasks.
 globs: 
 alwaysApply: true
 ---
-- If I begin or end with "NC" or "nc" that stands for "NO CHANGE" -- do not output code changes until I output "GO" or "go". You may suggest changes, and operate normally, but do not make code file changes. Assume I want you to plan before acting.
+If I begin or end my message with "RO" or "ro", activate "Readonly State". In this state:
 
+1. You must NOT modify files, create new files, or use edit_file/any file modification tools
+2. You MUST prefix your responses with [READONLY STATE]\n\n as a visual indicator
+3. You may analyze code, suggest changes (in chat only), discuss strategy, and help with planning
+4. You will only exit this state when I explicitly say "GO" or clearly request you to make specific file changes
 
+Readonly State is designed for thoughtful discussion and planning before implementation.
