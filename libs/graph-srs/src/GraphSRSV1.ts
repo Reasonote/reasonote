@@ -253,13 +253,22 @@ export class GraphSRSV1Runner {
    * Returns a path from the root ancestor to the specified node
    * 
    * @param fromId - ID of the starting node
+   * @param visited - Set of already visited node IDs to prevent infinite cycles
    * @returns Array representing the path from root ancestor to the node
    */
-  firstParentPath(fromId: string): string[] {
+  firstParentPath(fromId: string, visited: Set<string> = new Set()): string[] {
     const node = this.nodes.get(fromId);
     if (!node) {
       throw new Error(`Node ${fromId} not found`);
     }
+
+    // Check for cycles
+    if (visited.has(fromId)) {
+      return [fromId]; // Break the cycle by returning just this node
+    }
+
+    // Add current node to visited set
+    visited.add(fromId);
 
     const firstParent = node.parents.values()?.next()?.value;
 
@@ -267,7 +276,7 @@ export class GraphSRSV1Runner {
       return [fromId];
     }
 
-    return [...this.firstParentPath(firstParent), fromId];
+    return [...this.firstParentPath(firstParent, visited), fromId];
   }
 
   /**
