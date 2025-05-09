@@ -75,6 +75,7 @@ export default function CursorReadonlyRulesPage() {
 
           <MuiMarkdownDefault>
             {trimLines(`
+              <br/>
               When working with AI assistants in code editors like Cursor / Windsurf, you've probably encountered this scenario:
               <br/>
               <br/>
