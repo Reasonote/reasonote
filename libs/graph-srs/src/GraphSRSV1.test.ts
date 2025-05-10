@@ -403,8 +403,51 @@ describe('GraphSRSV1Runner', () => {
       // Node A should be ready
       expect(readyNodes).toContain('A');
     });
+
+
+    it('should dramatically kick out review for a highly-reviewed subject', () => {
+      const runner = new GraphSRSV1Runner();
+      const now = Date.now();
+      
+      // Add a node with a good score
+      runner.addNode({ 
+        id: 'A', 
+        evalHistory: [
+          createRecord(1.0, now - daysToMs(5)),
+          createRecord(1.0, now - daysToMs(4)),
+          createRecord(0.9, now - daysToMs(3)),
+          createRecord(0.9, now - daysToMs(2)),
+          createRecord(0.9, now - daysToMs(1)),
+          createRecord(1.0, now - minutesToMs(.75)),
+          createRecord(1.0, now - minutesToMs(.5)),
+          createRecord(1.0, now - minutesToMs(.25)),
+          createRecord(1.0, now),
+        ]
+      });
+      
+      // Get the node data
+      const nodeData = runner.calculateNodeScores();
+      const nodeA = nodeData.get('A');
+      console.log('nodeA', nodeA);
+
+      console.log('stability duration minutes', nodeA?.stability ? nodeA?.stability / 1000 / 60 : 'no stability');
+      const nextReviewTime = nodeA?.nextReviewTime;
+      
+      // Verify there is a next review time
+      expect(nextReviewTime).not.toBeNull();
+      
+      if (nextReviewTime) {
+        const nextReviewTimeDurationMinutes = (nextReviewTime - now) / 60000;
+        // Should be scheduled much later than rapid review
+
+        console.log('nextReview Minutes', nextReviewTimeDurationMinutes);
+        expect(nextReviewTimeDurationMinutes).toBeGreaterThan(10);
+      }
+    });
+
+
     describe('Prerequisites', () => {
-      it('should check prerequisites before recommending review', () => {
+      it('should check prerequisites before recommending review -- not mastered', () => {
           const runner = new GraphSRSV1Runner();
           const now = Date.now();
 
@@ -423,6 +466,114 @@ describe('GraphSRSV1Runner', () => {
         const readyNodes = runner.getNodesReadyForReview();
         
         // Node A should not be ready because B is not mastered
+        expect(readyNodes).not.toContain('A');
+      });
+
+      it('should check prerequisites before recommending review -- is mastered', () => {
+        const runner = new GraphSRSV1Runner();
+        const now = Date.now();
+
+        // Add dependent node A with review time in the past
+        runner.addNode({ id: 'A', evalHistory: []});
+        
+        // Add prerequisite node B (clearly mastered)
+        runner.addNode({ id: 'B', evalHistory: [
+          createRecord(1.0, now - daysToMs(4)),
+          createRecord(1.0, now - daysToMs(3)),
+          createRecord(1.0, now - daysToMs(2)),
+          createRecord(1.0, now - daysToMs(1)),
+          createRecord(1.0, now)
+        ]});
+        
+        // Set up dependency: B is a prerequisite of A (A depends on B)
+        runner.addEdge({ fromId: 'A', toId: 'B', direction: 'to_child', id: 'AB' });
+        
+        // Get nodes ready for review
+        const readyNodes = runner.getNodesReadyForReview();
+
+        // Node A should be ready because B is mastered
+        expect(readyNodes).toContain('A');
+      });
+
+      it('should check prerequisites before recommending review -- is mastered with rough start', () => {
+        const runner = new GraphSRSV1Runner();
+        const now = Date.now();
+
+        // Add dependent node A with review time in the past
+        runner.addNode({ id: 'A', evalHistory: []});
+        
+        // Add prerequisite node B (clearly mastered)
+        runner.addNode({ id: 'B', evalHistory: [
+          createRecord(.6, now - daysToMs(4)),
+          createRecord(.6, now - daysToMs(3)),
+          createRecord(1.0, now - daysToMs(2)),
+          createRecord(1.0, now - daysToMs(1)),
+          createRecord(1.0, now)
+        ]});
+        
+        // Set up dependency: B is a prerequisite of A (A depends on B)
+        runner.addEdge({ fromId: 'A', toId: 'B', direction: 'to_child', id: 'AB' });
+        
+        // Get nodes ready for review
+        const readyNodes = runner.getNodesReadyForReview();
+
+        // Node A should be ready because B is mastered
+        expect(readyNodes).toContain('A');
+      });
+
+      it('should check prerequisites before recommending review -- not mastered due to very rough start', () => {
+        const runner = new GraphSRSV1Runner();
+        const now = Date.now();
+
+        // Add dependent node A with review time in the past
+        runner.addNode({ id: 'A', evalHistory: []});
+        
+        // Add prerequisite node B (clearly mastered)
+        runner.addNode({ id: 'B', evalHistory: [
+          createRecord(.1, now - daysToMs(4)),
+          createRecord(.1, now - daysToMs(3)),
+          createRecord(1.0, now - daysToMs(2)),
+          createRecord(1.0, now - daysToMs(1)),
+          createRecord(1.0, now)
+        ]});
+        
+        // Set up dependency: B is a prerequisite of A (A depends on B)
+        runner.addEdge({ fromId: 'A', toId: 'B', direction: 'to_child', id: 'AB' });
+        
+        // Get nodes ready for review
+        const readyNodes = runner.getNodesReadyForReview();
+
+        // Node A should be ready because B is mastered
+        expect(readyNodes).not.toContain('A');
+      });
+
+
+      it('should check prerequisites before recommending review -- very rough start - but now mastered', () => {
+        const runner = new GraphSRSV1Runner();
+        const now = Date.now();
+
+        // Add dependent node A with review time in the past
+        runner.addNode({ id: 'A', evalHistory: []});
+        
+        // Add prerequisite node B (clearly mastered)
+        runner.addNode({ id: 'B', evalHistory: [
+          createRecord(.1, now - daysToMs(7)),
+          createRecord(.1, now - daysToMs(6)),
+          createRecord(1.0, now - daysToMs(5)),
+          createRecord(1.0, now - daysToMs(4)),
+          createRecord(1.0, now - daysToMs(3)),
+          createRecord(1.0, now - daysToMs(2)),
+          createRecord(1.0, now - daysToMs(1)),
+          createRecord(1.0, now)
+        ]});
+        
+        // Set up dependency: B is a prerequisite of A (A depends on B)
+        runner.addEdge({ fromId: 'A', toId: 'B', direction: 'to_child', id: 'AB' });
+        
+        // Get nodes ready for review
+        const readyNodes = runner.getNodesReadyForReview();
+
+        // Node A should be ready because B is mastered
         expect(readyNodes).not.toContain('A');
       });
       
@@ -475,6 +626,68 @@ describe('GraphSRSV1Runner', () => {
         // Node A should not be ready because B (its prerequisite) is not mastered
         expect(readyNodes).not.toContain('A');
       });
+    });
+  });
+
+  describe('Rapid Review Scheduling', () => {
+    it('should schedule rapid review for poor scores', () => {
+      const runner = new GraphSRSV1Runner({
+        rapidReviewScoreThreshold: 0.2,
+        rapidReviewMinMinutes: 5,
+        rapidReviewMaxMinutes: 15
+      });
+      const now = Date.now();
+      
+      // Add a node with a poor score
+      runner.addNode({ 
+        id: 'A', 
+        evalHistory: [createRecord(0.1, now)]
+      });
+      
+      // Get the node data
+      const nodeData = runner.calculateNodeScores();
+      const nextReviewTime = nodeData.get('A')?.nextReviewTime;
+      
+      // Verify there is a next review time
+      expect(nextReviewTime).not.toBeNull();
+      
+      if (nextReviewTime) {
+        // Should be scheduled between 5-15 minutes after the review
+        const minExpectedTime = now + minutesToMs(5);
+        const maxExpectedTime = now + minutesToMs(15);
+        expect(nextReviewTime).toBeGreaterThanOrEqual(minExpectedTime);
+        expect(nextReviewTime).toBeLessThanOrEqual(maxExpectedTime);
+      }
+    });
+    
+    it('should respect custom rapid review parameters', () => {
+      const runner = new GraphSRSV1Runner({
+        rapidReviewScoreThreshold: 0.3,  // Higher threshold
+        rapidReviewMinMinutes: 2, // Shorter minimum
+        rapidReviewMaxMinutes: 4  // Shorter maximum
+      });
+      const now = Date.now();
+      
+      // Add a node with a score just above the old threshold but below new one
+      runner.addNode({ 
+        id: 'A', 
+        evalHistory: [createRecord(0.25, now)]
+      });
+      
+      // Get the node data
+      const nodeData = runner.calculateNodeScores();
+      const nextReviewTime = nodeData.get('A')?.nextReviewTime;
+      
+      // Verify there is a next review time
+      expect(nextReviewTime).not.toBeNull();
+      
+      if (nextReviewTime) {
+        // Should be scheduled between 2-4 minutes after the review
+        const minExpectedTime = now + minutesToMs(2);
+        const maxExpectedTime = now + minutesToMs(4);
+        expect(nextReviewTime).toBeGreaterThanOrEqual(minExpectedTime);
+        expect(nextReviewTime).toBeLessThanOrEqual(maxExpectedTime);
+      }
     });
   });
 }); 

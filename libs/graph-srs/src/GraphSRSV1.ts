@@ -52,6 +52,12 @@ export interface SchedulingParams {
   fuzzFactor?: number;
   /** Mastery threshold in days - default 21 */
   masteryThresholdDays?: number;
+  /** Score threshold below which to use rapid review scheduling - default 0.2 */
+  rapidReviewScoreThreshold?: number;
+  /** Minimum minutes to wait for rapid review - default 5 */
+  rapidReviewMinMinutes?: number;
+  /** Maximum minutes to wait for rapid review - default 15 */
+  rapidReviewMaxMinutes?: number;
 }
 
 /**
@@ -61,8 +67,18 @@ const DEFAULT_SCHEDULING_PARAMS: SchedulingParams = {
   forgettingIndex: 10,
   targetRetrievability: 0.9,
   fuzzFactor: 0.1,
-  masteryThresholdDays: 21
+  masteryThresholdDays: 21,
+  rapidReviewScoreThreshold: 0.2,
+  rapidReviewMinMinutes: 5,
+  rapidReviewMaxMinutes: 15
 };
+
+/**
+ * Helper function to convert minutes to milliseconds
+ */
+function minutesToMs(minutes: number): number {
+  return minutes * 60 * 1000;
+}
 
 /**
  * Internal node representation used within the GraphSRS system
@@ -642,8 +658,26 @@ export class GraphSRSV1Runner {
     if (currentStability === 0) return null;
     
     // Calculate interval based on stability and target retrievability
-    const { targetRetrievability = 0.9, fuzzFactor = 0.1 } = this.schedulingParams;
+    const { 
+      targetRetrievability = 0.9, 
+      fuzzFactor = 0.1,
+      rapidReviewScoreThreshold = 0.2,
+      rapidReviewMinMinutes = 5,
+      rapidReviewMaxMinutes = 15
+    } = this.schedulingParams;
     
+    // Get the latest score
+    const latestScore = latestEntry.score;
+    
+    // If score is very poor (close to 0), schedule a very short interval
+    // This ensures quick reinforcement of struggling concepts
+    if (latestScore <= rapidReviewScoreThreshold) {
+      // Schedule review in rapidReviewMinMinutes to rapidReviewMaxMinutes
+      const minutes = rapidReviewMinMinutes + Math.random() * (rapidReviewMaxMinutes - rapidReviewMinMinutes);
+      return latestEntry.timestamp + minutesToMs(minutes);
+    }
+    
+    // For better scores, use the normal stability-based scheduling
     // Rearranging the retrievability formula: R = exp(-t/S)
     // To solve for t: t = -S * ln(R)
     const interval = -currentStability * Math.log(targetRetrievability);
@@ -694,8 +728,13 @@ export class GraphSRSV1Runner {
     
     // Use direct key access instead of entries() iterator
     this.nodes.forEach((node, nodeId) => {
-      // Check if review time has passed
-      if (node.nextReviewTime !== null && node.nextReviewTime <= now) {
+      // A node is ready for review if:
+      // 1. It has never been reviewed (empty evalHistory) OR
+      // 2. Its next review time has passed
+      const isDueForReview = node.evalHistory.length === 0 || 
+        (node.nextReviewTime !== null && node.nextReviewTime <= now);
+      
+      if (isDueForReview) {
         // Check if all prerequisites are mastered
         if (this.areAllPrerequisitesMastered(nodeId)) {
           readyNodes.push(nodeId);
