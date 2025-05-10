@@ -58,3 +58,5 @@ evaluation-results/**
 */**/evaluation-results
 
 logs/*
+
+*/**/.local
