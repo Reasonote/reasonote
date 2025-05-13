@@ -5,28 +5,16 @@ import {
 } from "vitest";
 
 import {
+    DEFAULT_DIFFICULTIES,
     EvalRecord,
     EvaluationType,
     GraphSRSV1Runner,
+    TaxonomyLevel,
 } from "./GraphSRSV1";
-
-function daysToMs(days: number) {
-    return days * 24 * 60 * 60 * 1000;
-}
-
-function hoursToMs(hours: number) {
-    return hours * 60 * 60 * 1000;
-}
-
-function minutesToMs(minutes: number) {
-    return minutes * 60 * 1000;
-}
-
-function secondsToMs(seconds: number) {
-    return seconds * 1000;
-}
-
-
+import {
+    daysToMs,
+    minutesToMs,
+} from "./utils";
 
 describe('GraphSRSV1Runner', () => {
   // Helper function to create a sample evaluation record
@@ -38,7 +26,7 @@ describe('GraphSRSV1Runner', () => {
     timestamp,
     score,
     evaluationType,
-    evaluationDifficulty: 0.2  // Default difficulty for MULTIPLE_CHOICE
+    difficulty: DEFAULT_DIFFICULTIES[evaluationType as EvaluationType] || { [TaxonomyLevel.REMEMBER]: 1.0 }
   });
 
   // Tests for node and edge management
@@ -688,6 +676,386 @@ describe('GraphSRSV1Runner', () => {
         expect(nextReviewTime).toBeGreaterThanOrEqual(minExpectedTime);
         expect(nextReviewTime).toBeLessThanOrEqual(maxExpectedTime);
       }
+    });
+  });
+
+  describe('Taxonomy Level Integration', () => {
+    it('should track mastery at different taxonomy levels', () => {
+      const runner = new GraphSRSV1Runner({masteryThresholdDays: 1});
+      const now = Date.now();
+      
+      // Create a taxonomy-level specific history (mastered at REMEMBER but not at UNDERSTAND)
+      const historyWithTaxonomyLevels: EvalRecord[] = [
+        // REMEMBER level reviews (good scores)
+        {
+          timestamp: now - daysToMs(30),
+          score: 0.9,
+          evaluationType: EvaluationType.MULTIPLE_CHOICE,
+          difficulty: { [TaxonomyLevel.REMEMBER]: 1.0 }
+        },
+        {
+          timestamp: now - daysToMs(20),
+          score: 0.9,
+          evaluationType: EvaluationType.MULTIPLE_CHOICE,
+          difficulty: { [TaxonomyLevel.REMEMBER]: 1.0 }
+        },
+        {
+          timestamp: now - daysToMs(10),
+          score: 1.0,
+          evaluationType: EvaluationType.MULTIPLE_CHOICE,
+          difficulty: { [TaxonomyLevel.REMEMBER]: 1.0 }
+        },
+        {
+          timestamp: now - daysToMs(5),
+          score: 1.0,
+          evaluationType: EvaluationType.MULTIPLE_CHOICE,
+          difficulty: { [TaxonomyLevel.REMEMBER]: 1.0 }
+        },
+        {
+          timestamp: now - daysToMs(4),
+          score: 1.0,
+          evaluationType: EvaluationType.MULTIPLE_CHOICE,
+          difficulty: { [TaxonomyLevel.REMEMBER]: 1.0 }
+        },
+        {
+          timestamp: now - daysToMs(3),
+          score: 1.0,
+          evaluationType: EvaluationType.MULTIPLE_CHOICE,
+          difficulty: { [TaxonomyLevel.REMEMBER]: 1.0 }
+        },
+        {
+          timestamp: now - daysToMs(2),
+          score: 1.0,
+          evaluationType: EvaluationType.MULTIPLE_CHOICE,
+          difficulty: { [TaxonomyLevel.REMEMBER]: 1.0 }
+        },
+        {
+          timestamp: now - daysToMs(1),
+          score: 1.0,
+          evaluationType: EvaluationType.MULTIPLE_CHOICE,
+          difficulty: { [TaxonomyLevel.REMEMBER]: 1.0 }
+        },
+        {
+          timestamp: now - daysToMs(.9),
+          score: 1.0,
+          evaluationType: EvaluationType.MULTIPLE_CHOICE,
+          difficulty: { [TaxonomyLevel.REMEMBER]: 1.0 }
+        },
+        {
+          timestamp: now - daysToMs(.8),
+          score: 1.0,
+          evaluationType: EvaluationType.MULTIPLE_CHOICE,
+          difficulty: { [TaxonomyLevel.REMEMBER]: 1.0 }
+        },
+        {
+          timestamp: now - daysToMs(.7),
+          score: 1.0,
+          evaluationType: EvaluationType.MULTIPLE_CHOICE,
+          difficulty: { [TaxonomyLevel.REMEMBER]: 1.0 }
+        },
+        {
+          timestamp: now - daysToMs(.6),
+          score: 1.0,
+          evaluationType: EvaluationType.MULTIPLE_CHOICE,
+          difficulty: { [TaxonomyLevel.REMEMBER]: 1.0 }
+        },
+        {
+          timestamp: now - daysToMs(.5),
+          score: 1.0,
+          evaluationType: EvaluationType.MULTIPLE_CHOICE,
+          difficulty: { [TaxonomyLevel.REMEMBER]: 1.0 }
+        },
+        {
+          timestamp: now - daysToMs(.4),
+          score: 1.0,
+          evaluationType: EvaluationType.MULTIPLE_CHOICE,
+          difficulty: { [TaxonomyLevel.REMEMBER]: 1.0 }
+        },
+
+
+        
+        // UNDERSTAND level reviews (mixed/lower scores)
+        // {
+        //   timestamp: now - daysToMs(25),
+        //   score: 0.6,
+        //   evaluationType: EvaluationType.SHORT_ANSWER,
+        //   difficulty: { [TaxonomyLevel.UNDERSTAND]: 1.0 }
+        // },
+        // {
+        //   timestamp: now - daysToMs(15),
+        //   score: 0.7,
+        //   evaluationType: EvaluationType.SHORT_ANSWER,
+        //   difficulty: { [TaxonomyLevel.UNDERSTAND]: 1.0 }
+        // }
+      ];
+      
+      // Add node with taxonomy-specific history
+      runner.addNode({ 
+        id: 'concept1', 
+        evalHistory: historyWithTaxonomyLevels
+      });
+      
+      // Calculate node scores
+      const nodeScores = runner.calculateNodeScores();
+      const node = nodeScores.get('concept1');
+      const internalNode = runner.nodes.get('concept1');
+
+      console.log(node);
+      console.log(internalNode);
+      // Check mastery by level
+      expect(node?.masteryByLevel).toBeDefined();
+      expect(node?.masteryByLevel?.[TaxonomyLevel.REMEMBER]).toBe(true);
+      expect(node?.masteryByLevel?.[TaxonomyLevel.UNDERSTAND]).toBe(false);
+    });
+    
+    it('should infer mastery from higher to lower levels', () => {
+      const runner = new GraphSRSV1Runner({ masteryThresholdDays: .1 }); // Lower for testing
+      const now = Date.now();
+      
+      // Create history with only CREATE level mastery
+      const applyHistory: EvalRecord[] = [
+        // Multiple good scores at APPLY level (which implies REMEMBER and UNDERSTAND)
+        {
+          timestamp: now - daysToMs(15),
+          score: 0.9,
+          evaluationType: EvaluationType.APPLICATION,
+          difficulty: { [TaxonomyLevel.APPLY]: 1.0 }
+        },
+        {
+          timestamp: now - daysToMs(10),
+          score: 0.9,
+          evaluationType: EvaluationType.APPLICATION,
+          difficulty: { [TaxonomyLevel.APPLY]: 1.0 }
+        },
+        {
+          timestamp: now - daysToMs(5),
+          score: 0.9,
+          evaluationType: EvaluationType.APPLICATION,
+          difficulty: { [TaxonomyLevel.APPLY]: 1.0 }
+        },
+        {
+          timestamp: now - daysToMs(4),
+          score: 0.9,
+          evaluationType: EvaluationType.APPLICATION,
+          difficulty: { [TaxonomyLevel.APPLY]: 1.0 }
+        },
+        {
+          timestamp: now - daysToMs(3),
+          score: 0.9,
+          evaluationType: EvaluationType.APPLICATION,
+          difficulty: { [TaxonomyLevel.APPLY]: 1.0 }
+        },
+        {
+          timestamp: now - daysToMs(2),
+          score: 0.9,
+          evaluationType: EvaluationType.APPLICATION,
+          difficulty: { [TaxonomyLevel.APPLY]: 1.0 }
+        },
+        {
+          timestamp: now - daysToMs(1),
+          score: 0.9,
+          evaluationType: EvaluationType.APPLICATION,
+          difficulty: { [TaxonomyLevel.APPLY]: 1.0 }
+        },
+        {
+          timestamp: now - daysToMs(0),
+          score: 0.9,
+          evaluationType: EvaluationType.APPLICATION,
+          difficulty: { [TaxonomyLevel.APPLY]: 1.0 }
+        }
+      ];
+      
+      // Add node with only APPLY level reviews
+      runner.addNode({ id: 'concept2', evalHistory: applyHistory });
+      
+      // Calculate node scores
+      const nodeScores = runner.calculateNodeScores();
+      const node = nodeScores.get('concept2');
+      
+      // Verify mastery inference
+      expect(node?.masteryByLevel).toBeDefined();
+      expect(node?.masteryByLevel?.[TaxonomyLevel.APPLY]).toBe(true);
+      expect(node?.masteryByLevel?.[TaxonomyLevel.UNDERSTAND]).toBe(true); // Inferred
+      expect(node?.masteryByLevel?.[TaxonomyLevel.REMEMBER]).toBe(true); // Inferred
+    });
+    
+    it('should check prerequisites at the taxonomy level', () => {
+      const runner = new GraphSRSV1Runner({ masteryThresholdDays: 5 });
+      const now = Date.now();
+      
+      // Create mastered node for the REMEMBER level
+      const rememberedHistory: EvalRecord[] = [
+        // High scores at REMEMBER level
+        {
+          timestamp: now - daysToMs(15),
+          score: 0.9,
+          evaluationType: EvaluationType.MULTIPLE_CHOICE,
+          difficulty: DEFAULT_DIFFICULTIES[EvaluationType.MULTIPLE_CHOICE] || { [TaxonomyLevel.REMEMBER]: 1.0 }
+        },
+        {
+          timestamp: now - daysToMs(10),
+          score: 0.9,
+          evaluationType: EvaluationType.MULTIPLE_CHOICE,
+          difficulty: DEFAULT_DIFFICULTIES[EvaluationType.MULTIPLE_CHOICE] || { [TaxonomyLevel.REMEMBER]: 1.0 }
+        },
+        {
+          timestamp: now - daysToMs(5),
+          score: 1.0,
+          evaluationType: EvaluationType.MULTIPLE_CHOICE,
+          difficulty: DEFAULT_DIFFICULTIES[EvaluationType.MULTIPLE_CHOICE] || { [TaxonomyLevel.REMEMBER]: 1.0 }
+        }
+      ];
+      
+      // Add prerequisite node (mastered at REMEMBER level only)
+      runner.addNode({ id: 'prerequisite', evalHistory: rememberedHistory });
+      
+      // Add dependent node (no evaluations)
+      runner.addNode({ id: 'dependent', evalHistory: [] });
+      
+      // Set up prerequisite relationship
+      runner.addEdge({ 
+        fromId: 'dependent', 
+        toId: 'prerequisite', 
+        direction: 'to_child', 
+        id: 'dep-prereq' 
+      });
+      
+      // Check nodes ready for review at each level
+      const readyForRemember = runner.getNodesReadyForReviewAtLevel(TaxonomyLevel.REMEMBER);
+      const readyForUnderstand = runner.getNodesReadyForReviewAtLevel(TaxonomyLevel.UNDERSTAND);
+      const readyForApply = runner.getNodesReadyForReviewAtLevel(TaxonomyLevel.APPLY);
+      
+      // Dependent should be ready for REMEMBER level (prerequisite is mastered at this level)
+      expect(readyForRemember).toContain('dependent');
+      
+      // Dependent should not be ready for higher levels (prerequisite not mastered at those levels)
+      expect(readyForUnderstand).not.toContain('dependent');
+      expect(readyForApply).not.toContain('dependent');
+    });
+    
+    it('should recommend appropriate taxonomy levels for review', () => {
+      const runner = new GraphSRSV1Runner({
+        masteryThresholdDays: 5,
+        targetTaxonomyLevels: [
+          TaxonomyLevel.REMEMBER, 
+          TaxonomyLevel.UNDERSTAND, 
+          TaxonomyLevel.APPLY
+        ]
+      });
+      const now = Date.now();
+      
+      // Node with different mastery levels
+      const mixedHistory: EvalRecord[] = [
+        // REMEMBER - mastered
+        {
+          timestamp: now - daysToMs(15),
+          score: 0.9,
+          evaluationType: EvaluationType.MULTIPLE_CHOICE,
+          difficulty: DEFAULT_DIFFICULTIES[EvaluationType.MULTIPLE_CHOICE] || { [TaxonomyLevel.REMEMBER]: 1.0 }
+        },
+        {
+          timestamp: now - daysToMs(10),
+          score: 0.9,
+          evaluationType: EvaluationType.MULTIPLE_CHOICE,
+          difficulty: DEFAULT_DIFFICULTIES[EvaluationType.MULTIPLE_CHOICE] || { [TaxonomyLevel.REMEMBER]: 1.0 }
+        },
+        {
+          timestamp: now - daysToMs(5),
+          score: 1.0,
+          evaluationType: EvaluationType.MULTIPLE_CHOICE,
+          difficulty: DEFAULT_DIFFICULTIES[EvaluationType.MULTIPLE_CHOICE] || { [TaxonomyLevel.REMEMBER]: 1.0 }
+        },
+        
+        // UNDERSTAND - due for review
+        {
+          timestamp: now - daysToMs(1),
+          score: 0.6, // Below mastery threshold
+          evaluationType: EvaluationType.SHORT_ANSWER,
+          difficulty: DEFAULT_DIFFICULTIES[EvaluationType.SHORT_ANSWER] || { [TaxonomyLevel.UNDERSTAND]: 1.0 }
+        }
+      ];
+      
+      runner.addNode({ id: 'concept', evalHistory: mixedHistory });
+      
+      // Get recommended level
+      const recommendedLevel = runner.getRecommendedTaxonomyLevelForNode('concept');
+      
+      // Should recommend UNDERSTAND level (REMEMBER is mastered, APPLY not started)
+      expect(recommendedLevel).toBe(TaxonomyLevel.UNDERSTAND);
+    });
+    
+    it('should handle multiple taxonomy levels with different multipliers', () => {
+      const runner = new GraphSRSV1Runner({ masteryThresholdDays: 5 });
+      const now = Date.now();
+      
+      // Create history with multiple taxonomy levels per evaluation
+      const multiLevelHistory: EvalRecord[] = [
+        // Evaluation that tests both REMEMBER (strongly) and UNDERSTAND (partially)
+        {
+          timestamp: now - daysToMs(15),
+          score: 0.9,
+          evaluationType: EvaluationType.MULTIPLE_CHOICE,
+          difficulty: DEFAULT_DIFFICULTIES[EvaluationType.MULTIPLE_CHOICE] || { 
+            [TaxonomyLevel.REMEMBER]: 0.9, 
+            [TaxonomyLevel.UNDERSTAND]: 0.4 
+          }
+        },
+        {
+          timestamp: now - daysToMs(10),
+          score: 0.9,
+          evaluationType: EvaluationType.MULTIPLE_CHOICE,
+          difficulty: DEFAULT_DIFFICULTIES[EvaluationType.MULTIPLE_CHOICE] || { 
+            [TaxonomyLevel.REMEMBER]: 0.9, 
+            [TaxonomyLevel.UNDERSTAND]: 0.4 
+          }
+        },
+        {
+          timestamp: now - daysToMs(5),
+          score: 1.0,
+          evaluationType: EvaluationType.MULTIPLE_CHOICE,
+          difficulty: DEFAULT_DIFFICULTIES[EvaluationType.MULTIPLE_CHOICE] || { 
+            [TaxonomyLevel.REMEMBER]: 0.9, 
+            [TaxonomyLevel.UNDERSTAND]: 0.4 
+          }
+        },
+        // Additional evaluation strongly targeting UNDERSTAND
+        {
+          timestamp: now - daysToMs(3),
+          score: 0.9,
+          evaluationType: EvaluationType.SHORT_ANSWER,
+          difficulty: DEFAULT_DIFFICULTIES[EvaluationType.SHORT_ANSWER] || { 
+            [TaxonomyLevel.UNDERSTAND]: 0.8 
+          }
+        },
+        {
+          timestamp: now - daysToMs(2),
+          score: 0.9,
+          evaluationType: EvaluationType.SHORT_ANSWER,
+          difficulty: DEFAULT_DIFFICULTIES[EvaluationType.SHORT_ANSWER] || { 
+            [TaxonomyLevel.UNDERSTAND]: 0.8 
+          }
+        },
+        {
+          timestamp: now - daysToMs(1),
+          score: 0.9,
+          evaluationType: EvaluationType.SHORT_ANSWER,
+          difficulty: DEFAULT_DIFFICULTIES[EvaluationType.SHORT_ANSWER] || { 
+            [TaxonomyLevel.UNDERSTAND]: 0.8 
+          }
+        }
+      ];
+      
+      // Add node with multi-level evaluations
+      runner.addNode({ id: 'multilevel', evalHistory: multiLevelHistory });
+      
+      // Calculate node scores
+      const nodeScores = runner.calculateNodeScores();
+      const node = nodeScores.get('multilevel');
+      
+      // Both levels should be mastered due to sufficient evaluations
+      expect(node?.masteryByLevel).toBeDefined();
+      expect(node?.masteryByLevel?.[TaxonomyLevel.REMEMBER]).toBe(true);
+      expect(node?.masteryByLevel?.[TaxonomyLevel.UNDERSTAND]).toBe(true);
     });
   });
 }); 

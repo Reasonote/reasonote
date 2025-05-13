@@ -31,8 +31,12 @@ interface EvalRecord {
   score: number;
   /** Type of evaluation used */
   evaluationType: string;
-  /** Difficulty factor of the evaluation method */
-  evaluationDifficulty: number;
+  /** 
+   * How effectively this evaluation tests different taxonomy levels
+   * Maps level names to multipliers (0-1 range)
+   * Higher multipliers mean this evaluation type more effectively tests the given level
+   */
+  taxonomyLevels: Record<string, number>;
   /** Memory stability after this review (in seconds) */
   stability?: number;
   /** Recall probability at time of review (0-1) */
@@ -40,73 +44,49 @@ interface EvalRecord {
 }
 ```
 
-#### First Review Handling
+#### Taxonomy Level Multipliers
 
-For new material, there's no previous stability to calculate retrievability from:
+Instead of a separate `evaluationDifficulty` value, we use `taxonomyLevels` to represent how effectively an evaluation tests each cognitive level:
 
-- **Initial retrievability**: Set to 0.5 (50/50 chance) for first exposure to completely new material
-- **Initial stability**: Calculated based on first score and evaluation difficulty
-- **Quick follow-up**: Poor initial performance results in rapid re-review scheduling
+- A value of 0 means this evaluation doesn't test that level at all
+- A value of 1 means this evaluation perfectly tests that level
+- Intermediate values represent partial effectiveness
 
-#### Preprocessing Logic
-
-The system accepts evaluation records that may have missing calculated fields, and fills them in during preprocessing:
-
-```typescript
-private preprocessEvaluationHistory(history: EvalRecord[]): EvalRecord[] {
-  if (history.length === 0) return [];
-  
-  // Sort by timestamp (earliest first)
-  const sortedHistory = [...history].sort((a, b) => a.timestamp - b.timestamp);
-  
-  // Track running stability value
-  let prevStability = 0;
-  
-  // Process each record sequentially
-  return sortedHistory.map((record, index) => {
-    // Clone the record to avoid mutating the input
-    const processedRecord = { ...record };
-    
-    // Calculate retrievability if missing
-    if (processedRecord.retrievability === undefined) {
-      if (index === 0) {
-        // First exposure has no previous stability to base retrievability on
-        processedRecord.retrievability = 0.5; // Initial 50/50 chance for new material
-      } else {
-        const elapsed = (processedRecord.timestamp - sortedHistory[index-1].timestamp) / 1000;
-        processedRecord.retrievability = this.calculateRetrievability(prevStability, elapsed);
-      }
-    }
-    
-    // Calculate stability if missing
-    if (processedRecord.stability === undefined) {
-      processedRecord.stability = this.calculateNewStability(
-        prevStability, 
-        processedRecord.retrievability, 
-        processedRecord.score,
-        processedRecord.evaluationDifficulty
-      );
-    }
-    
-    // Update for next iteration
-    prevStability = processedRecord.stability;
-    
-    return processedRecord;
-  });
+For example, a multiple choice quiz might have these multipliers:
+```
+{
+  "remember": 0.8,    // Tests recall well
+  "understand": 0.6,  // Tests understanding moderately
+  "apply": 0.3,       // Tests application minimally
+  "analyze": 0.2,     // Tests analysis minimally
+  "evaluate": 0.1,    // Barely tests evaluation
+  "create": 0.0       // Doesn't test creation at all
 }
 ```
+
+This approach eliminates the need for a separate difficulty parameter while providing more expressive power.
+
+#### Backward Compatibility
+
+To support backward compatibility with existing evaluation records that use `evaluationDifficulty` instead of `taxonomyLevels`:
+
+1. Default values for each evaluation type are provided
+2. When processing an evaluation record with only `evaluationDifficulty`, the system uses the default multipliers for that evaluation type
 
 ### 2.3 Score Normalization
 
-Since evaluation methods vary in difficulty, raw scores must be normalized:
+Since evaluation methods vary in effectiveness for different taxonomy levels, raw scores must be normalized:
 
 ```typescript
-private normalizeScore(score: number, evaluationDifficulty: number): number {
-  return score * (1 - evaluationDifficulty/2);
+private normalizeScoreForLevel(
+  score: number, 
+  levelMultiplier: number
+): number {
+  return score * levelMultiplier;
 }
 ```
 
-This ensures that a perfect score on a difficult evaluation (e.g., free recall) is weighted more heavily than a perfect score on an easier evaluation (e.g., multiple choice).
+This ensures that a perfect score on an evaluation that effectively tests a given level (high multiplier) is weighted more heavily than a perfect score on an evaluation that doesn't effectively test that level (low multiplier).
 
 ## 3. Concept Evaluation Framework
 
@@ -481,11 +461,64 @@ export const TAXONOMY_LEVEL_DEPENDENCIES: Record<string, string | null> = {
   'create': 'evaluate'
 };
 
+// Map evaluation types to their default taxonomy level multipliers
+export const DEFAULT_TAXONOMY_MULTIPLIERS: Record<string, Record<string, number>> = {
+  'flashcard': {
+    'remember': 0.9,
+    'understand': 0.4,
+    'apply': 0.1,
+    'analyze': 0.0,
+    'evaluate': 0.0,
+    'create': 0.0
+  },
+  'multiple_choice': {
+    'remember': 0.8,
+    'understand': 0.6,
+    'apply': 0.3,
+    'analyze': 0.2,
+    'evaluate': 0.1,
+    'create': 0.0
+  },
+  'fill_in_blank': {
+    'remember': 0.9,
+    'understand': 0.7,
+    'apply': 0.4,
+    'analyze': 0.2,
+    'evaluate': 0.1,
+    'create': 0.0
+  },
+  'short_answer': {
+    'remember': 0.7,
+    'understand': 0.8,
+    'apply': 0.7,
+    'analyze': 0.5,
+    'evaluate': 0.4,
+    'create': 0.2
+  },
+  'free_recall': {
+    'remember': 0.9,
+    'understand': 0.8,
+    'apply': 0.6,
+    'analyze': 0.5,
+    'evaluate': 0.3,
+    'create': 0.1
+  },
+  'application': {
+    'remember': 0.5,
+    'understand': 0.7,
+    'apply': 0.9,
+    'analyze': 0.7,
+    'evaluate': 0.5,
+    'create': 0.4
+  }
+};
+
 // Support custom taxonomies
 export interface CustomTaxonomy {
   name: string;
   levels: string[];
   dependencies: Record<string, string | null>;
+  complexities: Record<string, number>;
 }
 ```
 
@@ -497,14 +530,20 @@ export interface EvalRecord {
   timestamp: number;
   score: number;
   evaluationType: string;
-  evaluationDifficulty: number;
   stability?: number;
   retrievability?: number;
   
-  // New field
-  taxonomyLevels: string[]; // Which levels this evaluation targets
+  // Legacy field (kept for backward compatibility)
+  evaluationDifficulty?: number;
+  
+  // New field with more expressive power
+  taxonomyLevels?: Record<string, number>; // Maps levels to effectiveness multipliers
 }
 ```
+
+When processing evaluation records, if `taxonomyLevels` is missing, the system will:
+1. Use the default multipliers for the specified `evaluationType`
+2. If no default exists, fall back to using `evaluationDifficulty` to generate a simple level mapping
 
 ### 7.3 Enhanced Node Structure
 
@@ -738,3 +777,17 @@ A future implementation should consider this logical inference to prevent redund
 - **Cycles in the Knowledge Graph**: Detected and handled to prevent infinite recursion
 - **Inconsistent Evaluations**: Weighted by recency and evaluation difficulty
 - **Incomplete Prerequisites**: Prevented from appearing in review selection
+
+### 8.4 Taxonomy Level Multiplier Design
+
+Rather than treating taxonomy level inclusion as binary (included/excluded), we now use multipliers to represent how effectively an evaluation tests each level:
+
+- This is a more accurate model of real-world assessments
+- Provides smooth transitions between levels
+- Allows precise customization of evaluation types
+
+For example, a short answer question might test REMEMBER at 0.7 effectiveness and UNDERSTAND at 0.8 effectiveness, showing that it's slightly better for testing understanding than pure recall.
+
+To support both models:
+1. Legacy code can treat multipliers > 0 as binary inclusion
+2. Enhanced code can use the actual multiplier values for more precise calculations

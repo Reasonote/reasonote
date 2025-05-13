@@ -11,6 +11,42 @@ export enum EvaluationType {
 }
 
 /**
+ * Taxonomy levels (based on Bloom's taxonomy)
+ */
+export enum TaxonomyLevel {
+  REMEMBER = 'remember',
+  UNDERSTAND = 'understand',
+  APPLY = 'apply',
+  ANALYZE = 'analyze',
+  EVALUATE = 'evaluate',
+  CREATE = 'create'
+}
+
+/**
+ * Maps taxonomy levels to their hierarchical dependencies
+ */
+export const TAXONOMY_LEVEL_DEPENDENCIES: Record<string, string | null> = {
+  [TaxonomyLevel.REMEMBER]: null, // Base level
+  [TaxonomyLevel.UNDERSTAND]: TaxonomyLevel.REMEMBER,
+  [TaxonomyLevel.APPLY]: TaxonomyLevel.UNDERSTAND,
+  [TaxonomyLevel.ANALYZE]: TaxonomyLevel.APPLY,
+  [TaxonomyLevel.EVALUATE]: TaxonomyLevel.ANALYZE,
+  [TaxonomyLevel.CREATE]: TaxonomyLevel.EVALUATE
+};
+
+/**
+ * Maps taxonomy levels to their complexity (higher value = more complex)
+ */
+export const TAXONOMY_LEVEL_COMPLEXITY: Record<string, number> = {
+  [TaxonomyLevel.REMEMBER]: 1,
+  [TaxonomyLevel.UNDERSTAND]: 2,
+  [TaxonomyLevel.APPLY]: 3,
+  [TaxonomyLevel.ANALYZE]: 4,
+  [TaxonomyLevel.EVALUATE]: 5,
+  [TaxonomyLevel.CREATE]: 6
+};
+
+/**
  * Default difficulty values for evaluation types
  */
 export const EVALUATION_DIFFICULTY: Record<EvaluationType, number> = {
@@ -23,6 +59,72 @@ export const EVALUATION_DIFFICULTY: Record<EvaluationType, number> = {
 };
 
 /**
+ * Default difficulty multipliers for each evaluation type and taxonomy level
+ * These values represent how effectively each evaluation type tests each taxonomy level
+ * 0 = not applicable, 1 = perfectly measures the level
+ */
+export const DEFAULT_DIFFICULTIES: Record<EvaluationType, Record<string, number>> = {
+  [EvaluationType.FLASHCARD]: {
+    [TaxonomyLevel.REMEMBER]: 0.9,
+    [TaxonomyLevel.UNDERSTAND]: 0.4,
+    [TaxonomyLevel.APPLY]: 0.1,
+    [TaxonomyLevel.ANALYZE]: 0.0,
+    [TaxonomyLevel.EVALUATE]: 0.0,
+    [TaxonomyLevel.CREATE]: 0.0
+  },
+  [EvaluationType.MULTIPLE_CHOICE]: {
+    [TaxonomyLevel.REMEMBER]: 0.8,
+    [TaxonomyLevel.UNDERSTAND]: 0.6,
+    [TaxonomyLevel.APPLY]: 0.3,
+    [TaxonomyLevel.ANALYZE]: 0.2,
+    [TaxonomyLevel.EVALUATE]: 0.1,
+    [TaxonomyLevel.CREATE]: 0.0
+  },
+  [EvaluationType.FILL_IN_BLANK]: {
+    [TaxonomyLevel.REMEMBER]: 0.9,
+    [TaxonomyLevel.UNDERSTAND]: 0.7,
+    [TaxonomyLevel.APPLY]: 0.4,
+    [TaxonomyLevel.ANALYZE]: 0.2,
+    [TaxonomyLevel.EVALUATE]: 0.1,
+    [TaxonomyLevel.CREATE]: 0.0
+  },
+  [EvaluationType.SHORT_ANSWER]: {
+    [TaxonomyLevel.REMEMBER]: 0.7,
+    [TaxonomyLevel.UNDERSTAND]: 0.8,
+    [TaxonomyLevel.APPLY]: 0.7,
+    [TaxonomyLevel.ANALYZE]: 0.5,
+    [TaxonomyLevel.EVALUATE]: 0.4,
+    [TaxonomyLevel.CREATE]: 0.2
+  },
+  [EvaluationType.FREE_RECALL]: {
+    [TaxonomyLevel.REMEMBER]: 0.9,
+    [TaxonomyLevel.UNDERSTAND]: 0.8,
+    [TaxonomyLevel.APPLY]: 0.6,
+    [TaxonomyLevel.ANALYZE]: 0.5,
+    [TaxonomyLevel.EVALUATE]: 0.3,
+    [TaxonomyLevel.CREATE]: 0.1
+  },
+  [EvaluationType.APPLICATION]: {
+    [TaxonomyLevel.REMEMBER]: 0.5,
+    [TaxonomyLevel.UNDERSTAND]: 0.7,
+    [TaxonomyLevel.APPLY]: 0.9,
+    [TaxonomyLevel.ANALYZE]: 0.7,
+    [TaxonomyLevel.EVALUATE]: 0.5,
+    [TaxonomyLevel.CREATE]: 0.4
+  }
+};
+
+/**
+ * Interface for custom taxonomy definitions
+ */
+export interface CustomTaxonomy {
+  name: string;
+  levels: string[];
+  dependencies: Record<string, string | null>;
+  complexities: Record<string, number>;
+}
+
+/**
  * Record of a single review/test of a concept
  */
 export interface EvalRecord {
@@ -32,12 +134,22 @@ export interface EvalRecord {
   score: number;
   /** Type of evaluation used */
   evaluationType: string;
-  /** Difficulty factor of the evaluation method */
-  evaluationDifficulty: number;
+  /** 
+   * Difficulty factor of the evaluation method
+   * Can be either:
+   * - A single number (0-1) representing overall difficulty
+   * - A record mapping taxonomy levels to difficulty multipliers (0-1)
+   * Higher values mean the evaluation more effectively tests the given level
+   */
+  difficulty: number | Record<string, number>;
   /** Memory stability after this review (in seconds) */
   stability?: number;
   /** Recall probability at time of review (0-1) */
   retrievability?: number;
+  
+  // Legacy fields - kept for backward compatibility
+  evaluationDifficulty?: number;
+  taxonomyLevels?: Record<string, number>;
 }
 
 /**
@@ -58,6 +170,10 @@ export interface SchedulingParams {
   rapidReviewMinMinutes?: number;
   /** Maximum minutes to wait for rapid review - default 15 */
   rapidReviewMaxMinutes?: number;
+  /** Target taxonomy levels to aim for - default is just REMEMBER */
+  targetTaxonomyLevels?: string[];
+  /** Custom taxonomy definition - default is Bloom's taxonomy */
+  customTaxonomy?: CustomTaxonomy;
 }
 
 /**
@@ -70,7 +186,8 @@ const DEFAULT_SCHEDULING_PARAMS: SchedulingParams = {
   masteryThresholdDays: 21,
   rapidReviewScoreThreshold: 0.2,
   rapidReviewMinMinutes: 5,
-  rapidReviewMaxMinutes: 15
+  rapidReviewMaxMinutes: 15,
+  targetTaxonomyLevels: [TaxonomyLevel.REMEMBER]
 };
 
 /**
@@ -101,6 +218,14 @@ interface GraphSRSV1NodeInternal {
   children: Set<string>;
   /** Set of parent node IDs - THESE ARE DEPENDENT ON THIS NODE */
   parents: Set<string>;
+  /** Direct mastery by taxonomy level (without inference) */
+  directMasteryByLevel?: Record<string, boolean>;
+  /** Mastery status by taxonomy level (with inference) */
+  masteryByLevel?: Record<string, boolean>;
+  /** Whether prerequisites are mastered for each taxonomy level */
+  prerequisitesMasteredByLevel?: Record<string, boolean>;
+  /** When to review this node next for each taxonomy level */
+  nextReviewTimeByLevel?: Record<string, number | null>;
 }
 
 /**
@@ -114,6 +239,8 @@ export interface GraphSRSV1Node {
   evalHistory?: EvalRecord[];
   /** Optional mastery override */
   masteryOverride?: boolean;
+  /** Optional mastery override by taxonomy level */
+  masteryOverrideByLevel?: Record<string, boolean>;
 }
 
 /**
@@ -191,6 +318,14 @@ export interface NodeResult {
   isMastered: boolean;
   /** Time when this node should be reviewed next */
   nextReviewTime: number | null;
+  /** Mastery status by taxonomy level */
+  masteryByLevel?: Record<string, boolean>;
+  /** Whether prerequisites are mastered for each taxonomy level */
+  prerequisitesMasteredByLevel?: Record<string, boolean>;
+  /** When to review this node next for each taxonomy level */
+  nextReviewTimeByLevel?: Record<string, number | null>;
+  /** Recommended taxonomy level for review */
+  recommendedTaxonomyLevel?: string | null;
 }
 
 /**
@@ -217,6 +352,97 @@ export class GraphSRSV1Runner {
   }
 
   /**
+   * Gets the taxonomy levels to use, either from custom taxonomy or default Bloom's
+   */
+  private getTaxonomyLevels(): string[] {
+    const { customTaxonomy } = this.schedulingParams;
+    return customTaxonomy ? customTaxonomy.levels : Object.values(TaxonomyLevel);
+  }
+
+  /**
+   * Gets taxonomy level dependencies based on settings
+   */
+  private getTaxonomyLevelDependencies(): Record<string, string | null> {
+    const { customTaxonomy } = this.schedulingParams;
+    return customTaxonomy ? customTaxonomy.dependencies : TAXONOMY_LEVEL_DEPENDENCIES;
+  }
+  
+  /**
+   * Gets taxonomy level complexities based on settings
+   */
+  private getTaxonomyLevelComplexities(): Record<string, number> {
+    const { customTaxonomy } = this.schedulingParams;
+    return customTaxonomy ? customTaxonomy.complexities : TAXONOMY_LEVEL_COMPLEXITY;
+  }
+
+  /**
+   * Normalizes difficulty to a standard taxonomy level map
+   * Handles all input formats:
+   * - Number (converts to equal values for all levels)
+   * - Record (uses as is)
+   * - Legacy format (converts from evaluationDifficulty + taxonomyLevels)
+   * 
+   * @param record - Evaluation record to normalize
+   * @returns Record mapping taxonomy levels to difficulty values
+   */
+  private normalizeDifficulty(record: EvalRecord): Record<string, number> {
+    const taxonomyLevels = this.getTaxonomyLevels();
+    
+    // Case 1: difficulty is already a record
+    if (record.difficulty && typeof record.difficulty === 'object') {
+      return {...record.difficulty};
+    }
+    
+    // Case 2: difficulty is a number
+    if (record.difficulty !== undefined && typeof record.difficulty === 'number') {
+      // Create a record with the same value for all levels
+      const result: Record<string, number> = {};
+      for (const level of taxonomyLevels) {
+        result[level] = record.difficulty;
+      }
+      return result;
+    }
+    
+    // Case 3: Legacy format with taxonomyLevels
+    if (record.taxonomyLevels) {
+      return {...record.taxonomyLevels};
+    }
+    
+    // Case 4: Legacy format with only evaluationDifficulty
+    if (record.evaluationDifficulty !== undefined) {
+      // Use default mapping for this evaluation type
+      if (record.evaluationType in DEFAULT_DIFFICULTIES) {
+        return {...DEFAULT_DIFFICULTIES[record.evaluationType as EvaluationType]};
+      }
+      
+      // Fallback to same value for REMEMBER only
+      return { [TaxonomyLevel.REMEMBER]: 0.9 };
+    }
+    
+    // Case 5: Default - use defaults for evaluation type or safe fallback
+    if (record.evaluationType in DEFAULT_DIFFICULTIES) {
+      return {...DEFAULT_DIFFICULTIES[record.evaluationType as EvaluationType]};
+    }
+    
+    // Final fallback - medium difficulty for REMEMBER only
+    return { [TaxonomyLevel.REMEMBER]: 0.5 };
+  }
+
+  /**
+   * Normalizes a score for a specific taxonomy level based on difficulty
+   * @param score Raw score (0-1)
+   * @param difficultyMultiplier How effectively this evaluation tests this taxonomy level (0-1)
+   * @returns Normalized score for the taxonomy level (0-1)
+   */
+  private normalizeScoreForLevel(
+    score: number, 
+    difficultyMultiplier: number
+  ): number {
+    // Apply difficulty adjustment
+    return score * difficultyMultiplier;
+  }
+
+  /**
    * Adds a node to the graph without any relationships
    * If the node already exists, its relationships are preserved
    * 
@@ -224,7 +450,7 @@ export class GraphSRSV1Runner {
    * @param config - Configuration options for node addition
    */
   addNode(node: GraphSRSV1Node, config: GraphSRSV1NodeConfig = DEFAULT_NODE_CONFIG): void {
-    const { id, evalHistory = [], masteryOverride = null } = node;
+    const { id, evalHistory = [], masteryOverride = null, masteryOverrideByLevel = {} } = node;
     const { overwriteIfExists } = { ...DEFAULT_NODE_CONFIG, ...config };
     
     // Check if node already exists
@@ -237,6 +463,12 @@ export class GraphSRSV1Runner {
     const existingNode = this.nodes.get(id);
     const children = existingNode ? existingNode.children : new Set<string>();
     const parents = existingNode ? existingNode.parents : new Set<string>();
+    
+    // Preserve taxonomy level data if existing
+    const existingDirectMasteryByLevel = existingNode?.directMasteryByLevel || {};
+    const existingMasteryByLevel = existingNode?.masteryByLevel || {};
+    const existingPrerequisitesMasteredByLevel = existingNode?.prerequisitesMasteredByLevel || {};
+    const existingNextReviewTimeByLevel = existingNode?.nextReviewTimeByLevel || {};
     
     // Process history to fill in calculated fields
     const processedHistory = this.preprocessEvaluationHistory(evalHistory);
@@ -252,6 +484,26 @@ export class GraphSRSV1Runner {
     // Calculate next review time
     const nextReviewTime = this.calculateNextReviewTime(processedHistory);
     
+    // Calculate taxonomy level masteries
+    const directMasteryByLevel = this.calculateDirectMasteryByLevel(
+      processedHistory, 
+      existingDirectMasteryByLevel,
+      masteryOverrideByLevel
+    );
+    
+    // Calculate inferred masteries (harder to easier)
+    const masteryByLevel = this.calculateInferredMasteryByLevel(
+      directMasteryByLevel,
+      existingMasteryByLevel,
+      masteryOverrideByLevel
+    );
+    
+    // Calculate next review times by level
+    const nextReviewTimeByLevel = this.calculateNextReviewTimeByLevel(
+      processedHistory,
+      existingNextReviewTimeByLevel
+    );
+    
     // Create or update the node
     this.nodes.set(id, {
       id,
@@ -261,8 +513,15 @@ export class GraphSRSV1Runner {
       masteryOverride,
       nextReviewTime,
       children,
-      parents
+      parents,
+      directMasteryByLevel,
+      masteryByLevel,
+      prerequisitesMasteredByLevel: existingPrerequisitesMasteredByLevel,
+      nextReviewTimeByLevel
     });
+    
+    // Update prerequisite mastery for all nodes
+    this.updatePrerequisiteMasteries();
   }
   
   /**
@@ -285,6 +544,13 @@ export class GraphSRSV1Runner {
       // Clone the record to avoid mutating the input
       const processedRecord = { ...record };
       
+      // Ensure difficulty is normalized
+      // First check if we need to handle legacy fields
+      if (processedRecord.difficulty === undefined) {
+        // Convert from legacy format if needed
+        processedRecord.difficulty = this.normalizeDifficulty(processedRecord);
+      }
+      
       // Calculate retrievability if missing
       if (processedRecord.retrievability === undefined) {
         if (index === 0) {
@@ -298,11 +564,15 @@ export class GraphSRSV1Runner {
       
       // Calculate stability if missing
       if (processedRecord.stability === undefined) {
+        // Get difficulty for REMEMBER level as a basic difficulty measure
+        const difficultyMap = this.normalizeDifficulty(processedRecord);
+        const rememberDifficulty = difficultyMap[TaxonomyLevel.REMEMBER] || 0.5;
+        
         processedRecord.stability = this.calculateNewStability(
           prevStability, 
           processedRecord.retrievability, 
           processedRecord.score,
-          processedRecord.evaluationDifficulty
+          rememberDifficulty
         );
       }
       
@@ -312,15 +582,51 @@ export class GraphSRSV1Runner {
       return processedRecord;
     });
   }
-
+  
   /**
-   * Normalizes a score based on the evaluation difficulty
-   * @param score Raw score (0-1)
-   * @param evaluationDifficulty Difficulty factor of evaluation (0-1)
-   * @returns Normalized score (0-1)
+   * Updates prerequisite masteries for all nodes based on current mastery status
+   * This should be called whenever node mastery changes
    */
-  private normalizeScore(score: number, evaluationDifficulty: number): number {
-    return score * (1 - evaluationDifficulty/2);
+  private updatePrerequisiteMasteries(): void {
+    const taxonomyLevels = this.getTaxonomyLevels();
+    
+    // Get all prerequisites
+    const allDescendants = this.collectAllDescendants();
+    
+    // For each node, check if all prerequisites have mastered the required levels
+    for (const nodeId of Array.from(this.nodes.keys())) {
+      const node = this.nodes.get(nodeId)!;
+      
+      // Initialize prerequisite mastery tracking
+      if (!node.prerequisitesMasteredByLevel) {
+        node.prerequisitesMasteredByLevel = {};
+      }
+      
+      for (const level of taxonomyLevels) {
+        // Start by assuming prerequisites are met
+        node.prerequisitesMasteredByLevel[level] = true;
+        
+        // Get all prerequisites (excluding self)
+        const prerequisites = Array.from(allDescendants.get(nodeId) || new Set<string>());
+        const selfIndex = prerequisites.indexOf(nodeId);
+        if (selfIndex >= 0) {
+          prerequisites.splice(selfIndex, 1);
+        }
+        
+        // No prerequisites = automatically met
+        if (prerequisites.length === 0) continue;
+        
+        // Check if ALL prerequisites have mastered this level
+        for (const prereqId of prerequisites) {
+          const prereq = this.nodes.get(prereqId);
+          // If the prerequisite doesn't exist or isn't mastered at this level, mark as not ready
+          if (!prereq || !prereq.masteryByLevel || !prereq.masteryByLevel[level]) {
+            node.prerequisitesMasteredByLevel[level] = false;
+            break;
+          }
+        }
+      }
+    }
   }
 
   /**
@@ -329,27 +635,39 @@ export class GraphSRSV1Runner {
    * @param score Score value (0-1)
    * @param evaluationType Type of evaluation used
    * @param timestamp Optional timestamp (defaults to now)
+   * @param difficulty Optional difficulty value (number or level map)
    */
   addScore(
     nodeId: string, 
     score: number, 
     evaluationType: string = EvaluationType.MULTIPLE_CHOICE,
-    timestamp: number = Date.now()
+    timestamp: number = Date.now(),
+    difficulty?: number | Record<string, number>
   ): void {
     const node = this.nodes.get(nodeId);
     if (!node) {
       throw new Error(`Node ${nodeId} not found`);
     }
     
-    // Determine evaluation difficulty
-    const evaluationDifficulty = EVALUATION_DIFFICULTY[evaluationType as EvaluationType] || 0.5;
+    // Determine difficulty - use defaults if not specified
+    let difficultyValue = difficulty;
+    
+    if (difficultyValue === undefined) {
+      // If not specified, use defaults for the evaluation type
+      if (evaluationType in DEFAULT_DIFFICULTIES) {
+        difficultyValue = {...DEFAULT_DIFFICULTIES[evaluationType as EvaluationType]};
+      } else {
+        // Fallback to just REMEMBER level with full multiplier
+        difficultyValue = { [TaxonomyLevel.REMEMBER]: 1.0 };
+      }
+    }
     
     // Create new record
     const newRecord: EvalRecord = {
       timestamp,
       score,
       evaluationType,
-      evaluationDifficulty
+      difficulty: difficultyValue
     };
     
     // Add to history
@@ -365,6 +683,36 @@ export class GraphSRSV1Runner {
       ? node.masteryOverride
       : this.calculateIsMastered(processedHistory);
     node.nextReviewTime = this.calculateNextReviewTime(processedHistory);
+    
+    // Update taxonomy level properties
+    if (!node.directMasteryByLevel) node.directMasteryByLevel = {};
+    if (!node.masteryByLevel) node.masteryByLevel = {};
+    if (!node.nextReviewTimeByLevel) node.nextReviewTimeByLevel = {};
+    
+    const masteryOverrideByLevel = {};
+    
+    // Recalculate mastery by level
+    node.directMasteryByLevel = this.calculateDirectMasteryByLevel(
+      processedHistory,
+      node.directMasteryByLevel,
+      masteryOverrideByLevel
+    );
+    
+    // Apply inference
+    node.masteryByLevel = this.calculateInferredMasteryByLevel(
+      node.directMasteryByLevel,
+      node.masteryByLevel,
+      masteryOverrideByLevel
+    );
+    
+    // Update review times by level
+    node.nextReviewTimeByLevel = this.calculateNextReviewTimeByLevel(
+      processedHistory,
+      node.nextReviewTimeByLevel
+    );
+    
+    // Update prerequisite masteries for all nodes
+    this.updatePrerequisiteMasteries();
   }
   
   /**
@@ -535,10 +883,14 @@ export class GraphSRSV1Runner {
     prevStability: number, 
     retrievability: number, 
     score: number,
-    evaluationDifficulty: number
+    evaluationDifficulty: number | undefined
   ): number {
+    // Ensure we have a valid difficulty value
+    const difficulty = evaluationDifficulty !== undefined ? 
+      evaluationDifficulty : 0.5;
+    
     // Normalize score based on evaluation difficulty
-    const normalizedScore = this.normalizeScore(score, evaluationDifficulty);
+    const normalizedScore = this.normalizeScoreForLevel(score, difficulty);
     
     // For first review with no previous stability
     if (prevStability === 0) {
@@ -595,10 +947,18 @@ export class GraphSRSV1Runner {
   private calculateDifficulty(evalHistory: EvalRecord[]): number {
     if (evalHistory.length === 0) return 0.5; // Default medium difficulty
     
-    // Calculate normalized scores
-    const normalizedScores = evalHistory.map(record => 
-      this.normalizeScore(record.score, record.evaluationDifficulty)
-    );
+    // Get primary taxonomy level for normalization (default to REMEMBER)
+    const primaryLevel = (this.schedulingParams.targetTaxonomyLevels || [TaxonomyLevel.REMEMBER])[0];
+    
+    // Calculate normalized scores for the primary taxonomy level
+    const normalizedScores = evalHistory.map(record => {
+      // Get normalized difficulty map
+      const difficultyMap = this.normalizeDifficulty(record);
+      const levelDifficulty = difficultyMap[primaryLevel] || 0.5;
+      
+      // Use our helper to normalize the score
+      return this.normalizeScoreForLevel(record.score, levelDifficulty);
+    });
     
     // Higher scores mean easier items, so invert
     const avgNormalizedScore = this.calculateAverage(normalizedScores);
@@ -625,16 +985,26 @@ export class GraphSRSV1Runner {
     
     // Calculate mastery threshold
     const { masteryThresholdDays = 21 } = this.schedulingParams;
-    const baseThreshold = masteryThresholdDays * 24 * 60 * 60; // Convert days to seconds
+    const baseThreshold = masteryThresholdDays * 24 * 60 * 60;
     
     // Check if stability exceeds threshold
     const hasStability = currentStability >= baseThreshold;
     
     // Check if recent scores are consistently high
     const recentRecords = evalHistory.slice(-3);
-    const recentScores = recentRecords.map(record => 
-      this.normalizeScore(record.score, record.evaluationDifficulty)
-    );
+    
+    // Get primary taxonomy level for mastery check (default to REMEMBER)
+    const primaryLevel = (this.schedulingParams.targetTaxonomyLevels || [TaxonomyLevel.REMEMBER])[0];
+    
+    const recentScores = recentRecords.map(record => {
+      // Get normalized difficulty map
+      const difficultyMap = this.normalizeDifficulty(record);
+      const levelDifficulty = difficultyMap[primaryLevel] || 0.5;
+      
+      // Use our helper to normalize the score
+      return this.normalizeScoreForLevel(record.score, levelDifficulty);
+    });
+    
     const avgRecentScore = this.calculateAverage(recentScores);
     const hasHighScores = avgRecentScore >= 0.8;
     
@@ -938,6 +1308,9 @@ export class GraphSRSV1Runner {
       // Get current retrievability
       const retrievability = this.getCurrentRetrievability(nodeId) || 0;
       
+      // Get recommended taxonomy level for review
+      const recommendedTaxonomyLevel = this.getRecommendedTaxonomyLevelForNode(nodeId);
+      
       nodeResults.set(nodeId, {
         id: nodeId,
         all_scores: scores,
@@ -947,10 +1320,321 @@ export class GraphSRSV1Runner {
         stability,
         retrievability,
         isMastered: node.isMastered,
-        nextReviewTime: node.nextReviewTime
+        nextReviewTime: node.nextReviewTime,
+        masteryByLevel: node.masteryByLevel,
+        prerequisitesMasteredByLevel: node.prerequisitesMasteredByLevel,
+        nextReviewTimeByLevel: node.nextReviewTimeByLevel,
+        recommendedTaxonomyLevel
       });
     }
     
     return nodeResults;
+  }
+
+  /**
+   * Calculates direct mastery by taxonomy level without inference
+   * 
+   * @param evalHistory - Evaluation history
+   * @param existingMasteryByLevel - Existing mastery data if available
+   * @param masteryOverrideByLevel - Optional overrides by level
+   * @returns Record of mastery status by taxonomy level
+   */
+  private calculateDirectMasteryByLevel(
+    evalHistory: EvalRecord[],
+    existingMasteryByLevel: Record<string, boolean> = {},
+    masteryOverrideByLevel: Record<string, boolean> = {}
+  ): Record<string, boolean> {
+    const taxonomyLevels = this.getTaxonomyLevels();
+    const result: Record<string, boolean> = { ...existingMasteryByLevel };
+    
+    // Initialize any missing levels
+    for (const level of taxonomyLevels) {
+      if (result[level] === undefined) {
+        result[level] = false;
+      }
+    }
+    
+    // Apply direct mastery calculation for each level
+    for (const level of taxonomyLevels) {
+      // Check for override first
+      if (masteryOverrideByLevel[level] !== undefined) {
+        result[level] = masteryOverrideByLevel[level];
+        continue;
+      }
+      
+      // Calculate mastery based on performance
+      result[level] = this.calculateIsMasteredByLevel(evalHistory, level);
+    }
+    
+    return result;
+  }
+  
+  /**
+   * Determines if a node is mastered at a specific taxonomy level
+   * 
+   * @param evalHistory - Evaluation history
+   * @param level - Taxonomy level to check
+   * @returns Whether the node is mastered at this level
+   */
+  private calculateIsMasteredByLevel(evalHistory: EvalRecord[], level: string): boolean {
+    // Filter history to only include evaluations targeting this level with meaningful multiplier
+    const levelHistory = evalHistory.filter(record => {
+      const difficulties = this.normalizeDifficulty(record);
+      return difficulties[level] > 0;
+    });
+    
+    // Need at least 3 reviews to determine mastery
+    if (levelHistory.length < 3) return false;
+    
+    // Get current stability from most recent review
+    const latestEntry = levelHistory[levelHistory.length - 1];
+    const currentStability = latestEntry.stability || 0;
+    
+    // Calculate mastery threshold
+    const { masteryThresholdDays = 21 } = this.schedulingParams;
+    const baseThreshold = masteryThresholdDays * 24 * 60 * 60; // Convert days to seconds
+    
+
+    const diff = currentStability - baseThreshold;
+
+
+    // Check if stability exceeds threshold
+    const hasStability = diff > 0;
+    
+    // Check if recent scores are consistently high
+    const recentRecords = levelHistory.slice(-3);
+    const recentScores = recentRecords.map(record => {
+      const difficulties = this.normalizeDifficulty(record);
+      
+      return this.normalizeScoreForLevel(
+        record.score,
+        // TODO figure out if 0 is a good default..
+        difficulties[level] || 0
+      );
+    });
+    
+    const avgRecentScore = this.calculateAverage(recentScores);
+    const hasHighScores = avgRecentScore >= 0.8;
+
+    console.log('hasStability', hasStability);
+    console.log('hasHighScores', hasHighScores);
+    
+    return hasStability && hasHighScores;
+  }
+  
+  /**
+   * Apply inference from harder to easier taxonomy levels
+   * 
+   * @param directMasteryByLevel - Raw mastery by level
+   * @param existingMasteryByLevel - Existing inferred mastery if available
+   * @param masteryOverrideByLevel - Optional mastery overrides
+   * @returns Record of mastery with inference applied
+   */
+  private calculateInferredMasteryByLevel(
+    directMasteryByLevel: Record<string, boolean>,
+    existingMasteryByLevel: Record<string, boolean> = {},
+    masteryOverrideByLevel: Record<string, boolean> = {}
+  ): Record<string, boolean> {
+    const taxonomyLevels = this.getTaxonomyLevels();
+    const taxonomyDependencies = this.getTaxonomyLevelDependencies();
+    const complexities = this.getTaxonomyLevelComplexities();
+    
+    // Start with direct mastery
+    const result: Record<string, boolean> = { ...directMasteryByLevel };
+    
+    // Sort levels by complexity (highest to lowest)
+    const sortedLevels = [...taxonomyLevels].sort((a, b) => 
+      complexities[b] - complexities[a]
+    );
+    
+    // Apply mastery inference (harder to easier)
+    for (const level of sortedLevels) {
+      // If overridden or directly mastered
+      if (masteryOverrideByLevel[level] === true || result[level] === true) {
+        // Ensure all prerequisite levels are marked as mastered
+        let prerequisiteLevel = taxonomyDependencies[level];
+        while (prerequisiteLevel) {
+          result[prerequisiteLevel] = true;
+          prerequisiteLevel = taxonomyDependencies[prerequisiteLevel];
+        }
+      }
+    }
+    
+    return result;
+  }
+
+  /**
+   * Calculate next review times for each taxonomy level
+   * 
+   * @param evalHistory - Evaluation history
+   * @param existingReviewTimes - Existing review times if available
+   * @returns Record of next review times by level
+   */
+  private calculateNextReviewTimeByLevel(
+    evalHistory: EvalRecord[],
+    existingReviewTimes: Record<string, number | null> = {}
+  ): Record<string, number | null> {
+    const taxonomyLevels = this.getTaxonomyLevels();
+    const result: Record<string, number | null> = { ...existingReviewTimes };
+    
+    // Initialize any missing levels
+    for (const level of taxonomyLevels) {
+      if (result[level] === undefined) {
+        result[level] = null;
+      }
+    }
+    
+    // Calculate next review time for each level
+    for (const level of taxonomyLevels) {
+      // Filter history to only include evaluations targeting this level with non-zero multiplier
+      const levelHistory = evalHistory.filter(record => {
+        const difficultyMap = this.normalizeDifficulty(record);
+        return difficultyMap[level] > 0;
+      });
+      
+      // Calculate next review time based on this level's history
+      result[level] = this.calculateNextReviewTime(levelHistory);
+    }
+    
+    return result;
+  }
+
+  /**
+   * Gets nodes that are ready for review at a specific taxonomy level
+   * @param level Taxonomy level to check (defaults to REMEMBER)
+   * @returns Array of node IDs ready for review at the specified level
+   */
+  getNodesReadyForReviewAtLevel(level: string = TaxonomyLevel.REMEMBER): string[] {
+    const now = Date.now();
+    const readyNodes: string[] = [];
+    
+    // Use direct key access instead of entries() iterator
+    this.nodes.forEach((node, nodeId) => {
+      // Check if the node has taxonomy level data
+      if (!node.masteryByLevel || !node.prerequisitesMasteredByLevel || !node.nextReviewTimeByLevel) {
+        return; // Skip nodes without taxonomy data
+      }
+      
+      // Check taxonomy prerequisite levels are mastered
+      const taxonomyPrereqLevel = this.getTaxonomyLevelDependencies()[level];
+      if (taxonomyPrereqLevel && !node.masteryByLevel[taxonomyPrereqLevel]) {
+        return; // Lower taxonomy level not mastered yet
+      }
+      
+      // Check if node is due for review at this level
+      const isDueForLevel = 
+        // 1. It has never been reviewed at this level OR
+        (!node.nextReviewTimeByLevel[level]) ||
+        // 2. Its next review time for this level has passed
+        (node.nextReviewTimeByLevel[level] !== null && node.nextReviewTimeByLevel[level]! <= now);
+      
+      if (isDueForLevel) {
+        // Check if all prerequisites are mastered at this level
+        if (node.prerequisitesMasteredByLevel[level]) {
+          readyNodes.push(nodeId);
+        }
+      }
+    });
+    
+    return readyNodes;
+  }
+  
+  /**
+   * Gets nodes that are ready for review at any of the target taxonomy levels
+   * @param targetLevels Optional array of taxonomy levels to check (defaults to from settings)
+   * @returns Array of node IDs ready for review at any of the specified levels
+   */
+  getNodesReadyForReviewAtTargetLevels(targetLevels?: string[]): string[] {
+    const levels = targetLevels || this.schedulingParams.targetTaxonomyLevels || [TaxonomyLevel.REMEMBER];
+    const result = new Set<string>();
+    
+    // Get nodes ready for review at each level
+    for (const level of levels) {
+      const readyNodes = this.getNodesReadyForReviewAtLevel(level);
+      for (const nodeId of readyNodes) {
+        result.add(nodeId);
+      }
+    }
+    
+    return Array.from(result);
+  }
+  
+  /**
+   * Gets the recommended taxonomy level for review for a specific node
+   * Returns the most complex level that is ready for review
+   * 
+   * @param nodeId Node identifier
+   * @returns The recommended taxonomy level or null if none are ready
+   */
+  getRecommendedTaxonomyLevelForNode(nodeId: string): string | null {
+    const node = this.nodes.get(nodeId);
+    if (!node || !node.masteryByLevel || !node.prerequisitesMasteredByLevel) {
+      return null;
+    }
+    
+    const now = Date.now();
+    const taxonomyLevels = this.getTaxonomyLevels();
+    const complexities = this.getTaxonomyLevelComplexities();
+    
+    // Sort levels by complexity (highest to lowest)
+    const sortedLevels = [...taxonomyLevels].sort((a, b) => 
+      complexities[b] - complexities[a]
+    );
+    
+    // Check each level from most to least complex
+    for (const level of sortedLevels) {
+      // Check if this level is configured as a target
+      if (!(this.schedulingParams.targetTaxonomyLevels || [TaxonomyLevel.REMEMBER]).includes(level)) {
+        continue; // Skip levels that aren't targets
+      }
+      
+      // Check taxonomy prerequisites
+      const taxonomyPrereqLevel = this.getTaxonomyLevelDependencies()[level];
+      if (taxonomyPrereqLevel && !node.masteryByLevel[taxonomyPrereqLevel]) {
+        continue; // Lower taxonomy level not mastered yet
+      }
+      
+      // Check if due for review at this level
+      const isDueForLevel = 
+        (!node.nextReviewTimeByLevel?.[level]) ||
+        (node.nextReviewTimeByLevel?.[level] !== null && node.nextReviewTimeByLevel?.[level]! <= now);
+      
+      if (isDueForLevel && node.prerequisitesMasteredByLevel[level]) {
+        return level;
+      }
+    }
+    
+    return null;
+  }
+  
+  /**
+   * Sets the mastery override for a node at a specific taxonomy level
+   * @param nodeId Node identifier
+   * @param level Taxonomy level
+   * @param isMastered Whether to consider the node mastered at this level
+   */
+  setMasteryOverrideAtLevel(nodeId: string, level: string, isMastered: boolean): void {
+    const node = this.nodes.get(nodeId);
+    if (!node) {
+      throw new Error(`Node ${nodeId} not found`);
+    }
+    
+    // Ensure mastery tracking objects exist
+    if (!node.directMasteryByLevel) node.directMasteryByLevel = {};
+    if (!node.masteryByLevel) node.masteryByLevel = {};
+    
+    // Set override at this level
+    node.directMasteryByLevel[level] = isMastered;
+    
+    // Recalculate inferred mastery with this override
+    const masteryOverrideByLevel: Record<string, boolean> = { [level]: isMastered };
+    node.masteryByLevel = this.calculateInferredMasteryByLevel(
+      node.directMasteryByLevel,
+      node.masteryByLevel,
+      masteryOverrideByLevel
+    );
+    
+    // Update prerequisites for all nodes
+    this.updatePrerequisiteMasteries();
   }
 }
