@@ -10,6 +10,7 @@ GraphSRS is a directed acyclic graph (DAG) based spaced repetition system that m
 - **Dependencies**: Concepts have explicit prerequisite relationships
 - **Multiple Evaluation Types**: Concepts can be assessed through different mechanisms with varying difficulty
 - **Mastery-Based Progression**: Concepts become available for review only when prerequisites are sufficiently mastered
+- **Taxonomy Flexibility**: Support for custom learning taxonomies beyond the default Bloom's taxonomy
 
 ## 2. Core Memory Model
 
@@ -29,14 +30,14 @@ interface EvalRecord {
   timestamp: number;
   /** Score in 0-1 range (0 = complete failure, 1 = perfect recall) */
   score: number;
-  /** Type of evaluation used */
-  evaluationType: string;
+  /** Type of evaluation used - optional if difficulty is provided directly */
+  evaluationType?: string;
   /** 
-   * How effectively this evaluation tests different taxonomy levels
+   * How effectively this evaluation tests different taxonomy levels - optional if evaluationType is provided
    * Maps level names to multipliers (0-1 range)
    * Higher multipliers mean this evaluation type more effectively tests the given level
    */
-  taxonomyLevels: Record<string, number>;
+  difficulty?: number | Record<string, number>;
   /** Memory stability after this review (in seconds) */
   stability?: number;
   /** Recall probability at time of review (0-1) */
@@ -44,9 +45,11 @@ interface EvalRecord {
 }
 ```
 
+Either `evaluationType` or `difficulty` must be provided for each evaluation record. If both are provided, `difficulty` takes precedence over the default difficulty values for the evaluation type.
+
 #### Taxonomy Level Multipliers
 
-Instead of a separate `evaluationDifficulty` value, we use `taxonomyLevels` to represent how effectively an evaluation tests each cognitive level:
+When using the `difficulty` as a Record, the values represent how effectively an evaluation tests each cognitive level:
 
 - A value of 0 means this evaluation doesn't test that level at all
 - A value of 1 means this evaluation perfectly tests that level
@@ -66,13 +69,6 @@ For example, a multiple choice quiz might have these multipliers:
 
 This approach eliminates the need for a separate difficulty parameter while providing more expressive power.
 
-#### Backward Compatibility
-
-To support backward compatibility with existing evaluation records that use `evaluationDifficulty` instead of `taxonomyLevels`:
-
-1. Default values for each evaluation type are provided
-2. When processing an evaluation record with only `evaluationDifficulty`, the system uses the default multipliers for that evaluation type
-
 ### 2.3 Score Normalization
 
 Since evaluation methods vary in effectiveness for different taxonomy levels, raw scores must be normalized:
@@ -88,48 +84,220 @@ private normalizeScoreForLevel(
 
 This ensures that a perfect score on an evaluation that effectively tests a given level (high multiplier) is weighted more heavily than a perfect score on an evaluation that doesn't effectively test that level (low multiplier).
 
-## 3. Concept Evaluation Framework
+## 3. Taxonomy Framework
 
-### 3.1 Evaluation Types
+### 3.1 Taxonomy Abstraction
 
-Concepts can be assessed through multiple mechanisms:
-
-| Evaluation Type | Description | Base Difficulty |
-|----------------|-------------|----------------|
-| Flashcard | Traditional card with question/answer | 0.2 |
-| Multiple Choice | Selection from provided options | 0.2 |
-| Fill-in-blank | Providing a missing term | 0.4 |
-| Short Answer | Brief explanation of concept | 0.6 |
-| Free Recall | Complete recall with no prompting | 0.8 |
-| Application | Using concept to solve a novel problem | 0.9 |
-
-### 3.2 Concept Difficulty Calculation
-
-Concept difficulty is calculated primarily based on review performance:
+GraphSRS now supports a flexible taxonomy framework:
 
 ```typescript
-private calculateDifficulty(evalHistory: EvalRecord[]): number {
-  if (evalHistory.length === 0) return 0.5; // Default medium difficulty
+interface LevelTaxonomyConfig {
+  /** Unique identifier for this taxonomy */
+  id: string;
+  /** Human-readable name */
+  name: string;
+  /** All available levels in this taxonomy */
+  levels: string[];
+  /** Dependencies between levels (which level must be mastered before another) */
+  dependencies: Record<string, string | null>;
+  /** Default starting level for new concepts */
+  defaultLevel: string;
+  /** Description of this taxonomy */
+  description?: string;
+}
+
+class LevelTaxonomy {
+  constructor(config: LevelTaxonomyConfig) {
+    // Initialize taxonomy
+    // Validate that all dependencies reference valid levels
+    // Check for circular dependencies
+  }
   
-  // Calculate normalized scores
-  const normalizedScores = evalHistory.map(record => 
-    this.normalizeScore(record.score, record.evaluationDifficulty)
-  );
+  // Get all prerequisite levels for a given level
+  getPrerequisiteLevels(level: string): string[]
   
-  // Higher scores mean easier items, so invert
-  const avgNormalizedScore = this.calculateAverage(normalizedScores);
+  // Get all dependent levels for a given level
+  getDependentLevels(level: string): string[]
   
-  // Apply scaling to center difficulty values
-  const difficulty = 1 - avgNormalizedScore;
-  
-  // Clamp between 0.1 and 0.9 to avoid extremes
-  return Math.max(0.1, Math.min(0.9, difficulty));
+  // Get levels ordered by dependency chain (topological sort)
+  // with most foundational levels first
+  getLevelsByDependencyOrder(reverse: boolean = false): string[]
 }
 ```
 
-## 4. Graph Structure and Dependency Management
+### 3.2 Bloom's Taxonomy Implementation
 
-### 4.1 Node and Edge Representation
+Bloom's Taxonomy is provided as the default implementation:
+
+```typescript
+// Bloom's Taxonomy levels
+export const BLOOMS_REMEMBER = 'remember';
+export const BLOOMS_UNDERSTAND = 'understand';
+export const BLOOMS_APPLY = 'apply';
+export const BLOOMS_ANALYZE = 'analyze';
+export const BLOOMS_EVALUATE = 'evaluate';
+export const BLOOMS_CREATE = 'create';
+
+export const bloomsTaxonomyConfig: LevelTaxonomyConfig = {
+  id: 'blooms',
+  name: "Bloom's Taxonomy",
+  description: "Bloom's Taxonomy is a hierarchical model used to classify educational learning objectives into levels of complexity and specificity.",
+  levels: [
+    BLOOMS_REMEMBER,
+    BLOOMS_UNDERSTAND,
+    BLOOMS_APPLY,
+    BLOOMS_ANALYZE,
+    BLOOMS_EVALUATE,
+    BLOOMS_CREATE
+  ],
+  dependencies: {
+    [BLOOMS_REMEMBER]: null, // Base level
+    [BLOOMS_UNDERSTAND]: BLOOMS_REMEMBER,
+    [BLOOMS_APPLY]: BLOOMS_UNDERSTAND,
+    [BLOOMS_ANALYZE]: BLOOMS_APPLY,
+    [BLOOMS_EVALUATE]: BLOOMS_ANALYZE,
+    [BLOOMS_CREATE]: BLOOMS_EVALUATE
+  },
+  defaultLevel: BLOOMS_REMEMBER
+};
+```
+
+### 3.3 Dynamic Taxonomy Level Prioritization
+
+Rather than using fixed complexity values, the system now prioritizes levels based on the actual dependency structure:
+
+```typescript
+// Prioritize taxonomy levels based on the dependency graph
+function prioritizeLevels(taxonomy: LevelTaxonomy): string[] {
+  // Perform a topological sort of the taxonomy levels
+  // This ensures that prerequisites come before their dependent levels
+  return taxonomy.getLevelsByDependencyOrder();
+}
+```
+
+This approach:
+- Adapts to any taxonomy structure automatically
+- Respects the pedagogical progression inherent in the level dependencies
+- Works with both linear taxonomies (like Bloom's) and more complex branching taxonomies
+- Eliminates the need for arbitrary complexity values
+
+## 4. Evaluation Type Framework
+
+### 4.1 Evaluation Type Abstraction
+
+```typescript
+interface EvaluationTypeConfig {
+  /** Unique name for this evaluation type */
+  name: string;
+  /** Difficulty multipliers by taxonomy level */
+  difficultyByLevel: Record<string, number>;
+  /** Description of this evaluation type */
+  description?: string;
+}
+
+class EvaluationType {
+  readonly name: string;
+  readonly difficultyByLevel: Record<string, number>;
+  readonly description?: string;
+  
+  constructor(config: EvaluationTypeConfig, taxonomy: LevelTaxonomy) {
+    // Initialize and validate with the given taxonomy
+  }
+}
+
+class EvaluationTypeRegistry {
+  constructor(taxonomy: LevelTaxonomy, initialTypes?: EvaluationTypeConfig[])
+  
+  // Register a new evaluation type
+  register(config: EvaluationTypeConfig): EvaluationType
+  
+  // Get a registered evaluation type
+  get(name: string): EvaluationType
+  
+  // Check if an evaluation type is registered
+  has(name: string): boolean
+  
+  // Get all registered evaluation types
+  getAll(): EvaluationType[]
+  
+  // Update the taxonomy (revalidates all types)
+  setTaxonomy(taxonomy: LevelTaxonomy): void
+}
+```
+
+### 4.2 Default Evaluation Types
+
+```typescript
+// Default evaluation types for Bloom's taxonomy
+const defaultBloomsEvaluationTypes: EvaluationTypeConfig[] = [
+  {
+    name: 'flashcard',
+    description: 'Basic flashcard review',
+    difficultyByLevel: {
+      [bloomsTaxonomy.REMEMBER]: 0.9,
+      [bloomsTaxonomy.UNDERSTAND]: 0.4,
+      [bloomsTaxonomy.APPLY]: 0.1,
+      [bloomsTaxonomy.ANALYZE]: 0.0,
+      [bloomsTaxonomy.EVALUATE]: 0.0,
+      [bloomsTaxonomy.CREATE]: 0.0
+    }
+  },
+  {
+    name: 'multiple_choice',
+    description: 'Multiple choice questions',
+    difficultyByLevel: {
+      [bloomsTaxonomy.REMEMBER]: 0.8,
+      [bloomsTaxonomy.UNDERSTAND]: 0.6,
+      [bloomsTaxonomy.APPLY]: 0.3,
+      [bloomsTaxonomy.ANALYZE]: 0.2,
+      [bloomsTaxonomy.EVALUATE]: 0.1,
+      [bloomsTaxonomy.CREATE]: 0.0
+    }
+  },
+  // ... other evaluation types
+];
+```
+
+### 4.3 Usage With Custom Taxonomies
+
+When using custom taxonomies, evaluation types must be registered that support the custom levels:
+
+```typescript
+// Example with a custom medical knowledge taxonomy
+const medicalTaxonomy = new LevelTaxonomy({
+  id: 'medical',
+  name: 'Medical Knowledge Taxonomy',
+  levels: ['facts', 'mechanisms', 'diagnostics', 'treatments', 'integration'],
+  // ... other configuration
+});
+
+// Create evaluation types for the medical taxonomy
+const medicalEvaluationTypes = [
+  {
+    name: 'mcq',
+    description: 'Medical multiple choice questions',
+    difficultyByLevel: {
+      'facts': 0.9,
+      'mechanisms': 0.7,
+      'diagnostics': 0.4,
+      'treatments': 0.2,
+      'integration': 0.1
+    }
+  },
+  // ... other evaluation types
+];
+
+// Initialize the SRS with the custom taxonomy and evaluation types
+const medicalSRS = new GraphSRSV1Runner(
+  {/* scheduling params */},
+  medicalTaxonomy,
+  medicalEvaluationTypes
+);
+```
+
+## 5. Graph Structure and Dependency Management
+
+### 5.1 Node and Edge Representation
 
 ```typescript
 // Internal node representation
@@ -150,13 +318,21 @@ interface GraphSRSV1NodeInternal {
   prereqs: Set<string>;
   /** Set of postrequisite node IDs - NODES THAT DIRECTLY DEPEND ON THIS NODE */
   postreqs: Set<string>;
+  /** Direct mastery by taxonomy level (without inference) */
+  directMasteryByLevel?: Record<string, boolean>;
+  /** Mastery status by taxonomy level (with inference) */
+  masteryByLevel?: Record<string, boolean>;
+  /** Whether prerequisites are mastered for each taxonomy level */
+  prereqsMasteredByLevel?: Record<string, boolean>;
+  /** When to review this node next for each taxonomy level */
+  nextReviewTimeByLevel?: Record<string, number | null>;
 }
 
 // Edge directions
 type GraphSRSV1EdgeDirection = 'to_prereq' | 'to_postreq';
 ```
 
-### 4.2 Prerequisites vs. Postrequisites
+### 5.2 Prerequisites vs. Postrequisites
 
 In GraphSRS, the relationship direction is pedagogically significant:
 
@@ -164,70 +340,48 @@ In GraphSRS, the relationship direction is pedagogically significant:
 - `to_prereq` direction: Node A has Node B as a prereq, meaning B is a prerequisite of A
 - `to_postreq` direction: Node A has Node B as a postreq, meaning A is a prerequisite of B
 
-### 4.3 Mastery Determination
+### 5.3 Difficulty Normalization
 
-A concept is considered "mastered" when:
-
-1. Its stability exceeds a configurable threshold (default 21 days)
-2. Recent scores consistently exceed a threshold (≥0.8 normalized score)
-3. A minimum of 3 successful reviews have been completed
-
-Or when explicitly marked with `masteryOverride = true`.
+When normalizing difficulty from evaluation records, we now use a more flexible approach:
 
 ```typescript
-private calculateIsMastered(evalHistory: EvalRecord[]): boolean {
-  // Need at least 3 reviews to determine mastery
-  if (evalHistory.length < 3) return false;
+private normalizeDifficulty(record: EvalRecord): Record<string, number> {
+  const taxonomyLevels = this.taxonomy.levels;
   
-  // Get current stability from most recent review
-  const latestEntry = evalHistory[evalHistory.length - 1];
-  const currentStability = latestEntry.stability || 0;
-  
-  // Calculate mastery threshold
-  const { masteryThresholdDays = 21 } = this.schedulingParams;
-  const baseThreshold = masteryThresholdDays * 24 * 60 * 60; // Convert days to seconds
-  
-  // Check if stability exceeds threshold
-  const hasStability = currentStability >= baseThreshold;
-  
-  // Check if recent scores are consistently high
-  const recentRecords = evalHistory.slice(-3);
-  const recentScores = recentRecords.map(record => 
-    this.normalizeScore(record.score, record.evaluationDifficulty)
-  );
-  const avgRecentScore = this.calculateAverage(recentScores);
-  const hasHighScores = avgRecentScore >= 0.8;
-  
-  return hasStability && hasHighScores;
-}
-```
-
-### 4.4 Prerequisite Checking
-
-Only concepts whose prerequisites are mastered become available for review:
-
-```typescript
-areAllPrereqsMastered(nodeId: string): boolean {
-  const node = this.nodes.get(nodeId);
-  if (!node) {
-    throw new Error(`Node ${nodeId} not found`);
+  // Case 1: difficulty is already a record
+  if (record.difficulty && typeof record.difficulty === 'object') {
+    return {...record.difficulty};
   }
   
-  // Check if all prereqs are mastered
-  for (const prereqId of Array.from(node.prereqs)) {
-    const prereq = this.nodes.get(prereqId);
-    if (prereq && !prereq.isMastered) {
-      return false;
+  // Case 2: difficulty is a number
+  if (record.difficulty !== undefined && typeof record.difficulty === 'number') {
+    // Create a record with the same value for all levels
+    const result: Record<string, number> = {};
+    for (const level of taxonomyLevels) {
+      result[level] = record.difficulty;
     }
+    return result;
   }
   
-  return true;
+  // Case 3: Look up from registered evaluation types
+  if (record.evaluationType) {
+    if (!this.evaluationTypeRegistry.has(record.evaluationType)) {
+      throw new Error(`EvaluationType "${record.evaluationType}" not registered`);
+    }
+    
+    return {...this.evaluationTypeRegistry.get(record.evaluationType).difficultyByLevel};
+  }
+  
+  // If we get here, neither evaluationType nor difficulty was provided
+  throw new Error('Either evaluationType or difficulty must be provided for EvalRecord');
 }
 ```
 
-## 5. Scheduling Algorithm
+## 6. Scheduling Algorithm
 
-### 5.1 Retrievability Calculation
+### 6.1 Retrievability Calculation
+
+The core retrievability formula remains unchanged, but now works with the abstracted taxonomy:
 
 ```typescript
 private calculateRetrievability(stability: number, elapsedSeconds: number): number {
@@ -238,17 +392,17 @@ private calculateRetrievability(stability: number, elapsedSeconds: number): numb
 }
 ```
 
-### 5.2 Stability Update Calculation
+### 6.2 Stability Update Calculation
 
 ```typescript
 private calculateNewStability(
   prevStability: number, 
   retrievability: number, 
   score: number,
-  evaluationDifficulty: number
+  difficultyForLevel: number
 ): number {
   // Normalize score based on evaluation difficulty
-  const normalizedScore = this.normalizeScore(score, evaluationDifficulty);
+  const normalizedScore = this.normalizeScoreForLevel(score, difficultyForLevel);
   
   // For first review with no previous stability
   if (prevStability === 0) {
@@ -268,412 +422,99 @@ private calculateNewStability(
 }
 ```
 
-### 5.3 Next Review Time Calculation
+## 7. Enhanced Mastery Determination
+
+To support mastery tracking at multiple taxonomy levels:
+
+### 7.1 Direct Mastery Calculation
 
 ```typescript
-private calculateNextReviewTime(evalHistory: EvalRecord[]): number | null {
-  // No history = no review time
-  if (evalHistory.length === 0) return null;
+private calculateDirectMasteryByLevel(
+  evalHistory: EvalRecord[],
+  existingMasteryByLevel: Record<string, boolean> = {},
+  masteryOverrideByLevel: Record<string, boolean> = {}
+): Record<string, boolean> {
+  const result: Record<string, boolean> = { ...existingMasteryByLevel };
   
-  // Get current stability
-  const latestEntry = evalHistory[evalHistory.length - 1];
-  const currentStability = latestEntry.stability || 0;
-  
-  // If no stability yet, no review time
-  if (currentStability === 0) return null;
-  
-  // Calculate interval based on stability and target retrievability
-  const { 
-    targetRetrievability = 0.9, 
-    fuzzFactor = 0.1,
-    rapidReviewScoreThreshold = 0.2,
-    rapidReviewMinMinutes = 5,
-    rapidReviewMaxMinutes = 15
-  } = this.schedulingParams;
-  
-  // Get the latest score
-  const latestScore = latestEntry.score;
-  
-  // If score is very poor (close to 0), schedule a very short interval
-  // This ensures quick reinforcement of struggling concepts
-  if (latestScore <= rapidReviewScoreThreshold) {
-    // Schedule review in rapidReviewMinMinutes to rapidReviewMaxMinutes
-    const minutes = rapidReviewMinMinutes + Math.random() * (rapidReviewMaxMinutes - rapidReviewMinMinutes);
-    return latestEntry.timestamp + minutesToMs(minutes);
+  // Initialize any missing levels
+  for (const level of this.taxonomy.levels) {
+    if (result[level] === undefined) {
+      result[level] = false;
+    }
   }
   
-  // For better scores, use the normal stability-based scheduling
-  // Rearranging the retrievability formula: R = exp(-t/S)
-  // To solve for t: t = -S * ln(R)
-  const interval = -currentStability * Math.log(targetRetrievability);
+  // Apply direct mastery calculation for each level
+  for (const level of this.taxonomy.levels) {
+    // Check for override first
+    if (masteryOverrideByLevel[level] !== undefined) {
+      result[level] = masteryOverrideByLevel[level];
+      continue;
+    }
+    
+    // Calculate mastery based on performance
+    result[level] = this.calculateIsMasteredByLevel(evalHistory, level);
+  }
   
-  // Apply interval fuzz to prevent clustering
-  const fuzz = 1 + (Math.random() * 2 - 1) * fuzzFactor;
-  const fuzzedInterval = interval * fuzz;
-  
-  return latestEntry.timestamp + fuzzedInterval;
+  return result;
 }
 ```
 
-### 5.4 Review Selection
-
-When selecting concepts for review:
+### 7.2 Inferring Mastery Across Levels
 
 ```typescript
-getNodesReadyForReview(): string[] {
-  const now = Date.now();
-  const readyNodes: string[] = [];
+private calculateInferredMasteryByLevel(
+  directMasteryByLevel: Record<string, boolean>,
+  existingMasteryByLevel: Record<string, boolean> = {},
+  masteryOverrideByLevel: Record<string, boolean> = {}
+): Record<string, boolean> {
+  const result: Record<string, boolean> = { ...directMasteryByLevel };
   
-  this.nodes.forEach((node, nodeId) => {
-    // A node is ready for review if:
-    // 1. It has never been reviewed (empty evalHistory) OR
-    // 2. Its next review time has passed
-    const isDueForReview = node.evalHistory.length === 0 || 
-      (node.nextReviewTime !== null && node.nextReviewTime <= now);
-    
-    if (isDueForReview) {
-      // Check if all prerequisites are mastered
-      if (this.areAllPrereqsMastered(nodeId)) {
-        readyNodes.push(nodeId);
+  // Sort levels by complexity (highest to lowest)
+  const sortedLevels = this.taxonomy.getLevelsByDependencyOrder(false);
+  
+  // Apply mastery inference (harder to easier)
+  for (const level of sortedLevels) {
+    // If overridden or directly mastered
+    if (masteryOverrideByLevel[level] === true || result[level] === true) {
+      // Ensure all prerequisite levels are marked as mastered
+      const prerequisites = this.taxonomy.getPrerequisiteLevels(level);
+      for (const prereqLevel of prerequisites) {
+        result[prereqLevel] = true;
       }
     }
-  });
+  }
   
-  return readyNodes;
+  return result;
 }
 ```
 
-## 6. Score Propagation and Metrics
-
-GraphSRS analyzes the entire knowledge graph to provide useful metrics:
-
-### 6.1 Deep Prerequisite Collection
+### 7.3 Updating Prerequisite Masteries
 
 ```typescript
-private collectAllDeepPrereqs(): Map<string, Set<string>> {
-  const allDeepPrereqs = new Map<string, Set<string>>();
-  
-  const getDeepPrereqs = (nodeId: string, visited = new Set<string>()): Set<string> => {
-    // Check for cycles
-    if (visited.has(nodeId)) {
-      return new Set(); // Break cycles
-    }
-    
-    // If already calculated, return cached result
-    if (allDeepPrereqs.has(nodeId)) {
-      return allDeepPrereqs.get(nodeId)!;
-    }
-    
-    // Mark as visited
-    visited.add(nodeId);
-    
-    const node = this.nodes.get(nodeId)!;
-    
-    // Include self in deep prerequisites
-    const deepPrereqs = new Set<string>([nodeId]);
-    
-    // Add all prereqs and their deep prereqs
-    for (const prereqId of Array.from(node.prereqs)) {
-      const prereqDeepPrereqs = getDeepPrereqs(prereqId, new Set(visited));
-      for (const deepPrereq of Array.from(prereqDeepPrereqs)) {
-        deepPrereqs.add(deepPrereq);
-      }
-    }
-    
-    // Cache and return result
-    allDeepPrereqs.set(nodeId, deepPrereqs);
-    return deepPrereqs;
-  };
-  
-  // Calculate for all nodes
+private updatePrerequisiteMasteries(): void {
+  // For each node, check if all prerequisites have mastered each level
   for (const nodeId of Array.from(this.nodes.keys())) {
-    if (!allDeepPrereqs.has(nodeId)) {
-      getDeepPrereqs(nodeId);
-    }
-  }
-  
-  return allDeepPrereqs;
-}
-```
-
-### 6.2 Node Score Calculation
-
-```typescript
-calculateNodeScores(): Map<string, NodeResult> {
-  const allScores = this.collectAllScores();
-  const allDeepPrereqs = this.collectAllDeepPrereqs();
-  const nodeResults = new Map<string, NodeResult>();
-  
-  for (const [nodeId, scores] of Array.from(allScores.entries())) {
     const node = this.nodes.get(nodeId)!;
-    const directScore = this.calculateAverage(
-      node.evalHistory.map(r => r.score)
-    );
-    const fullScore = this.calculateAverage(scores);
-    const deepPrereqs = Array.from(allDeepPrereqs.get(nodeId) || new Set<string>());
     
-    // Get current stability
-    const stability = node.evalHistory.length > 0
-      ? (node.evalHistory[node.evalHistory.length - 1].stability || 0)
-      : 0;
-    
-    // Get current retrievability
-    const retrievability = this.getCurrentRetrievability(nodeId) || 0;
-    
-    nodeResults.set(nodeId, {
-      id: nodeId,
-      all_scores: scores,
-      direct_score: directScore,
-      full_score: fullScore,
-      deepPrereqs,
-      stability,
-      retrievability,
-      isMastered: node.isMastered,
-      nextReviewTime: node.nextReviewTime
-    });
-  }
-  
-  return nodeResults;
-}
-```
-
-## 7. Taxonomy Level Integration (Planned)
-
-### 7.1 Taxonomy Level Definition
-
-```typescript
-export enum TaxonomyLevel {
-  REMEMBER = 'remember',
-  UNDERSTAND = 'understand',
-  APPLY = 'apply',
-  ANALYZE = 'analyze',
-  EVALUATE = 'evaluate',
-  CREATE = 'create'
-}
-
-// Define level dependencies (hierarchical relationship)
-export const TAXONOMY_LEVEL_DEPENDENCIES: Record<string, string | null> = {
-  'remember': null, // Base level
-  'understand': 'remember',
-  'apply': 'understand',
-  'analyze': 'apply',
-  'evaluate': 'analyze',
-  'create': 'evaluate'
-};
-
-// Map evaluation types to their default taxonomy level multipliers
-export const DEFAULT_TAXONOMY_MULTIPLIERS: Record<string, Record<string, number>> = {
-  'flashcard': {
-    'remember': 0.9,
-    'understand': 0.4,
-    'apply': 0.1,
-    'analyze': 0.0,
-    'evaluate': 0.0,
-    'create': 0.0
-  },
-  'multiple_choice': {
-    'remember': 0.8,
-    'understand': 0.6,
-    'apply': 0.3,
-    'analyze': 0.2,
-    'evaluate': 0.1,
-    'create': 0.0
-  },
-  'fill_in_blank': {
-    'remember': 0.9,
-    'understand': 0.7,
-    'apply': 0.4,
-    'analyze': 0.2,
-    'evaluate': 0.1,
-    'create': 0.0
-  },
-  'short_answer': {
-    'remember': 0.7,
-    'understand': 0.8,
-    'apply': 0.7,
-    'analyze': 0.5,
-    'evaluate': 0.4,
-    'create': 0.2
-  },
-  'free_recall': {
-    'remember': 0.9,
-    'understand': 0.8,
-    'apply': 0.6,
-    'analyze': 0.5,
-    'evaluate': 0.3,
-    'create': 0.1
-  },
-  'application': {
-    'remember': 0.5,
-    'understand': 0.7,
-    'apply': 0.9,
-    'analyze': 0.7,
-    'evaluate': 0.5,
-    'create': 0.4
-  }
-};
-
-// Support custom taxonomies
-export interface CustomTaxonomy {
-  name: string;
-  levels: string[];
-  dependencies: Record<string, string | null>;
-  complexities: Record<string, number>;
-}
-```
-
-### 7.2 Enhanced Evaluation Record
-
-```typescript
-export interface EvalRecord {
-  // Existing fields
-  timestamp: number;
-  score: number;
-  evaluationType: string;
-  stability?: number;
-  retrievability?: number;
-  
-  // Legacy field (kept for backward compatibility)
-  evaluationDifficulty?: number;
-  
-  // New field with more expressive power
-  taxonomyLevels?: Record<string, number>; // Maps levels to effectiveness multipliers
-}
-```
-
-When processing evaluation records, if `taxonomyLevels` is missing, the system will:
-1. Use the default multipliers for the specified `evaluationType`
-2. If no default exists, fall back to using `evaluationDifficulty` to generate a simple level mapping
-
-### 7.3 Enhanced Node Structure
-
-```typescript
-interface GraphSRSV1NodeInternal {
-  // Existing fields
-  id: string;
-  evalHistory: EvalRecord[];
-  difficulty: number;
-  isMastered: boolean;
-  masteryOverride: boolean | null;
-  nextReviewTime: number | null;
-  prereqs: Set<string>;
-  postreqs: Set<string>;
-  
-  // New fields for taxonomy tracking
-  masteryByLevel: Record<string, boolean>; // Track mastery per level
-  nextReviewTimeByLevel: Record<string, number | null>; // Schedule per level
-  prereqsMasteredByLevel: Record<string, boolean>; // Precomputed prerequisite status
-}
-```
-
-### 7.4 Updated Constructor Parameters
-
-```typescript
-export interface SchedulingParams {
-  // Existing params
-  forgettingIndex?: number;
-  targetRetrievability?: number;
-  fuzzFactor?: number;
-  masteryThresholdDays?: number;
-  rapidReviewScoreThreshold?: number;
-  rapidReviewMinMinutes?: number;
-  rapidReviewMaxMinutes?: number;
-  
-  // New params
-  targetTaxonomyLevels?: string[]; // Which levels to aim for
-  customTaxonomy?: CustomTaxonomy; // Optional custom taxonomy
-}
-```
-
-### 7.5 Mastery Calculation Per Level
-
-```typescript
-private calculateIsMasteredByLevel(evalHistory: EvalRecord[], level: string): boolean {
-  // Filter history to only include evaluations targeting this level
-  const levelHistory = evalHistory.filter(record => 
-    record.taxonomyLevels?.includes(level)
-  );
-  
-  if (levelHistory.length < 3) return false;
-  
-  // Similar to regular mastery calculation, but using only level-specific records
-  const latestEntry = levelHistory[levelHistory.length - 1];
-  const currentStability = latestEntry.stability || 0;
-  
-  const { masteryThresholdDays = 21 } = this.schedulingParams;
-  const baseThreshold = masteryThresholdDays * 24 * 60 * 60;
-  
-  const hasStability = currentStability >= baseThreshold;
-  
-  const recentRecords = levelHistory.slice(-3);
-  const recentScores = recentRecords.map(record => 
-    this.normalizeScore(record.score, record.evaluationDifficulty)
-  );
-  const avgRecentScore = this.calculateAverage(recentScores);
-  const hasHighScores = avgRecentScore >= 0.8;
-  
-  return hasStability && hasHighScores;
-}
-```
-
-### 7.6 Precomputation of Mastery Status
-
-```typescript
-precomputeMasteryStatus() {
-  // First, compute individual node mastery by level
-  for (const [nodeId, node] of this.nodes.entries()) {
-    for (const level of this.taxonomyLevels) {
-      // Calculate direct mastery
-      node.directMasteryByLevel[level] = this.calculateIsMasteredByLevel(node.evalHistory, level);
+    // Initialize prerequisite mastery tracking
+    if (!node.prereqsMasteredByLevel) {
+      node.prereqsMasteredByLevel = {};
     }
     
-    // Initialize prerequisite status for each level
-    node.prereqsMasteredByLevel = {};
-    node.masteryByLevel = {};
-    for (const level of this.taxonomyLevels) {
+    for (const level of this.taxonomy.levels) {
+      // Start by assuming prerequisites are met
       node.prereqsMasteredByLevel[level] = true;
-    }
-  }
-  
-  // Second pass: Apply "harder → easier" inference for each node
-  for (const node of this.nodes.values()) {
-    // Start with direct mastery
-    node.masteryByLevel = {...node.directMasteryByLevel};
-    
-    // Infer from higher levels to lower levels
-    for (const level of [...this.taxonomyLevels].sort((a, b) => 
-      // Sort from highest to lowest cognitive complexity
-      this.taxonomyLevelComplexity[b] - this.taxonomyLevelComplexity[a]
-    )) {
-      if (node.masteryByLevel[level]) {
-        // If this level is mastered, all prerequisite levels are also mastered
-        let prereqLevel = TAXONOMY_LEVEL_DEPENDENCIES[level];
-        while (prereqLevel) {
-          node.masteryByLevel[prereqLevel] = true;
-          prereqLevel = TAXONOMY_LEVEL_DEPENDENCIES[prereqLevel];
-        }
-      }
-    }
-  }
-  
-  // Third pass: Use existing collectAllDeepPrereqs to determine prerequisite mastery
-  const allDeepPrereqs = this.collectAllDeepPrereqs();
-  
-  // For each node, check if all prerequisites have mastered the required levels
-  for (const [nodeId, node] of this.nodes.entries()) {
-    for (const level of this.taxonomyLevels) {
-      // Get all prerequisites (deep prereqs in our graph) excluding self
-      const allPrereqs = Array.from(allDeepPrereqs.get(nodeId) || new Set());
-      // Remove self from prerequisites
-      const selfIndex = allPrereqs.indexOf(nodeId);
-      if (selfIndex >= 0) {
-        allPrereqs.splice(selfIndex, 1);
-      }
+      
+      // Get all prerequisites (excluding self)
+      const prerequisites = this.getDeepPrereqs(nodeId).filter(id => id !== nodeId);
+      
+      // No prerequisites = automatically met
+      if (prerequisites.length === 0) continue;
       
       // Check if ALL prerequisites have mastered this level
-      for (const prereqId of allPrereqs) {
+      for (const prereqId of prerequisites) {
         const prereq = this.nodes.get(prereqId);
-        if (!prereq || !prereq.masteryByLevel[level]) {
+        if (!prereq || !prereq.masteryByLevel || !prereq.masteryByLevel[level]) {
           node.prereqsMasteredByLevel[level] = false;
           break;
         }
@@ -683,111 +524,74 @@ precomputeMasteryStatus() {
 }
 ```
 
-This implementation takes advantage of the existing `collectAllDeepPrereqs()` function which already efficiently handles graph traversal, caching, and cycle detection. This approach offers several benefits:
+## 8. Enhanced Constructor and Configuration
 
-1. **Reuses existing code**: Leverages the tested graph traversal logic already in place
-2. **Efficient computation**: Avoids redundant traversals by using cached deep prerequisite data
-3. **Clear logic separation**: Handles taxonomy level inference and prerequisite mastery as distinct steps
-4. **Handles cycles gracefully**: Inherits the cycle detection from the underlying traversal function
-
-By first applying the within-node level inference (a higher level mastery implies lower level mastery) and then checking prerequisite mastery across nodes, we get the complete picture of what taxonomy levels are available for review for each concept.
-
-### 7.7 Enhanced Review Selection
+The constructor now supports custom taxonomies and evaluation type registration:
 
 ```typescript
-getNodesReadyForReviewAtLevel(level: string): string[] {
-  const now = Date.now();
-  const readyNodes: string[] = [];
+export interface SchedulingParams {
+  // ... existing parameters
   
-  this.nodes.forEach((node, nodeId) => {
-    // Check if the node is ready for review at this level
-    const levelReviewTime = node.nextReviewTimeByLevel[level] || null;
-    const isDueForLevel = (levelReviewTime !== null && levelReviewTime <= now);
-    
-    // Check taxonomy prerequisite levels
-    const taxonomyPrereqLevel = TAXONOMY_LEVEL_DEPENDENCIES[level];
-    const taxonomyPrereqsMet = !taxonomyPrereqLevel || node.masteryByLevel[taxonomyPrereqLevel];
-    
-    if (isDueForLevel && taxonomyPrereqsMet && node.prereqsMasteredByLevel[level]) {
-      readyNodes.push(nodeId);
-    }
-  });
-  
-  return readyNodes;
+  /** Target taxonomy levels to aim for - default is just the base level */
+  targetTaxonomyLevels?: string[];
 }
-```
 
-### 7.8 Caveats and Considerations
-
-#### Mastery Inference from Higher Levels
-
-The current implementation processes each taxonomy level independently, with a notable limitation:
-
-- **No automatic inference of lower-level mastery**: If a user demonstrates mastery at a higher level (e.g., "create"), the system does not automatically infer mastery at lower levels (e.g., "remember", "understand").
-  
-For example, if a student successfully creates a valid derivative problem (CREATE level), it logically implies they remember and understand derivatives. However, the current design requires explicit evaluations at each level to determine mastery.
-
-This could be addressed with modifications:
-
-```typescript
-// Pseudocode for enhanced mastery calculation
-private enhancedMasteryByLevel(node: GraphSRSV1NodeInternal): Record<string, boolean> {
-  // First calculate direct mastery per level
-  const directMastery = this.calculateDirectMasteryByLevel(node);
-  
-  // Then propagate mastery downward from higher levels
-  const enhancedMastery = {...directMastery};
-  
-  // Process levels from highest to lowest cognitive complexity
-  for (const level of [...this.taxonomyLevels].reverse()) {
-    if (enhancedMastery[level]) {
-      // If this level is mastered, all prerequisite levels should be considered mastered
-      let prereqLevel = TAXONOMY_LEVEL_DEPENDENCIES[level];
-      while (prereqLevel) {
-        enhancedMastery[prereqLevel] = true;
-        prereqLevel = TAXONOMY_LEVEL_DEPENDENCIES[prereqLevel];
+class GraphSRSV1Runner {
+  constructor(
+    params?: SchedulingParams,
+    taxonomy: LevelTaxonomy = bloomsTaxonomy,
+    evaluationTypes?: EvaluationTypeConfig[]
+  ) {
+    this.nodes = new Map();
+    this.edgeIds = new Map();
+    this.schedulingParams = { ...DEFAULT_SCHEDULING_PARAMS, ...params };
+    this.taxonomy = taxonomy;
+    
+    // Create evaluation type registry with provided types or defaults
+    const defaultTypes = createDefaultBloomsEvaluationTypes();
+    this.evaluationTypeRegistry = new EvaluationTypeRegistry(
+      taxonomy,
+      evaluationTypes || defaultTypes
+    );
+    
+    // Ensure target taxonomy levels are valid
+    if (this.schedulingParams.targetTaxonomyLevels) {
+      this.schedulingParams.targetTaxonomyLevels = 
+        this.schedulingParams.targetTaxonomyLevels.filter(level => 
+          taxonomy.levels.includes(level)
+        );
+      
+      // If empty after filtering, use default level
+      if (this.schedulingParams.targetTaxonomyLevels.length === 0) {
+        this.schedulingParams.targetTaxonomyLevels = [taxonomy.defaultLevel];
       }
+    } else {
+      // Default to base level of taxonomy
+      this.schedulingParams.targetTaxonomyLevels = [taxonomy.defaultLevel];
     }
   }
-  
-  return enhancedMastery;
 }
 ```
 
-A future implementation should consider this logical inference to prevent redundant assessments and provide a more accurate representation of a learner's mastery across taxonomy levels.
+## 9. Implementation Notes and Future Work
 
-## 8. Implementation Notes and Future Work
-
-### 8.1 Performance Considerations
+### 9.1 Performance Considerations
 
 - Precompute values where possible to avoid expensive runtime calculations
 - Use topological sorting to efficiently process the DAG
 - Cache results of common operations like deep prerequisite collection
 
-### 8.2 Future Extensions
+### 9.2 Future Extensions
 
 - **Knowledge Decay**: Model differential forgetting rates based on concept connectedness
 - **Personalization**: Adapt difficulty and scheduling based on individual learning patterns
 - **Learning Path Generation**: Recommend optimal sequences of concepts to study
-- **Enhanced Taxonomy Support**: Allow for domain-specific taxonomy customization
-- **Forgetting Propagation**: Model how forgetting a concept affects dependent knowledge
+- **Enhanced Taxonomy Support**: Add more built-in taxonomies for specialized domains
 
-### 8.3 Edge Cases and Handling
+
+### 9.3 Edge Cases and Handling
 
 - **Cycles in the Knowledge Graph**: Detected and handled to prevent infinite recursion
 - **Inconsistent Evaluations**: Weighted by recency and evaluation difficulty
 - **Incomplete Prerequisites**: Prevented from appearing in review selection
-
-### 8.4 Taxonomy Level Multiplier Design
-
-Rather than treating taxonomy level inclusion as binary (included/excluded), we now use multipliers to represent how effectively an evaluation tests each level:
-
-- This is a more accurate model of real-world assessments
-- Provides smooth transitions between levels
-- Allows precise customization of evaluation types
-
-For example, a short answer question might test REMEMBER at 0.7 effectiveness and UNDERSTAND at 0.8 effectiveness, showing that it's slightly better for testing understanding than pure recall.
-
-To support both models:
-1. Legacy code can treat multipliers > 0 as binary inclusion
-2. Enhanced code can use the actual multiplier values for more precise calculations
+- **Missing Evaluation Types**: Will throw explicit errors instead of using defaults
