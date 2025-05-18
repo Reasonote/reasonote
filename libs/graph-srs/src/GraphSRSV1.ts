@@ -47,18 +47,6 @@ export const TAXONOMY_LEVEL_COMPLEXITY: Record<string, number> = {
 };
 
 /**
- * Default difficulty values for evaluation types
- */
-export const EVALUATION_DIFFICULTY: Record<EvaluationType, number> = {
-  [EvaluationType.FLASHCARD]: 0.2,
-  [EvaluationType.MULTIPLE_CHOICE]: 0.2,
-  [EvaluationType.FILL_IN_BLANK]: 0.4,
-  [EvaluationType.SHORT_ANSWER]: 0.6,
-  [EvaluationType.FREE_RECALL]: 0.8,
-  [EvaluationType.APPLICATION]: 0.9
-};
-
-/**
  * Default difficulty multipliers for each evaluation type and taxonomy level
  * These values represent how effectively each evaluation type tests each taxonomy level
  * 0 = not applicable, 1 = perfectly measures the level
@@ -137,7 +125,7 @@ export interface EvalRecord {
   /** 
    * Difficulty factor of the evaluation method
    * Can be either:
-   * - A single number (0-1) representing overall difficulty
+   * - A single number (0-1) representing overall difficulty (as applied to the lowest level of taxonomy)
    * - A record mapping taxonomy levels to difficulty multipliers (0-1)
    * Higher values mean the evaluation more effectively tests the given level
    */
@@ -146,10 +134,6 @@ export interface EvalRecord {
   stability?: number;
   /** Recall probability at time of review (0-1) */
   retrievability?: number;
-  
-  // Legacy fields - kept for backward compatibility
-  evaluationDifficulty?: number;
-  taxonomyLevels?: Record<string, number>;
 }
 
 /**
@@ -380,7 +364,6 @@ export class GraphSRSV1Runner {
    * Handles all input formats:
    * - Number (converts to equal values for all levels)
    * - Record (uses as is)
-   * - Legacy format (converts from evaluationDifficulty + taxonomyLevels)
    * 
    * @param record - Evaluation record to normalize
    * @returns Record mapping taxonomy levels to difficulty values
@@ -403,21 +386,6 @@ export class GraphSRSV1Runner {
       return result;
     }
     
-    // Case 3: Legacy format with taxonomyLevels
-    if (record.taxonomyLevels) {
-      return {...record.taxonomyLevels};
-    }
-    
-    // Case 4: Legacy format with only evaluationDifficulty
-    if (record.evaluationDifficulty !== undefined) {
-      // Use default mapping for this evaluation type
-      if (record.evaluationType in DEFAULT_DIFFICULTIES) {
-        return {...DEFAULT_DIFFICULTIES[record.evaluationType as EvaluationType]};
-      }
-      
-      // Fallback to same value for REMEMBER only
-      return { [TaxonomyLevel.REMEMBER]: 0.9 };
-    }
     
     // Case 5: Default - use defaults for evaluation type or safe fallback
     if (record.evaluationType in DEFAULT_DIFFICULTIES) {
