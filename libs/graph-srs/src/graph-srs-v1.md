@@ -146,23 +146,23 @@ interface GraphSRSV1NodeInternal {
   masteryOverride: boolean | null;
   /** When this concept should be reviewed next */
   nextReviewTime: number | null;
-  /** Set of child node IDs - THESE ARE PREREQUISITES OF THIS NODE */
-  children: Set<string>;
-  /** Set of parent node IDs - THESE ARE DEPENDENT ON THIS NODE */
-  parents: Set<string>;
+  /** Set of prerequisite node IDs - DIRECT PREREQUISITES OF THIS NODE */
+  prereqs: Set<string>;
+  /** Set of postrequisite node IDs - NODES THAT DIRECTLY DEPEND ON THIS NODE */
+  postreqs: Set<string>;
 }
 
 // Edge directions
-type GraphSRSV1EdgeDirection = 'to_child' | 'to_parent';
+type GraphSRSV1EdgeDirection = 'to_prereq' | 'to_postreq';
 ```
 
-### 4.2 Prerequisites vs. Dependents
+### 4.2 Prerequisites vs. Postrequisites
 
 In GraphSRS, the relationship direction is pedagogically significant:
 
-- **Children are prerequisites of their parents**: You need to master prerequisite concepts (children) before learning dependent concepts (parents)
-- `to_child` direction: Node A has Node B as a child, meaning B is a prerequisite of A
-- `to_parent` direction: Node A has Node B as a parent, meaning A is a prerequisite of B
+- **Prereqs are prerequisites of their postreqs**: You need to master prerequisite concepts before learning dependent concepts
+- `to_prereq` direction: Node A has Node B as a prereq, meaning B is a prerequisite of A
+- `to_postreq` direction: Node A has Node B as a postreq, meaning A is a prerequisite of B
 
 ### 4.3 Mastery Determination
 
@@ -207,16 +207,16 @@ private calculateIsMastered(evalHistory: EvalRecord[]): boolean {
 Only concepts whose prerequisites are mastered become available for review:
 
 ```typescript
-areAllPrerequisitesMastered(nodeId: string): boolean {
+areAllPrereqsMastered(nodeId: string): boolean {
   const node = this.nodes.get(nodeId);
   if (!node) {
     throw new Error(`Node ${nodeId} not found`);
   }
   
-  // Check if all children (prerequisites) are mastered
-  for (const childId of Array.from(node.children)) {
-    const child = this.nodes.get(childId);
-    if (child && !child.isMastered) {
+  // Check if all prereqs are mastered
+  for (const prereqId of Array.from(node.prereqs)) {
+    const prereq = this.nodes.get(prereqId);
+    if (prereq && !prereq.isMastered) {
       return false;
     }
   }
@@ -333,7 +333,7 @@ getNodesReadyForReview(): string[] {
     
     if (isDueForReview) {
       // Check if all prerequisites are mastered
-      if (this.areAllPrerequisitesMastered(nodeId)) {
+      if (this.areAllPrereqsMastered(nodeId)) {
         readyNodes.push(nodeId);
       }
     }
@@ -347,21 +347,21 @@ getNodesReadyForReview(): string[] {
 
 GraphSRS analyzes the entire knowledge graph to provide useful metrics:
 
-### 6.1 Descendant Collection
+### 6.1 Deep Prerequisite Collection
 
 ```typescript
-private collectAllDescendants(): Map<string, Set<string>> {
-  const allDescendants = new Map<string, Set<string>>();
+private collectAllDeepPrereqs(): Map<string, Set<string>> {
+  const allDeepPrereqs = new Map<string, Set<string>>();
   
-  const getDescendants = (nodeId: string, visited = new Set<string>()): Set<string> => {
+  const getDeepPrereqs = (nodeId: string, visited = new Set<string>()): Set<string> => {
     // Check for cycles
     if (visited.has(nodeId)) {
       return new Set(); // Break cycles
     }
     
     // If already calculated, return cached result
-    if (allDescendants.has(nodeId)) {
-      return allDescendants.get(nodeId)!;
+    if (allDeepPrereqs.has(nodeId)) {
+      return allDeepPrereqs.get(nodeId)!;
     }
     
     // Mark as visited
@@ -369,30 +369,30 @@ private collectAllDescendants(): Map<string, Set<string>> {
     
     const node = this.nodes.get(nodeId)!;
     
-    // Include self in descendants
-    const descendants = new Set<string>([nodeId]);
+    // Include self in deep prerequisites
+    const deepPrereqs = new Set<string>([nodeId]);
     
-    // Add all children and their descendants
-    for (const childId of Array.from(node.children)) {
-      const childDescendants = getDescendants(childId, new Set(visited));
-      for (const descendant of Array.from(childDescendants)) {
-        descendants.add(descendant);
+    // Add all prereqs and their deep prereqs
+    for (const prereqId of Array.from(node.prereqs)) {
+      const prereqDeepPrereqs = getDeepPrereqs(prereqId, new Set(visited));
+      for (const deepPrereq of Array.from(prereqDeepPrereqs)) {
+        deepPrereqs.add(deepPrereq);
       }
     }
     
     // Cache and return result
-    allDescendants.set(nodeId, descendants);
-    return descendants;
+    allDeepPrereqs.set(nodeId, deepPrereqs);
+    return deepPrereqs;
   };
   
   // Calculate for all nodes
   for (const nodeId of Array.from(this.nodes.keys())) {
-    if (!allDescendants.has(nodeId)) {
-      getDescendants(nodeId);
+    if (!allDeepPrereqs.has(nodeId)) {
+      getDeepPrereqs(nodeId);
     }
   }
   
-  return allDescendants;
+  return allDeepPrereqs;
 }
 ```
 
@@ -401,7 +401,7 @@ private collectAllDescendants(): Map<string, Set<string>> {
 ```typescript
 calculateNodeScores(): Map<string, NodeResult> {
   const allScores = this.collectAllScores();
-  const allDescendants = this.collectAllDescendants();
+  const allDeepPrereqs = this.collectAllDeepPrereqs();
   const nodeResults = new Map<string, NodeResult>();
   
   for (const [nodeId, scores] of Array.from(allScores.entries())) {
@@ -410,7 +410,7 @@ calculateNodeScores(): Map<string, NodeResult> {
       node.evalHistory.map(r => r.score)
     );
     const fullScore = this.calculateAverage(scores);
-    const descendants = Array.from(allDescendants.get(nodeId) || new Set<string>());
+    const deepPrereqs = Array.from(allDeepPrereqs.get(nodeId) || new Set<string>());
     
     // Get current stability
     const stability = node.evalHistory.length > 0
@@ -425,7 +425,7 @@ calculateNodeScores(): Map<string, NodeResult> {
       all_scores: scores,
       direct_score: directScore,
       full_score: fullScore,
-      descendants,
+      deepPrereqs,
       stability,
       retrievability,
       isMastered: node.isMastered,
@@ -556,13 +556,13 @@ interface GraphSRSV1NodeInternal {
   isMastered: boolean;
   masteryOverride: boolean | null;
   nextReviewTime: number | null;
-  children: Set<string>;
-  parents: Set<string>;
+  prereqs: Set<string>;
+  postreqs: Set<string>;
   
   // New fields for taxonomy tracking
   masteryByLevel: Record<string, boolean>; // Track mastery per level
   nextReviewTimeByLevel: Record<string, number | null>; // Schedule per level
-  prerequisitesMasteredByLevel: Record<string, boolean>; // Precomputed prerequisite status
+  prereqsMasteredByLevel: Record<string, boolean>; // Precomputed prerequisite status
 }
 ```
 
@@ -628,10 +628,10 @@ precomputeMasteryStatus() {
     }
     
     // Initialize prerequisite status for each level
-    node.prerequisitesMasteredByLevel = {};
+    node.prereqsMasteredByLevel = {};
     node.masteryByLevel = {};
     for (const level of this.taxonomyLevels) {
-      node.prerequisitesMasteredByLevel[level] = true;
+      node.prereqsMasteredByLevel[level] = true;
     }
   }
   
@@ -656,25 +656,25 @@ precomputeMasteryStatus() {
     }
   }
   
-  // Third pass: Use existing collectAllDescendants to determine prerequisite mastery
-  const allDescendants = this.collectAllDescendants();
+  // Third pass: Use existing collectAllDeepPrereqs to determine prerequisite mastery
+  const allDeepPrereqs = this.collectAllDeepPrereqs();
   
   // For each node, check if all prerequisites have mastered the required levels
   for (const [nodeId, node] of this.nodes.entries()) {
     for (const level of this.taxonomyLevels) {
-      // Get all prerequisites (descendants in our graph) excluding self
-      const prerequisites = Array.from(allDescendants.get(nodeId) || new Set());
+      // Get all prerequisites (deep prereqs in our graph) excluding self
+      const allPrereqs = Array.from(allDeepPrereqs.get(nodeId) || new Set());
       // Remove self from prerequisites
-      const selfIndex = prerequisites.indexOf(nodeId);
+      const selfIndex = allPrereqs.indexOf(nodeId);
       if (selfIndex >= 0) {
-        prerequisites.splice(selfIndex, 1);
+        allPrereqs.splice(selfIndex, 1);
       }
       
       // Check if ALL prerequisites have mastered this level
-      for (const prereqId of prerequisites) {
+      for (const prereqId of allPrereqs) {
         const prereq = this.nodes.get(prereqId);
         if (!prereq || !prereq.masteryByLevel[level]) {
-          node.prerequisitesMasteredByLevel[level] = false;
+          node.prereqsMasteredByLevel[level] = false;
           break;
         }
       }
@@ -683,10 +683,10 @@ precomputeMasteryStatus() {
 }
 ```
 
-This implementation takes advantage of the existing `collectAllDescendants()` function which already efficiently handles graph traversal, caching, and cycle detection. This approach offers several benefits:
+This implementation takes advantage of the existing `collectAllDeepPrereqs()` function which already efficiently handles graph traversal, caching, and cycle detection. This approach offers several benefits:
 
 1. **Reuses existing code**: Leverages the tested graph traversal logic already in place
-2. **Efficient computation**: Avoids redundant traversals by using cached descendant data
+2. **Efficient computation**: Avoids redundant traversals by using cached deep prerequisite data
 3. **Clear logic separation**: Handles taxonomy level inference and prerequisite mastery as distinct steps
 4. **Handles cycles gracefully**: Inherits the cycle detection from the underlying traversal function
 
@@ -708,7 +708,7 @@ getNodesReadyForReviewAtLevel(level: string): string[] {
     const taxonomyPrereqLevel = TAXONOMY_LEVEL_DEPENDENCIES[level];
     const taxonomyPrereqsMet = !taxonomyPrereqLevel || node.masteryByLevel[taxonomyPrereqLevel];
     
-    if (isDueForLevel && taxonomyPrereqsMet && node.prerequisitesMasteredByLevel[level]) {
+    if (isDueForLevel && taxonomyPrereqsMet && node.prereqsMasteredByLevel[level]) {
       readyNodes.push(nodeId);
     }
   });
@@ -762,7 +762,7 @@ A future implementation should consider this logical inference to prevent redund
 
 - Precompute values where possible to avoid expensive runtime calculations
 - Use topological sorting to efficiently process the DAG
-- Cache results of common operations like descendant collection
+- Cache results of common operations like deep prerequisite collection
 
 ### 8.2 Future Extensions
 
