@@ -214,16 +214,16 @@ interface GraphSRSV1NodeInternal {
   masteryOverride: boolean | null;
   /** When this concept should be reviewed next */
   nextReviewTime: number | null;
-  /** Set of child node IDs - THESE ARE PREREQUISITES OF THIS NODE */
-  children: Set<string>;
-  /** Set of parent node IDs - THESE ARE DEPENDENT ON THIS NODE */
-  parents: Set<string>;
+  /** Set of prerequisite node IDs - THESE ARE PREREQUISITES OF THIS NODE */
+  prereqs: Set<string>;
+  /** Set of postrequisite node IDs - THESE ARE DEPENDENT ON THIS NODE */
+  postreqs: Set<string>;
   /** Direct mastery by taxonomy level (without inference) */
   directMasteryByLevel?: Record<string, boolean>;
   /** Mastery status by taxonomy level (with inference) */
   masteryByLevel?: Record<string, boolean>;
   /** Whether prerequisites are mastered for each taxonomy level */
-  prerequisitesMasteredByLevel?: Record<string, boolean>;
+  prereqsMasteredByLevel?: Record<string, boolean>;
   /** When to review this node next for each taxonomy level */
   nextReviewTimeByLevel?: Record<string, number | null>;
 }
@@ -260,10 +260,10 @@ const DEFAULT_NODE_CONFIG: GraphSRSV1NodeConfig = {
 
 /**
  * Edge direction type defining relationship orientation
- * - to_child: fromNode is parent of toNode, toNode is a prerequisite of fromNode
- * - to_parent: fromNode is child of toNode, fromNode is a prerequisite of toNode
+ * - to_prereq: fromNode is postreq of toNode, toNode is a prerequisite of fromNode
+ * - to_postreq: fromNode is prereq of toNode, fromNode is a prerequisite of toNode
  */
-export type GraphSRSV1EdgeDirection = 'to_child' | 'to_parent';
+export type GraphSRSV1EdgeDirection = 'to_prereq' | 'to_postreq';
 
 /**
  * Parameters required for adding a single edge to the graph
@@ -302,14 +302,14 @@ const DEFAULT_EDGE_CONFIG: GraphSRSV1EdgeConfig = {
 export interface NodeResult {
   /** Node identifier */
   id: string;
-  /** All normalized scores from this node and its descendants */
+  /** All normalized scores from this node and its prerequisites */
   all_scores: number[];
   /** Average of this node's own scores */
   direct_score: number;
-  /** Average of all scores from the node and its descendants */
+  /** Average of all scores from the node and its prerequisites */
   full_score: number;
-  /** List of all descendants (including self) */
-  descendants: string[];
+  /** List of all deep prerequisites (including self) */
+  deepPrereqs: string[];
   /** Current memory stability in seconds */
   stability: number;
   /** Current retrievability (0-1) */
@@ -321,7 +321,7 @@ export interface NodeResult {
   /** Mastery status by taxonomy level */
   masteryByLevel?: Record<string, boolean>;
   /** Whether prerequisites are mastered for each taxonomy level */
-  prerequisitesMasteredByLevel?: Record<string, boolean>;
+  prereqsMasteredByLevel?: Record<string, boolean>;
   /** When to review this node next for each taxonomy level */
   nextReviewTimeByLevel?: Record<string, number | null>;
   /** Recommended taxonomy level for review */
@@ -330,7 +330,7 @@ export interface NodeResult {
 
 /**
  * GraphSRSV1Runner implements a directed acyclic graph (DAG) for a spaced repetition system
- * It manages nodes with scores and their parent-child relationships, and provides
+ * It manages nodes with scores and their prerequisite/postrequisite relationships, and provides
  * methods to calculate various metrics based on the graph structure.
  */
 export class GraphSRSV1Runner {
@@ -461,13 +461,13 @@ export class GraphSRSV1Runner {
     
     // If node exists, preserve its relationships
     const existingNode = this.nodes.get(id);
-    const children = existingNode ? existingNode.children : new Set<string>();
-    const parents = existingNode ? existingNode.parents : new Set<string>();
+    const prereqs = existingNode ? existingNode.prereqs : new Set<string>();
+    const postreqs = existingNode ? existingNode.postreqs : new Set<string>();
     
     // Preserve taxonomy level data if existing
     const existingDirectMasteryByLevel = existingNode?.directMasteryByLevel || {};
     const existingMasteryByLevel = existingNode?.masteryByLevel || {};
-    const existingPrerequisitesMasteredByLevel = existingNode?.prerequisitesMasteredByLevel || {};
+    const existingPrereqsMasteredByLevel = existingNode?.prereqsMasteredByLevel || {};
     const existingNextReviewTimeByLevel = existingNode?.nextReviewTimeByLevel || {};
     
     // Process history to fill in calculated fields
@@ -512,11 +512,11 @@ export class GraphSRSV1Runner {
       isMastered,
       masteryOverride,
       nextReviewTime,
-      children,
-      parents,
+      prereqs,
+      postreqs,
       directMasteryByLevel,
       masteryByLevel,
-      prerequisitesMasteredByLevel: existingPrerequisitesMasteredByLevel,
+      prereqsMasteredByLevel: existingPrereqsMasteredByLevel,
       nextReviewTimeByLevel
     });
     
@@ -591,23 +591,23 @@ export class GraphSRSV1Runner {
     const taxonomyLevels = this.getTaxonomyLevels();
     
     // Get all prerequisites
-    const allDescendants = this.collectAllDescendants();
+    const allDeepPrereqs = this.collectAllDeepPrereqs();
     
     // For each node, check if all prerequisites have mastered the required levels
     for (const nodeId of Array.from(this.nodes.keys())) {
       const node = this.nodes.get(nodeId)!;
       
       // Initialize prerequisite mastery tracking
-      if (!node.prerequisitesMasteredByLevel) {
-        node.prerequisitesMasteredByLevel = {};
+      if (!node.prereqsMasteredByLevel) {
+        node.prereqsMasteredByLevel = {};
       }
       
       for (const level of taxonomyLevels) {
         // Start by assuming prerequisites are met
-        node.prerequisitesMasteredByLevel[level] = true;
+        node.prereqsMasteredByLevel[level] = true;
         
         // Get all prerequisites (excluding self)
-        const prerequisites = Array.from(allDescendants.get(nodeId) || new Set<string>());
+        const prerequisites = Array.from(allDeepPrereqs.get(nodeId) || new Set<string>());
         const selfIndex = prerequisites.indexOf(nodeId);
         if (selfIndex >= 0) {
           prerequisites.splice(selfIndex, 1);
@@ -621,7 +621,7 @@ export class GraphSRSV1Runner {
           const prereq = this.nodes.get(prereqId);
           // If the prerequisite doesn't exist or isn't mastered at this level, mark as not ready
           if (!prereq || !prereq.masteryByLevel || !prereq.masteryByLevel[level]) {
-            node.prerequisitesMasteredByLevel[level] = false;
+            node.prereqsMasteredByLevel[level] = false;
             break;
           }
         }
@@ -719,12 +719,12 @@ export class GraphSRSV1Runner {
    * Adds an edge between two nodes in the graph
    * Creates nodes if they don't exist (based on configuration)
    * 
-   * IMPORTANT: In our knowledge graph, children are PREREQUISITES of their parents.
+   * IMPORTANT: In our knowledge graph, prereqs are PREREQUISITES of their postreqs.
    * This means:
-   * - A parent node depends on its children being mastered first
-   * - A child must be mastered before its parents can be effectively learned
-   * - When using 'to_child' direction, you're saying the toId node is a prerequisite of fromId
-   * - When using 'to_parent' direction, you're saying the fromId node is a prerequisite of toId
+   * - A postreq node depends on its prereqs being mastered first
+   * - A prereq must be mastered before its postreqs can be effectively learned
+   * - When using 'to_prereq' direction, you're saying the toId node is a prerequisite of fromId
+   * - When using 'to_postreq' direction, you're saying the fromId node is a prerequisite of toId
    * 
    * @param params - Parameters for edge creation including source, target, direction, and ID
    */
@@ -754,17 +754,17 @@ export class GraphSRSV1Runner {
     const toNode = this.nodes.get(toId)!;
     
     // Set up the relationship based on direction
-    if (direction === 'to_child') {
-      // fromNode has toNode as a child
-      fromNode.children.add(toId);
-      toNode.parents.add(fromId);
+    if (direction === 'to_prereq') {
+      // fromNode has toNode as a prereq
+      fromNode.prereqs.add(toId);
+      toNode.postreqs.add(fromId);
       
       // Store the edge ID
       this.edgeIds.set(`${fromId}->${toId}`, id);
     } else {
-      // fromNode has toNode as a parent
-      fromNode.parents.add(toId);
-      toNode.children.add(fromId);
+      // fromNode has toNode as a postreq
+      fromNode.postreqs.add(toId);
+      toNode.prereqs.add(fromId);
       
       // Store the edge ID
       this.edgeIds.set(`${toId}->${fromId}`, id);
@@ -809,33 +809,33 @@ export class GraphSRSV1Runner {
 
   /**
    * Gets the number of root nodes in the graph
-   * Root nodes are defined as nodes with no parents
+   * Root nodes are defined as nodes with no postreqs
    * 
    * @returns Number of root nodes
    */
   getNumRoots(): number {
-    return Array.from(this.nodes.values()).filter(node => node.parents.size === 0).length;
+    return Array.from(this.nodes.values()).filter(node => node.postreqs.size === 0).length;
   }
 
   /**
    * Gets the IDs of all root nodes in the graph
-   * Root nodes are defined as nodes with no parents
+   * Root nodes are defined as nodes with no postreqs
    * 
    * @returns Array of root node IDs
    */
   getRootIds(): string[] {
-    return Array.from(this.nodes.values()).filter(node => node.parents.size === 0).map(node => node.id);
+    return Array.from(this.nodes.values()).filter(node => node.postreqs.size === 0).map(node => node.id);
   }
 
   /**
-   * Calculates the first path to a top-level parent by recursively getting the first parent
+   * Calculates the first path to a top-level postreq by recursively getting the first postreq
    * Returns a path from the root ancestor to the specified node
    * 
    * @param fromId - ID of the starting node
    * @param visited - Set of already visited node IDs to prevent infinite cycles
    * @returns Array representing the path from root ancestor to the node
    */
-  firstParentPath(fromId: string, visited: Set<string> = new Set()): string[] {
+  firstPostreqPath(fromId: string, visited: Set<string> = new Set()): string[] {
     const node = this.nodes.get(fromId);
     if (!node) {
       throw new Error(`Node ${fromId} not found`);
@@ -849,13 +849,13 @@ export class GraphSRSV1Runner {
     // Add current node to visited set
     visited.add(fromId);
 
-    const firstParent = Array.from(node.parents)[0];
+    const firstPostreq = Array.from(node.postreqs)[0];
 
-    if (!firstParent) {
+    if (!firstPostreq) {
       return [fromId];
     }
 
-    return [...this.firstParentPath(firstParent, visited), fromId];
+    return [...this.firstPostreqPath(firstPostreq, visited), fromId];
   }
 
   /**
@@ -1106,7 +1106,7 @@ export class GraphSRSV1Runner {
       
       if (isDueForReview) {
         // Check if all prerequisites are mastered
-        if (this.areAllPrerequisitesMastered(nodeId)) {
+        if (this.areAllPrereqsMastered(nodeId)) {
           readyNodes.push(nodeId);
         }
       }
@@ -1118,24 +1118,21 @@ export class GraphSRSV1Runner {
   /**
    * Checks if all prerequisites of a node are mastered
    * 
-   * IMPORTANT: In our model, a node's CHILDREN are its prerequisites.
-   * This is the opposite of many traditional tree structures where parents
-   * come before children, but it makes sense in a learning context:
-   * you need to master prerequisites (children) before learning advanced concepts (parents).
+   * IMPORTANT: In our model, a node's PREREQS are its prerequisites.
    * 
    * @param nodeId Node identifier
-   * @returns True if all prerequisites (children) are mastered
+   * @returns True if all prerequisites are mastered
    */
-  areAllPrerequisitesMastered(nodeId: string): boolean {
+  areAllPrereqsMastered(nodeId: string): boolean {
     const node = this.nodes.get(nodeId);
     if (!node) {
       throw new Error(`Node ${nodeId} not found`);
     }
     
-    // Check if all children (prerequisites) are mastered
-    for (const childId of Array.from(node.children)) {
-      const child = this.nodes.get(childId);
-      if (child && !child.isMastered) {
+    // Check if all prereqs are mastered
+    for (const prereqId of Array.from(node.prereqs)) {
+      const prereq = this.nodes.get(prereqId);
+      if (prereq && !prereq.isMastered) {
         return false;
       }
     }
@@ -1176,32 +1173,32 @@ export class GraphSRSV1Runner {
   }
 
   /**
-   * Phase 1 of score calculation: Collects all descendants for each node
+   * Phase 1 of score calculation: Collects all deep prereqs for each node
    * Handles cycles in the graph by returning empty sets for visited nodes
    * 
-   * @returns Map of node IDs to their descendant sets (including self)
+   * @returns Map of node IDs to their deep prereq sets (including self)
    */
-  private collectAllDescendants(): Map<string, Set<string>> {
+  private collectAllDeepPrereqs(): Map<string, Set<string>> {
     // Validate all nodes exist
     for (const node of Array.from(this.nodes.values())) {
-      for (const childId of Array.from(node.children)) {
-        if (!this.nodes.has(childId)) {
-          throw new Error(`Node ${childId} not found`);
+      for (const prereqId of Array.from(node.prereqs)) {
+        if (!this.nodes.has(prereqId)) {
+          throw new Error(`Node ${prereqId} not found`);
         }
       }
     }
 
-    const allDescendants = new Map<string, Set<string>>();
+    const allDeepPrereqs = new Map<string, Set<string>>();
     
-    const getDescendants = (nodeId: string, visited = new Set<string>()): Set<string> => {
+    const getDeepPrereqs = (nodeId: string, visited = new Set<string>()): Set<string> => {
       // Check for cycles
       if (visited.has(nodeId)) {
         return new Set(); // In case of cycle, return empty set
       }
       
-      // If we've already calculated descendants for this node, return them
-      if (allDescendants.has(nodeId)) {
-        return allDescendants.get(nodeId)!;
+      // If we've already calculated deep prereqs for this node, return them
+      if (allDeepPrereqs.has(nodeId)) {
+        return allDeepPrereqs.get(nodeId)!;
       }
       
       // Mark this node as visited in current path
@@ -1210,49 +1207,49 @@ export class GraphSRSV1Runner {
       const node = this.nodes.get(nodeId)!;
       
       // Start with just this node
-      const descendants = new Set<string>([nodeId]);
+      const deepPrereqs = new Set<string>([nodeId]);
       
-      // Add all children and their descendants
-      for (const childId of Array.from(node.children)) {
-        const childDescendants = getDescendants(childId, new Set(visited));
-        for (const descendant of Array.from(childDescendants)) {
-          descendants.add(descendant);
+      // Add all prereqs and their deep prereqs
+      for (const prereqId of Array.from(node.prereqs)) {
+        const prereqDeepPrereqs = getDeepPrereqs(prereqId, new Set(visited));
+        for (const deepPrereq of Array.from(prereqDeepPrereqs)) {
+          deepPrereqs.add(deepPrereq);
         }
       }
       
       // Store and return the result
-      allDescendants.set(nodeId, descendants);
-      return descendants;
+      allDeepPrereqs.set(nodeId, deepPrereqs);
+      return deepPrereqs;
     };
     
     // Process all nodes
     for (const nodeId of Array.from(this.nodes.keys())) {
-      if (!allDescendants.has(nodeId)) {
-        getDescendants(nodeId);
+      if (!allDeepPrereqs.has(nodeId)) {
+        getDeepPrereqs(nodeId);
       }
     }
     
-    return allDescendants;
+    return allDeepPrereqs;
   }
   
   /**
-   * Phase 2 of score calculation: Aggregates scores from descendants
-   * For each node, collects scores from all its descendants
+   * Phase 2 of score calculation: Aggregates scores from deep prereqs
+   * For each node, collects scores from all its deep prereqs
    * 
-   * @param allDescendants - Map of node IDs to their descendant sets
+   * @param allDeepPrereqs - Map of node IDs to their deep prereq sets
    * @returns Map of node IDs to arrays of all relevant scores
    */
-  private calculateScores(allDescendants: Map<string, Set<string>>): Map<string, number[]> {
+  private calculateScores(allDeepPrereqs: Map<string, Set<string>>): Map<string, number[]> {
     const allScores = new Map<string, number[]>();
     
-    for (const [nodeId, descendants] of Array.from(allDescendants.entries())) {
-      // Collect scores from all descendants
+    for (const [nodeId, deepPrereqs] of Array.from(allDeepPrereqs.entries())) {
+      // Collect scores from all deep prereqs
       const scores: number[] = [];
       
-      for (const descendantId of Array.from(descendants)) {
-        const descendantNode = this.nodes.get(descendantId);
-        if (descendantNode) {
-          scores.push(...descendantNode.evalHistory.map(r => r.score));
+      for (const deepPrereqId of Array.from(deepPrereqs)) {
+        const deepPrereqNode = this.nodes.get(deepPrereqId);
+        if (deepPrereqNode) {
+          scores.push(...deepPrereqNode.evalHistory.map(r => r.score));
         }
       }
       
@@ -1263,33 +1260,33 @@ export class GraphSRSV1Runner {
   }
 
   /**
-   * Collects all scores for each node from itself and all its descendants
+   * Collects all scores for each node from itself and all its deep prereqs
    * This is a two-phase process:
-   * 1. Collect all descendants for each node
-   * 2. Collect scores from all descendants
+   * 1. Collect all deep prereqs for each node
+   * 2. Collect scores from all deep prereqs
    * 
    * @returns Map of node IDs to arrays of all relevant scores
    */
   collectAllScores(): Map<string, number[]> {
-    // Phase 1: Collect all descendants
-    const allDescendants = this.collectAllDescendants();
+    // Phase 1: Collect all deep prereqs
+    const allDeepPrereqs = this.collectAllDeepPrereqs();
     
-    // Phase 2: Calculate scores based on descendants
-    return this.calculateScores(allDescendants);
+    // Phase 2: Calculate scores based on deep prereqs
+    return this.calculateScores(allDeepPrereqs);
   }
   
   /**
    * Calculates comprehensive score metrics for each node in the graph
    * For each node, calculates:
    * - direct_score: Average of the node's own scores
-   * - full_score: Average of all scores from the node and its descendants
-   * - Also includes memory model metrics and the complete list of descendants
+   * - full_score: Average of all scores from the node and its deep prereqs
+   * - Also includes memory model metrics and the complete list of deep prereqs
    * 
    * @returns Map of node IDs to NodeResult objects containing the metrics
    */
   calculateNodeScores(): Map<string, NodeResult> {
     const allScores = this.collectAllScores();
-    const allDescendants = this.collectAllDescendants();
+    const allDeepPrereqs = this.collectAllDeepPrereqs();
     const nodeResults = new Map<string, NodeResult>();
     
     for (const [nodeId, scores] of Array.from(allScores.entries())) {
@@ -1298,7 +1295,7 @@ export class GraphSRSV1Runner {
         node.evalHistory.map(r => r.score)
       );
       const fullScore = this.calculateAverage(scores);
-      const descendants = Array.from(allDescendants.get(nodeId) || new Set<string>());
+      const deepPrereqs = Array.from(allDeepPrereqs.get(nodeId) || new Set<string>());
       
       // Get current stability
       const stability = node.evalHistory.length > 0
@@ -1316,13 +1313,13 @@ export class GraphSRSV1Runner {
         all_scores: scores,
         direct_score: directScore,
         full_score: fullScore,
-        descendants,
+        deepPrereqs,
         stability,
         retrievability,
         isMastered: node.isMastered,
         nextReviewTime: node.nextReviewTime,
         masteryByLevel: node.masteryByLevel,
-        prerequisitesMasteredByLevel: node.prerequisitesMasteredByLevel,
+        prereqsMasteredByLevel: node.prereqsMasteredByLevel,
         nextReviewTimeByLevel: node.nextReviewTimeByLevel,
         recommendedTaxonomyLevel
       });
@@ -1511,7 +1508,7 @@ export class GraphSRSV1Runner {
     // Use direct key access instead of entries() iterator
     this.nodes.forEach((node, nodeId) => {
       // Check if the node has taxonomy level data
-      if (!node.masteryByLevel || !node.prerequisitesMasteredByLevel || !node.nextReviewTimeByLevel) {
+      if (!node.masteryByLevel || !node.prereqsMasteredByLevel || !node.nextReviewTimeByLevel) {
         return; // Skip nodes without taxonomy data
       }
       
@@ -1530,7 +1527,7 @@ export class GraphSRSV1Runner {
       
       if (isDueForLevel) {
         // Check if all prerequisites are mastered at this level
-        if (node.prerequisitesMasteredByLevel[level]) {
+        if (node.prereqsMasteredByLevel[level]) {
           readyNodes.push(nodeId);
         }
       }
@@ -1568,7 +1565,7 @@ export class GraphSRSV1Runner {
    */
   getRecommendedTaxonomyLevelForNode(nodeId: string): string | null {
     const node = this.nodes.get(nodeId);
-    if (!node || !node.masteryByLevel || !node.prerequisitesMasteredByLevel) {
+    if (!node || !node.masteryByLevel || !node.prereqsMasteredByLevel) {
       return null;
     }
     
@@ -1599,7 +1596,7 @@ export class GraphSRSV1Runner {
         (!node.nextReviewTimeByLevel?.[level]) ||
         (node.nextReviewTimeByLevel?.[level] !== null && node.nextReviewTimeByLevel?.[level]! <= now);
       
-      if (isDueForLevel && node.prerequisitesMasteredByLevel[level]) {
+      if (isDueForLevel && node.prereqsMasteredByLevel[level]) {
         return level;
       }
     }

@@ -58,7 +58,7 @@ describe('GraphSRSV1Runner', () => {
       // Add initial nodes and relationship
       runner.addNode({ id: 'A', evalHistory: [createRecord(0.8)] });
       runner.addNode({ id: 'B', evalHistory: [createRecord(0.9)] });
-      runner.addEdge({ fromId: 'A', toId: 'B', direction: 'to_child', id: 'AB' });
+      runner.addEdge({ fromId: 'A', toId: 'B', direction: 'to_prereq', id: 'AB' });
       
       // Overwrite node A with new evaluation history
       runner.addNode({ id: 'A', evalHistory: [createRecord(1.0)] });
@@ -69,14 +69,14 @@ describe('GraphSRSV1Runner', () => {
       expect(allScores.get('A')?.sort()).toEqual([1.0, 0.9].sort());
     });
     
-    it('should support to_parent direction when adding edges', () => {
+    it('should support to_postreq direction when adding edges', () => {
       const runner = new GraphSRSV1Runner();
       
       runner.addNode({ id: 'A', evalHistory: [createRecord(0.8)] });
       runner.addNode({ id: 'B', evalHistory: [createRecord(0.9)] });
       
-      // Add edge with B as parent of A
-      runner.addEdge({ fromId: 'A', toId: 'B', direction: 'to_parent', id: 'AB' });
+      // Add edge with B as postreq of A
+      runner.addEdge({ fromId: 'A', toId: 'B', direction: 'to_postreq', id: 'AB' });
       
       const allScores = runner.collectAllScores();
       
@@ -91,7 +91,7 @@ describe('GraphSRSV1Runner', () => {
       const runner = new GraphSRSV1Runner();
       
       // Add edge between non-existent nodes
-      runner.addEdge({ fromId: 'A', toId: 'B', direction: 'to_child', id: 'AB' });
+      runner.addEdge({ fromId: 'A', toId: 'B', direction: 'to_prereq', id: 'AB' });
       
       // Add evaluation history to the auto-created nodes
       runner.addNode({ id: 'A', evalHistory: [createRecord(0.8)] });
@@ -108,7 +108,7 @@ describe('GraphSRSV1Runner', () => {
       
       // Should throw for non-existent fromId
       expect(() => 
-        runner.addEdge({ fromId: 'A', toId: 'B', direction: 'to_child', id: 'AB', config: { createRefsIfNotExistent: false } })
+        runner.addEdge({ fromId: 'A', toId: 'B', direction: 'to_prereq', id: 'AB', config: { createRefsIfNotExistent: false } })
       ).toThrow('Node A not found');
       
       // Add node A, but B still doesn't exist
@@ -116,7 +116,7 @@ describe('GraphSRSV1Runner', () => {
       
       // Should throw for non-existent toId
       expect(() => 
-        runner.addEdge({ fromId: 'A', toId: 'B', direction: 'to_child', id: 'AB', config: { createRefsIfNotExistent: false } })
+        runner.addEdge({ fromId: 'A', toId: 'B', direction: 'to_prereq', id: 'AB', config: { createRefsIfNotExistent: false } })
       ).toThrow('Node B not found');
     });
     
@@ -129,12 +129,12 @@ describe('GraphSRSV1Runner', () => {
       runner.addNode({ id: 'C', evalHistory: [createRecord(0.9)] });
       runner.addNode({ id: 'D', evalHistory: [createRecord(1.0)] });
       
-      // Add multiple children at once
-      runner.addEdges('A', ['B', 'C', 'D'], 'to_child', ['AB', 'AC', 'AD']);
+      // Add multiple prereqs at once
+      runner.addEdges('A', ['B', 'C', 'D'], 'to_prereq', ['AB', 'AC', 'AD']);
       
       const allScores = runner.collectAllScores();
       
-      // A should have all child scores
+      // A should have all prereq scores
       expect(allScores.get('A')?.sort()).toEqual([0.7, 0.8, 0.9, 1.0].sort());
       
       // Edge IDs should be stored correctly
@@ -149,17 +149,17 @@ describe('GraphSRSV1Runner', () => {
     it('should correctly propagate scores in a simple linear graph', () => {
       const runner = new GraphSRSV1Runner();
       
-      // Create a linear A -> B -> C graph
+      // Create a linear A -> B -> C graph where C is prereq of B, B is prereq of A
       runner.addNode({ id: 'A', evalHistory: [createRecord(0.8)] });
       runner.addNode({ id: 'B', evalHistory: [createRecord(0.9)] });
       runner.addNode({ id: 'C', evalHistory: [createRecord(1.0)] });
       
-      runner.addEdge({ fromId: 'A', toId: 'B', direction: 'to_child', id: 'AB' });
-      runner.addEdge({ fromId: 'B', toId: 'C', direction: 'to_child', id: 'BC' });
+      runner.addEdge({ fromId: 'A', toId: 'B', direction: 'to_prereq', id: 'AB' });
+      runner.addEdge({ fromId: 'B', toId: 'C', direction: 'to_prereq', id: 'BC' });
       
       const allScores = runner.collectAllScores();
       
-      // Check score propagation upward
+      // Check score propagation upward from prereqs to postreqs
       expect(allScores.get('C')).toEqual([1.0]);
       expect(allScores.get('B')?.sort()).toEqual([0.9, 1.0].sort());
       expect(allScores.get('A')?.sort()).toEqual([0.8, 0.9, 1.0].sort());
@@ -174,11 +174,11 @@ describe('GraphSRSV1Runner', () => {
       runner.addNode({ id: 'C', evalHistory: [createRecord(0.9)] });
       runner.addNode({ id: 'D', evalHistory: [createRecord(1.0)] });
       
-      // A is parent to B and C, both B and C are parents to D
-      runner.addEdge({ fromId: 'A', toId: 'B', direction: 'to_child', id: 'AB' });
-      runner.addEdge({ fromId: 'A', toId: 'C', direction: 'to_child', id: 'AC' });
-      runner.addEdge({ fromId: 'B', toId: 'D', direction: 'to_child', id: 'BD' });
-      runner.addEdge({ fromId: 'C', toId: 'D', direction: 'to_child', id: 'CD' });
+      // A is postreq to B and C, both B and C are postreqs to D
+      runner.addEdge({ fromId: 'A', toId: 'B', direction: 'to_prereq', id: 'AB' });
+      runner.addEdge({ fromId: 'A', toId: 'C', direction: 'to_prereq', id: 'AC' });
+      runner.addEdge({ fromId: 'B', toId: 'D', direction: 'to_prereq', id: 'BD' });
+      runner.addEdge({ fromId: 'C', toId: 'D', direction: 'to_prereq', id: 'CD' });
       
       const allScores = runner.collectAllScores();
       
@@ -198,9 +198,9 @@ describe('GraphSRSV1Runner', () => {
       runner.addNode({ id: 'C', evalHistory: [createRecord(0.9)] });
       
       // Create a cycle: A -> B -> C -> A
-      runner.addEdge({ fromId: 'A', toId: 'B', direction: 'to_child', id: 'AB' });
-      runner.addEdge({ fromId: 'B', toId: 'C', direction: 'to_child', id: 'BC' });
-      runner.addEdge({ fromId: 'C', toId: 'A', direction: 'to_child', id: 'CA' });
+      runner.addEdge({ fromId: 'A', toId: 'B', direction: 'to_prereq', id: 'AB' });
+      runner.addEdge({ fromId: 'B', toId: 'C', direction: 'to_prereq', id: 'BC' });
+      runner.addEdge({ fromId: 'C', toId: 'A', direction: 'to_prereq', id: 'CA' });
       
       // This should complete without hanging
       const allScores = runner.collectAllScores();
@@ -301,7 +301,7 @@ describe('GraphSRSV1Runner', () => {
       
       // Node should be mastered due to high stability and good scores
       // Skip stability check and directly test the mastery
-      expect(nodeScores.get('A')?.isMastered).toBe(true);
+      expect(nodeScores.get('A')).toBe(true);
     });
     
     it('should not consider a node mastered with insufficient reviews', () => {
@@ -448,7 +448,7 @@ describe('GraphSRSV1Runner', () => {
         ]});
         
         // Set up dependency (A depends on B)
-        runner.addEdge({ fromId: 'A', toId: 'B', direction: 'to_child', id: 'AB' });
+        runner.addEdge({ fromId: 'A', toId: 'B', direction: 'to_prereq', id: 'AB' });
         
         // Get nodes ready for review
         const readyNodes = runner.getNodesReadyForReview();
@@ -474,7 +474,7 @@ describe('GraphSRSV1Runner', () => {
         ]});
         
         // Set up dependency: B is a prerequisite of A (A depends on B)
-        runner.addEdge({ fromId: 'A', toId: 'B', direction: 'to_child', id: 'AB' });
+        runner.addEdge({ fromId: 'A', toId: 'B', direction: 'to_prereq', id: 'AB' });
         
         // Get nodes ready for review
         const readyNodes = runner.getNodesReadyForReview();
@@ -500,7 +500,7 @@ describe('GraphSRSV1Runner', () => {
         ]});
         
         // Set up dependency: B is a prerequisite of A (A depends on B)
-        runner.addEdge({ fromId: 'A', toId: 'B', direction: 'to_child', id: 'AB' });
+        runner.addEdge({ fromId: 'A', toId: 'B', direction: 'to_prereq', id: 'AB' });
         
         // Get nodes ready for review
         const readyNodes = runner.getNodesReadyForReview();
@@ -526,7 +526,7 @@ describe('GraphSRSV1Runner', () => {
         ]});
         
         // Set up dependency: B is a prerequisite of A (A depends on B)
-        runner.addEdge({ fromId: 'A', toId: 'B', direction: 'to_child', id: 'AB' });
+        runner.addEdge({ fromId: 'A', toId: 'B', direction: 'to_prereq', id: 'AB' });
         
         // Get nodes ready for review
         const readyNodes = runner.getNodesReadyForReview();
@@ -556,7 +556,7 @@ describe('GraphSRSV1Runner', () => {
         ]});
         
         // Set up dependency: B is a prerequisite of A (A depends on B)
-        runner.addEdge({ fromId: 'A', toId: 'B', direction: 'to_child', id: 'AB' });
+        runner.addEdge({ fromId: 'A', toId: 'B', direction: 'to_prereq', id: 'AB' });
         
         // Get nodes ready for review
         const readyNodes = runner.getNodesReadyForReview();
@@ -580,8 +580,7 @@ describe('GraphSRSV1Runner', () => {
         ]});
 
         // Set up dependency: B is a prerequisite of A (A depends on B)
-        // This means B is a child of A in our graph model
-        runner.addEdge({ fromId: 'A', toId: 'B', direction: 'to_child', id: 'AB' });
+        runner.addEdge({ fromId: 'A', toId: 'B', direction: 'to_prereq', id: 'AB' });
         
         // Force review time to be in the past - need to use public API
         // We'll just add another score with an explicit past timestamp
@@ -798,10 +797,13 @@ describe('GraphSRSV1Runner', () => {
       // Calculate node scores
       const nodeScores = runner.calculateNodeScores();
       const node = nodeScores.get('concept1');
-      const internalNode = runner.nodes.get('concept1');
+      
+      // We can't access private properties in tests, so remove this line
+      // const internalNode = runner.nodes.get('concept1');
 
       console.log(node);
-      console.log(internalNode);
+      // console.log(internalNode);
+      
       // Check mastery by level
       expect(node?.masteryByLevel).toBeDefined();
       expect(node?.masteryByLevel?.[TaxonomyLevel.REMEMBER]).toBe(true);
@@ -916,7 +918,7 @@ describe('GraphSRSV1Runner', () => {
       runner.addEdge({ 
         fromId: 'dependent', 
         toId: 'prerequisite', 
-        direction: 'to_child', 
+        direction: 'to_prereq', 
         id: 'dep-prereq' 
       });
       
