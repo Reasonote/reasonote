@@ -5,6 +5,7 @@ import {useRsnUser} from "@/clientOnly/hooks/useRsnUser";
 import {
   ACSBDefaultInfiniteScroll,
 } from "@/components/lists/ACSBDefaultInfiniteScroll";
+import {MuiMarkdownDefault} from "@/components/markdown/MuiMarkdownDefault";
 import {useQuery} from "@apollo/client";
 import {
   BookmarkBorder,
@@ -104,14 +105,25 @@ function HighlightCard({ highlight }: { highlight: HighlightFlatFragFragment }) 
   const highlightDate = highlight.highlightedAt || highlight.createdDate;
 
   return (
-    <Card sx={{ mb: 2 }}>
-      <CardContent>
+    <Card sx={{ mb: .5 }}>
+      <CardContent sx={{ pb: 0, mb: 0}}>
         <Stack spacing={2}>
           {/* Header with source info */}
           <Stack direction="row" alignItems="center" justifyContent="space-between">
             <Stack direction="row" alignItems="center" spacing={1}>
               {getIntegrationIcon(integration?.type)}
-              <Typography variant="body2" color="text.secondary">
+              <Typography 
+                variant="body2" 
+                color="text.secondary"
+                onClick={highlight.targetUrl ? () => window.open(highlight.targetUrl!, '_blank') : undefined}
+                sx={{ 
+                  cursor: highlight.targetUrl ? 'pointer' : 'default',
+                  '&:hover': highlight.targetUrl ? {
+                    color: 'primary.main',
+                    textDecoration: 'underline'
+                  } : {}
+                }}
+              >
                 {sourceTitle}
                 {sourceAuthor && ` by ${sourceAuthor}`}
               </Typography>
@@ -148,9 +160,7 @@ function HighlightCard({ highlight }: { highlight: HighlightFlatFragFragment }) 
               padding: 2,
             }}
           >
-            <Typography variant="body1" sx={{ fontStyle: 'italic' }}>
-              "{highlight.content}"
-            </Typography>
+            <MuiMarkdownDefault>{highlight.content}</MuiMarkdownDefault>
           </Box>
 
           {/* Note if present */}
@@ -162,12 +172,12 @@ function HighlightCard({ highlight }: { highlight: HighlightFlatFragFragment }) 
             </Box>
           )}
 
-          {/* Location if present */}
+          {/* Location if present
           {highlight.location && (
             <Typography variant="caption" color="text.secondary">
               Location: {highlight.location}
             </Typography>
-          )}
+          )} */}
 
           {/* Tags */}
           {highlight.tags && highlight.tags.length > 0 && (
@@ -332,8 +342,8 @@ export default function HighlightsPage() {
           <CardContent>
             <Stack spacing={3}>
               <Stack direction="row" alignItems="center" spacing={2}>
-                <FilterList />
-                <Typography variant="h6">Filters</Typography>
+                <FilterList fontSize="small" />
+                <Typography variant="body1">Filters</Typography>
                 {hasActiveFilters && (
                   <Button
                     size="small"
@@ -355,6 +365,7 @@ export default function HighlightsPage() {
                   InputProps={{
                     startAdornment: <Search sx={{ mr: 1, color: 'text.secondary' }} />,
                   }}
+                  size="small"
                   sx={{ flex: 1 }}
                 />
 
@@ -365,6 +376,7 @@ export default function HighlightsPage() {
                     value={selectedIntegration}
                     onChange={handleIntegrationChange}
                     label="Integration"
+                    size="small"
                   >
                     <MenuItem value="all">All Integrations</MenuItem>
                     <MenuItem value="readwise">Readwise</MenuItem>
