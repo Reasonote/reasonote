@@ -1305,6 +1305,7 @@ export type Database = {
           source_external_id: string | null
           source_integration_id: string
           source_metadata: Json | null
+          source_name: string | null
           tags: string[] | null
           target_rsn_page_id: string | null
           target_snip_id: string | null
@@ -1323,6 +1324,7 @@ export type Database = {
           source_external_id?: string | null
           source_integration_id: string
           source_metadata?: Json | null
+          source_name?: string | null
           tags?: string[] | null
           target_rsn_page_id?: string | null
           target_snip_id?: string | null
@@ -1341,6 +1343,7 @@ export type Database = {
           source_external_id?: string | null
           source_integration_id?: string
           source_metadata?: Json | null
+          source_name?: string | null
           tags?: string[] | null
           target_rsn_page_id?: string | null
           target_snip_id?: string | null
