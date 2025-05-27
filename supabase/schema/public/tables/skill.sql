@@ -61,7 +61,7 @@
 --     TABLE "snip" CONSTRAINT "snip_root_skill_fkey" FOREIGN KEY (root_skill) REFERENCES skill(id) ON DELETE SET NULL
 --     TABLE "user_history" CONSTRAINT "user_history_skill_id_visited_fkey" FOREIGN KEY (skill_id_visited) REFERENCES skill(id) ON DELETE CASCADE
 --     TABLE "user_skill" CONSTRAINT "user_skill_skill_fkey" FOREIGN KEY (skill) REFERENCES skill(id) ON DELETE CASCADE
---     TABLE "user_skill_sysdata" CONSTRAINT "user_skill_sysdata_skill_fkey" FOREIGN KEY (skill) REFERENCES skill(id)
+--     TABLE "user_skill_sysdata" CONSTRAINT "user_skill_sysdata_skill_fkey" FOREIGN KEY (skill) REFERENCES skill(id) ON DELETE CASCADE
 -- Policies:
 --     POLICY "skill DELETE" FOR DELETE
 --       USING (((EXISTS ( SELECT 1

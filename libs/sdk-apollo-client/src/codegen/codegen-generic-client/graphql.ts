@@ -2833,6 +2833,148 @@ export type GroupUpdateResponse = {
   records: Array<Group>;
 };
 
+export type Highlight = Node & {
+  __typename?: 'Highlight';
+  content: Scalars['String'];
+  createdBy?: Maybe<Scalars['String']>;
+  createdDate: Scalars['Datetime'];
+  highlightedAt?: Maybe<Scalars['Datetime']>;
+  id: Scalars['String'];
+  location?: Maybe<Scalars['String']>;
+  /** Globally Unique Record Identifier */
+  nodeId: Scalars['ID'];
+  note?: Maybe<Scalars['String']>;
+  rsnUser?: Maybe<RsnUser>;
+  sourceExternalId?: Maybe<Scalars['String']>;
+  sourceIntegration?: Maybe<Integration>;
+  sourceIntegrationId: Scalars['String'];
+  sourceMetadata?: Maybe<Scalars['JSON']>;
+  tags?: Maybe<Array<Maybe<Scalars['String']>>>;
+  targetRsnPage?: Maybe<RsnPage>;
+  targetRsnPageId?: Maybe<Scalars['String']>;
+  targetSnip?: Maybe<Snip>;
+  targetSnipId?: Maybe<Scalars['String']>;
+  targetUrl?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  updatedDate: Scalars['Datetime'];
+};
+
+export type HighlightConnection = {
+  __typename?: 'HighlightConnection';
+  edges: Array<HighlightEdge>;
+  pageInfo: PageInfo;
+};
+
+export type HighlightDeleteResponse = {
+  __typename?: 'HighlightDeleteResponse';
+  /** Count of the records impacted by the mutation */
+  affectedCount: Scalars['Int'];
+  /** Array of records impacted by the mutation */
+  records: Array<Highlight>;
+};
+
+export type HighlightEdge = {
+  __typename?: 'HighlightEdge';
+  cursor: Scalars['String'];
+  node: Highlight;
+};
+
+export type HighlightFilter = {
+  /** Returns true only if all its inner filters are true, otherwise returns false */
+  and?: InputMaybe<Array<HighlightFilter>>;
+  content?: InputMaybe<StringFilter>;
+  createdBy?: InputMaybe<StringFilter>;
+  createdDate?: InputMaybe<DatetimeFilter>;
+  highlightedAt?: InputMaybe<DatetimeFilter>;
+  id?: InputMaybe<StringFilter>;
+  location?: InputMaybe<StringFilter>;
+  nodeId?: InputMaybe<IdFilter>;
+  /** Negates a filter */
+  not?: InputMaybe<HighlightFilter>;
+  note?: InputMaybe<StringFilter>;
+  /** Returns true if at least one of its inner filters is true, otherwise returns false */
+  or?: InputMaybe<Array<HighlightFilter>>;
+  sourceExternalId?: InputMaybe<StringFilter>;
+  sourceIntegrationId?: InputMaybe<StringFilter>;
+  tags?: InputMaybe<StringListFilter>;
+  targetRsnPageId?: InputMaybe<StringFilter>;
+  targetSnipId?: InputMaybe<StringFilter>;
+  targetUrl?: InputMaybe<StringFilter>;
+  updatedBy?: InputMaybe<StringFilter>;
+  updatedDate?: InputMaybe<DatetimeFilter>;
+};
+
+export type HighlightInsertInput = {
+  content?: InputMaybe<Scalars['String']>;
+  createdBy?: InputMaybe<Scalars['String']>;
+  createdDate?: InputMaybe<Scalars['Datetime']>;
+  highlightedAt?: InputMaybe<Scalars['Datetime']>;
+  id?: InputMaybe<Scalars['String']>;
+  location?: InputMaybe<Scalars['String']>;
+  note?: InputMaybe<Scalars['String']>;
+  sourceExternalId?: InputMaybe<Scalars['String']>;
+  sourceIntegrationId?: InputMaybe<Scalars['String']>;
+  sourceMetadata?: InputMaybe<Scalars['JSON']>;
+  tags?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
+  targetRsnPageId?: InputMaybe<Scalars['String']>;
+  targetSnipId?: InputMaybe<Scalars['String']>;
+  targetUrl?: InputMaybe<Scalars['String']>;
+  updatedBy?: InputMaybe<Scalars['String']>;
+  updatedDate?: InputMaybe<Scalars['Datetime']>;
+};
+
+export type HighlightInsertResponse = {
+  __typename?: 'HighlightInsertResponse';
+  /** Count of the records impacted by the mutation */
+  affectedCount: Scalars['Int'];
+  /** Array of records impacted by the mutation */
+  records: Array<Highlight>;
+};
+
+export type HighlightOrderBy = {
+  content?: InputMaybe<OrderByDirection>;
+  createdBy?: InputMaybe<OrderByDirection>;
+  createdDate?: InputMaybe<OrderByDirection>;
+  highlightedAt?: InputMaybe<OrderByDirection>;
+  id?: InputMaybe<OrderByDirection>;
+  location?: InputMaybe<OrderByDirection>;
+  note?: InputMaybe<OrderByDirection>;
+  sourceExternalId?: InputMaybe<OrderByDirection>;
+  sourceIntegrationId?: InputMaybe<OrderByDirection>;
+  targetRsnPageId?: InputMaybe<OrderByDirection>;
+  targetSnipId?: InputMaybe<OrderByDirection>;
+  targetUrl?: InputMaybe<OrderByDirection>;
+  updatedBy?: InputMaybe<OrderByDirection>;
+  updatedDate?: InputMaybe<OrderByDirection>;
+};
+
+export type HighlightUpdateInput = {
+  content?: InputMaybe<Scalars['String']>;
+  createdBy?: InputMaybe<Scalars['String']>;
+  createdDate?: InputMaybe<Scalars['Datetime']>;
+  highlightedAt?: InputMaybe<Scalars['Datetime']>;
+  id?: InputMaybe<Scalars['String']>;
+  location?: InputMaybe<Scalars['String']>;
+  note?: InputMaybe<Scalars['String']>;
+  sourceExternalId?: InputMaybe<Scalars['String']>;
+  sourceIntegrationId?: InputMaybe<Scalars['String']>;
+  sourceMetadata?: InputMaybe<Scalars['JSON']>;
+  tags?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
+  targetRsnPageId?: InputMaybe<Scalars['String']>;
+  targetSnipId?: InputMaybe<Scalars['String']>;
+  targetUrl?: InputMaybe<Scalars['String']>;
+  updatedBy?: InputMaybe<Scalars['String']>;
+  updatedDate?: InputMaybe<Scalars['Datetime']>;
+};
+
+export type HighlightUpdateResponse = {
+  __typename?: 'HighlightUpdateResponse';
+  /** Count of the records impacted by the mutation */
+  affectedCount: Scalars['Int'];
+  /** Array of records impacted by the mutation */
+  records: Array<Highlight>;
+};
+
 /** Boolean expression comparing fields on type "ID" */
 export type IdFilter = {
   eq?: InputMaybe<Scalars['ID']>;
@@ -2864,6 +3006,7 @@ export type Integration = Node & {
   createdBy?: Maybe<Scalars['Opaque']>;
   createdDate: Scalars['Datetime'];
   forUser?: Maybe<Scalars['String']>;
+  highlightCollection?: Maybe<HighlightConnection>;
   id: Scalars['String'];
   integrationTokenCollection?: Maybe<IntegrationTokenConnection>;
   lastSynced?: Maybe<Scalars['Datetime']>;
@@ -2872,9 +3015,23 @@ export type Integration = Node & {
   nodeId: Scalars['ID'];
   rsnUser?: Maybe<RsnUser>;
   snipCollection?: Maybe<SnipConnection>;
+  syncError?: Maybe<Scalars['String']>;
+  syncErrorCount?: Maybe<Scalars['Int']>;
+  syncInProgressSince?: Maybe<Scalars['Datetime']>;
   type: Scalars['String'];
   updatedBy?: Maybe<Scalars['Opaque']>;
   updatedDate: Scalars['Datetime'];
+};
+
+
+export type IntegrationHighlightCollectionArgs = {
+  after?: InputMaybe<Scalars['Cursor']>;
+  before?: InputMaybe<Scalars['Cursor']>;
+  filter?: InputMaybe<HighlightFilter>;
+  first?: InputMaybe<Scalars['Int']>;
+  last?: InputMaybe<Scalars['Int']>;
+  offset?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<Array<HighlightOrderBy>>;
 };
 
 
@@ -2932,6 +3089,9 @@ export type IntegrationFilter = {
   not?: InputMaybe<IntegrationFilter>;
   /** Returns true if at least one of its inner filters is true, otherwise returns false */
   or?: InputMaybe<Array<IntegrationFilter>>;
+  syncError?: InputMaybe<StringFilter>;
+  syncErrorCount?: InputMaybe<IntFilter>;
+  syncInProgressSince?: InputMaybe<DatetimeFilter>;
   type?: InputMaybe<StringFilter>;
   updatedBy?: InputMaybe<OpaqueFilter>;
   updatedDate?: InputMaybe<DatetimeFilter>;
@@ -2944,6 +3104,9 @@ export type IntegrationInsertInput = {
   id?: InputMaybe<Scalars['String']>;
   lastSynced?: InputMaybe<Scalars['Datetime']>;
   metadata?: InputMaybe<Scalars['JSON']>;
+  syncError?: InputMaybe<Scalars['String']>;
+  syncErrorCount?: InputMaybe<Scalars['Int']>;
+  syncInProgressSince?: InputMaybe<Scalars['Datetime']>;
   type?: InputMaybe<Scalars['String']>;
   updatedBy?: InputMaybe<Scalars['Opaque']>;
   updatedDate?: InputMaybe<Scalars['Datetime']>;
@@ -2963,6 +3126,9 @@ export type IntegrationOrderBy = {
   forUser?: InputMaybe<OrderByDirection>;
   id?: InputMaybe<OrderByDirection>;
   lastSynced?: InputMaybe<OrderByDirection>;
+  syncError?: InputMaybe<OrderByDirection>;
+  syncErrorCount?: InputMaybe<OrderByDirection>;
+  syncInProgressSince?: InputMaybe<OrderByDirection>;
   type?: InputMaybe<OrderByDirection>;
   updatedBy?: InputMaybe<OrderByDirection>;
   updatedDate?: InputMaybe<OrderByDirection>;
@@ -3076,6 +3242,9 @@ export type IntegrationUpdateInput = {
   id?: InputMaybe<Scalars['String']>;
   lastSynced?: InputMaybe<Scalars['Datetime']>;
   metadata?: InputMaybe<Scalars['JSON']>;
+  syncError?: InputMaybe<Scalars['String']>;
+  syncErrorCount?: InputMaybe<Scalars['Int']>;
+  syncInProgressSince?: InputMaybe<Scalars['Datetime']>;
   type?: InputMaybe<Scalars['String']>;
   updatedBy?: InputMaybe<Scalars['Opaque']>;
   updatedDate?: InputMaybe<Scalars['Datetime']>;
@@ -3925,6 +4094,8 @@ export type Mutation = {
   deleteFromGoalCollection: GoalDeleteResponse;
   /** Deletes zero or more records from the `Group` collection */
   deleteFromGroupCollection: GroupDeleteResponse;
+  /** Deletes zero or more records from the `Highlight` collection */
+  deleteFromHighlightCollection: HighlightDeleteResponse;
   /** Deletes zero or more records from the `Integration` collection */
   deleteFromIntegrationCollection: IntegrationDeleteResponse;
   /** Deletes zero or more records from the `IntegrationToken` collection */
@@ -4069,6 +4240,8 @@ export type Mutation = {
   insertIntoGoalCollection?: Maybe<GoalInsertResponse>;
   /** Adds one or more `Group` records to the collection */
   insertIntoGroupCollection?: Maybe<GroupInsertResponse>;
+  /** Adds one or more `Highlight` records to the collection */
+  insertIntoHighlightCollection?: Maybe<HighlightInsertResponse>;
   /** Adds one or more `Integration` records to the collection */
   insertIntoIntegrationCollection?: Maybe<IntegrationInsertResponse>;
   /** Adds one or more `IntegrationToken` records to the collection */
@@ -4222,6 +4395,8 @@ export type Mutation = {
   updateGoalCollection: GoalUpdateResponse;
   /** Updates zero or more records in the `Group` collection */
   updateGroupCollection: GroupUpdateResponse;
+  /** Updates zero or more records in the `Highlight` collection */
+  updateHighlightCollection: HighlightUpdateResponse;
   /** Updates zero or more records in the `Integration` collection */
   updateIntegrationCollection: IntegrationUpdateResponse;
   /** Updates zero or more records in the `IntegrationToken` collection */
@@ -4519,6 +4694,13 @@ export type MutationDeleteFromGoalCollectionArgs = {
 export type MutationDeleteFromGroupCollectionArgs = {
   atMost?: Scalars['Int'];
   filter?: InputMaybe<GroupFilter>;
+};
+
+
+/** The root type for creating and mutating data */
+export type MutationDeleteFromHighlightCollectionArgs = {
+  atMost?: Scalars['Int'];
+  filter?: InputMaybe<HighlightFilter>;
 };
 
 
@@ -5025,6 +5207,12 @@ export type MutationInsertIntoGoalCollectionArgs = {
 /** The root type for creating and mutating data */
 export type MutationInsertIntoGroupCollectionArgs = {
   objects: Array<GroupInsertInput>;
+};
+
+
+/** The root type for creating and mutating data */
+export type MutationInsertIntoHighlightCollectionArgs = {
+  objects: Array<HighlightInsertInput>;
 };
 
 
@@ -5559,6 +5747,14 @@ export type MutationUpdateGroupCollectionArgs = {
   atMost?: Scalars['Int'];
   filter?: InputMaybe<GroupFilter>;
   set: GroupUpdateInput;
+};
+
+
+/** The root type for creating and mutating data */
+export type MutationUpdateHighlightCollectionArgs = {
+  atMost?: Scalars['Int'];
+  filter?: InputMaybe<HighlightFilter>;
+  set: HighlightUpdateInput;
 };
 
 
@@ -7113,6 +7309,8 @@ export type Query = {
   goalCollection?: Maybe<GoalConnection>;
   /** A pagable collection of type `Group` */
   groupCollection?: Maybe<GroupConnection>;
+  /** A pagable collection of type `Highlight` */
+  highlightCollection?: Maybe<HighlightConnection>;
   immutableArrayToString?: Maybe<Scalars['String']>;
   /** A pagable collection of type `Integration` */
   integrationCollection?: Maybe<IntegrationConnection>;
@@ -7522,6 +7720,18 @@ export type QueryGroupCollectionArgs = {
   last?: InputMaybe<Scalars['Int']>;
   offset?: InputMaybe<Scalars['Int']>;
   orderBy?: InputMaybe<Array<GroupOrderBy>>;
+};
+
+
+/** The root type for querying data */
+export type QueryHighlightCollectionArgs = {
+  after?: InputMaybe<Scalars['Cursor']>;
+  before?: InputMaybe<Scalars['Cursor']>;
+  filter?: InputMaybe<HighlightFilter>;
+  first?: InputMaybe<Scalars['Int']>;
+  last?: InputMaybe<Scalars['Int']>;
+  offset?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<Array<HighlightOrderBy>>;
 };
 
 
@@ -8345,6 +8555,7 @@ export type RsnPage = Node & {
   createdDate: Scalars['Datetime'];
   description?: Maybe<Scalars['String']>;
   fileType?: Maybe<Scalars['String']>;
+  highlightCollection?: Maybe<HighlightConnection>;
   id: Scalars['String'];
   metadata?: Maybe<Scalars['JSON']>;
   name?: Maybe<Scalars['String']>;
@@ -8361,6 +8572,17 @@ export type RsnPage = Node & {
   storagePath?: Maybe<Scalars['String']>;
   updatedBy?: Maybe<Scalars['String']>;
   updatedDate: Scalars['Datetime'];
+};
+
+
+export type RsnPageHighlightCollectionArgs = {
+  after?: InputMaybe<Scalars['Cursor']>;
+  before?: InputMaybe<Scalars['Cursor']>;
+  filter?: InputMaybe<HighlightFilter>;
+  first?: InputMaybe<Scalars['Int']>;
+  last?: InputMaybe<Scalars['Int']>;
+  offset?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<Array<HighlightOrderBy>>;
 };
 
 
@@ -8652,6 +8874,7 @@ export type RsnUser = Node & {
   firstLoginDate?: Maybe<Scalars['Datetime']>;
   givenName?: Maybe<Scalars['String']>;
   goalCollection?: Maybe<GoalConnection>;
+  highlightCollection?: Maybe<HighlightConnection>;
   id?: Maybe<Scalars['String']>;
   integrationCollection?: Maybe<IntegrationConnection>;
   integrationTokenCollection?: Maybe<IntegrationTokenConnection>;
@@ -8892,6 +9115,17 @@ export type RsnUserGoalCollectionArgs = {
   last?: InputMaybe<Scalars['Int']>;
   offset?: InputMaybe<Scalars['Int']>;
   orderBy?: InputMaybe<Array<GoalOrderBy>>;
+};
+
+
+export type RsnUserHighlightCollectionArgs = {
+  after?: InputMaybe<Scalars['Cursor']>;
+  before?: InputMaybe<Scalars['Cursor']>;
+  filter?: InputMaybe<HighlightFilter>;
+  first?: InputMaybe<Scalars['Int']>;
+  last?: InputMaybe<Scalars['Int']>;
+  offset?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<Array<HighlightOrderBy>>;
 };
 
 
@@ -10622,6 +10856,7 @@ export type Snip = Node & {
   extractionError?: Maybe<Scalars['String']>;
   extractionInfo?: Maybe<Scalars['JSON']>;
   extractionState?: Maybe<ExtractionState>;
+  highlightCollection?: Maybe<HighlightConnection>;
   id: Scalars['String'];
   integration?: Maybe<Integration>;
   metadata?: Maybe<Scalars['JSON']>;
@@ -10641,6 +10876,17 @@ export type Snip = Node & {
   type: Scalars['String'];
   updatedBy?: Maybe<Scalars['String']>;
   updatedDate: Scalars['Datetime'];
+};
+
+
+export type SnipHighlightCollectionArgs = {
+  after?: InputMaybe<Scalars['Cursor']>;
+  before?: InputMaybe<Scalars['Cursor']>;
+  filter?: InputMaybe<HighlightFilter>;
+  first?: InputMaybe<Scalars['Int']>;
+  last?: InputMaybe<Scalars['Int']>;
+  offset?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<Array<HighlightOrderBy>>;
 };
 
 
@@ -12440,7 +12686,17 @@ export type GroupInsertResponseFlatFragFragment = { __typename?: 'GroupInsertRes
 
 export type GroupUpdateResponseFlatFragFragment = { __typename?: 'GroupUpdateResponse', affectedCount: number };
 
-export type IntegrationFlatFragFragment = { __typename?: 'Integration', createdBy?: any | null, createdDate: any, forUser?: string | null, id: string, lastSynced?: any | null, metadata?: any | null, type: string, updatedBy?: any | null, updatedDate: any };
+export type HighlightFlatFragFragment = { __typename?: 'Highlight', content: string, createdBy?: string | null, createdDate: any, highlightedAt?: any | null, id: string, location?: string | null, note?: string | null, sourceExternalId?: string | null, sourceIntegrationId: string, sourceMetadata?: any | null, tags?: Array<string | null> | null, targetRsnPageId?: string | null, targetSnipId?: string | null, targetUrl?: string | null, updatedBy?: string | null, updatedDate: any };
+
+export type HighlightDeleteResponseFlatFragFragment = { __typename?: 'HighlightDeleteResponse', affectedCount: number };
+
+export type HighlightEdgeFlatFragFragment = { __typename?: 'HighlightEdge', cursor: string };
+
+export type HighlightInsertResponseFlatFragFragment = { __typename?: 'HighlightInsertResponse', affectedCount: number };
+
+export type HighlightUpdateResponseFlatFragFragment = { __typename?: 'HighlightUpdateResponse', affectedCount: number };
+
+export type IntegrationFlatFragFragment = { __typename?: 'Integration', createdBy?: any | null, createdDate: any, forUser?: string | null, id: string, lastSynced?: any | null, metadata?: any | null, syncError?: string | null, syncErrorCount?: number | null, syncInProgressSince?: any | null, type: string, updatedBy?: any | null, updatedDate: any };
 
 export type IntegrationDeleteResponseFlatFragFragment = { __typename?: 'IntegrationDeleteResponse', affectedCount: number };
 
@@ -13054,12 +13310,19 @@ export type CreateGroupFlatMutationVariables = Exact<{
 
 export type CreateGroupFlatMutation = { __typename?: 'Mutation', insertIntoGroupCollection?: { __typename?: 'GroupInsertResponse', affectedCount: number, records: Array<{ __typename?: 'Group', groupName?: string | null, id: string }> } | null };
 
+export type CreateHighlightFlatMutationVariables = Exact<{
+  objects: Array<HighlightInsertInput> | HighlightInsertInput;
+}>;
+
+
+export type CreateHighlightFlatMutation = { __typename?: 'Mutation', insertIntoHighlightCollection?: { __typename?: 'HighlightInsertResponse', affectedCount: number, records: Array<{ __typename?: 'Highlight', content: string, createdBy?: string | null, createdDate: any, highlightedAt?: any | null, id: string, location?: string | null, note?: string | null, sourceExternalId?: string | null, sourceIntegrationId: string, sourceMetadata?: any | null, tags?: Array<string | null> | null, targetRsnPageId?: string | null, targetSnipId?: string | null, targetUrl?: string | null, updatedBy?: string | null, updatedDate: any }> } | null };
+
 export type CreateIntegrationFlatMutationVariables = Exact<{
   objects: Array<IntegrationInsertInput> | IntegrationInsertInput;
 }>;
 
 
-export type CreateIntegrationFlatMutation = { __typename?: 'Mutation', insertIntoIntegrationCollection?: { __typename?: 'IntegrationInsertResponse', affectedCount: number, records: Array<{ __typename?: 'Integration', createdBy?: any | null, createdDate: any, forUser?: string | null, id: string, lastSynced?: any | null, metadata?: any | null, type: string, updatedBy?: any | null, updatedDate: any }> } | null };
+export type CreateIntegrationFlatMutation = { __typename?: 'Mutation', insertIntoIntegrationCollection?: { __typename?: 'IntegrationInsertResponse', affectedCount: number, records: Array<{ __typename?: 'Integration', createdBy?: any | null, createdDate: any, forUser?: string | null, id: string, lastSynced?: any | null, metadata?: any | null, syncError?: string | null, syncErrorCount?: number | null, syncInProgressSince?: any | null, type: string, updatedBy?: any | null, updatedDate: any }> } | null };
 
 export type CreateIntegrationTokenFlatMutationVariables = Exact<{
   objects: Array<IntegrationTokenInsertInput> | IntegrationTokenInsertInput;
@@ -13567,6 +13830,15 @@ export type UpdateGroupFlatMutationVariables = Exact<{
 
 export type UpdateGroupFlatMutation = { __typename?: 'Mutation', updateGroupCollection: { __typename?: 'GroupUpdateResponse', affectedCount: number, records: Array<{ __typename?: 'Group', groupName?: string | null, id: string }> } };
 
+export type UpdateHighlightFlatMutationVariables = Exact<{
+  set: HighlightUpdateInput;
+  filter?: InputMaybe<HighlightFilter>;
+  atMost: Scalars['Int'];
+}>;
+
+
+export type UpdateHighlightFlatMutation = { __typename?: 'Mutation', updateHighlightCollection: { __typename?: 'HighlightUpdateResponse', affectedCount: number, records: Array<{ __typename?: 'Highlight', content: string, createdBy?: string | null, createdDate: any, highlightedAt?: any | null, id: string, location?: string | null, note?: string | null, sourceExternalId?: string | null, sourceIntegrationId: string, sourceMetadata?: any | null, tags?: Array<string | null> | null, targetRsnPageId?: string | null, targetSnipId?: string | null, targetUrl?: string | null, updatedBy?: string | null, updatedDate: any }> } };
+
 export type UpdateIntegrationFlatMutationVariables = Exact<{
   set: IntegrationUpdateInput;
   filter?: InputMaybe<IntegrationFilter>;
@@ -13574,7 +13846,7 @@ export type UpdateIntegrationFlatMutationVariables = Exact<{
 }>;
 
 
-export type UpdateIntegrationFlatMutation = { __typename?: 'Mutation', updateIntegrationCollection: { __typename?: 'IntegrationUpdateResponse', affectedCount: number, records: Array<{ __typename?: 'Integration', createdBy?: any | null, createdDate: any, forUser?: string | null, id: string, lastSynced?: any | null, metadata?: any | null, type: string, updatedBy?: any | null, updatedDate: any }> } };
+export type UpdateIntegrationFlatMutation = { __typename?: 'Mutation', updateIntegrationCollection: { __typename?: 'IntegrationUpdateResponse', affectedCount: number, records: Array<{ __typename?: 'Integration', createdBy?: any | null, createdDate: any, forUser?: string | null, id: string, lastSynced?: any | null, metadata?: any | null, syncError?: string | null, syncErrorCount?: number | null, syncInProgressSince?: any | null, type: string, updatedBy?: any | null, updatedDate: any }> } };
 
 export type UpdateIntegrationTokenFlatMutationVariables = Exact<{
   set: IntegrationTokenUpdateInput;
@@ -14123,6 +14395,14 @@ export type DeleteGroupFlatMutationVariables = Exact<{
 
 
 export type DeleteGroupFlatMutation = { __typename?: 'Mutation', deleteFromGroupCollection: { __typename?: 'GroupDeleteResponse', affectedCount: number, records: Array<{ __typename: 'Group', id: string }> } };
+
+export type DeleteHighlightFlatMutationVariables = Exact<{
+  atMost: Scalars['Int'];
+  filter?: InputMaybe<HighlightFilter>;
+}>;
+
+
+export type DeleteHighlightFlatMutation = { __typename?: 'Mutation', deleteFromHighlightCollection: { __typename?: 'HighlightDeleteResponse', affectedCount: number, records: Array<{ __typename: 'Highlight', id: string }> } };
 
 export type DeleteIntegrationFlatMutationVariables = Exact<{
   atMost: Scalars['Int'];
@@ -14740,6 +15020,18 @@ export type GetGroupFlatQueryVariables = Exact<{
 
 export type GetGroupFlatQuery = { __typename?: 'Query', groupCollection?: { __typename?: 'GroupConnection', edges: Array<{ __typename?: 'GroupEdge', node: { __typename?: 'Group', groupName?: string | null, id: string } }>, pageInfo: { __typename?: 'PageInfo', endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean, startCursor?: string | null } } | null };
 
+export type GetHighlightFlatQueryVariables = Exact<{
+  filter?: InputMaybe<HighlightFilter>;
+  orderBy?: InputMaybe<Array<HighlightOrderBy> | HighlightOrderBy>;
+  first?: InputMaybe<Scalars['Int']>;
+  after?: InputMaybe<Scalars['Cursor']>;
+  last?: InputMaybe<Scalars['Int']>;
+  before?: InputMaybe<Scalars['Cursor']>;
+}>;
+
+
+export type GetHighlightFlatQuery = { __typename?: 'Query', highlightCollection?: { __typename?: 'HighlightConnection', edges: Array<{ __typename?: 'HighlightEdge', node: { __typename?: 'Highlight', content: string, createdBy?: string | null, createdDate: any, highlightedAt?: any | null, id: string, location?: string | null, note?: string | null, sourceExternalId?: string | null, sourceIntegrationId: string, sourceMetadata?: any | null, tags?: Array<string | null> | null, targetRsnPageId?: string | null, targetSnipId?: string | null, targetUrl?: string | null, updatedBy?: string | null, updatedDate: any } }>, pageInfo: { __typename?: 'PageInfo', endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean, startCursor?: string | null } } | null };
+
 export type GetIntegrationFlatQueryVariables = Exact<{
   filter?: InputMaybe<IntegrationFilter>;
   orderBy?: InputMaybe<Array<IntegrationOrderBy> | IntegrationOrderBy>;
@@ -14750,7 +15042,7 @@ export type GetIntegrationFlatQueryVariables = Exact<{
 }>;
 
 
-export type GetIntegrationFlatQuery = { __typename?: 'Query', integrationCollection?: { __typename?: 'IntegrationConnection', edges: Array<{ __typename?: 'IntegrationEdge', node: { __typename?: 'Integration', createdBy?: any | null, createdDate: any, forUser?: string | null, id: string, lastSynced?: any | null, metadata?: any | null, type: string, updatedBy?: any | null, updatedDate: any } }>, pageInfo: { __typename?: 'PageInfo', endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean, startCursor?: string | null } } | null };
+export type GetIntegrationFlatQuery = { __typename?: 'Query', integrationCollection?: { __typename?: 'IntegrationConnection', edges: Array<{ __typename?: 'IntegrationEdge', node: { __typename?: 'Integration', createdBy?: any | null, createdDate: any, forUser?: string | null, id: string, lastSynced?: any | null, metadata?: any | null, syncError?: string | null, syncErrorCount?: number | null, syncInProgressSince?: any | null, type: string, updatedBy?: any | null, updatedDate: any } }>, pageInfo: { __typename?: 'PageInfo', endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean, startCursor?: string | null } } | null };
 
 export type GetIntegrationTokenFlatQueryVariables = Exact<{
   filter?: InputMaybe<IntegrationTokenFilter>;
@@ -15691,7 +15983,12 @@ export const GroupDeleteResponseFlatFragFragmentDoc = {"kind":"Document","defini
 export const GroupEdgeFlatFragFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"GroupEdgeFlatFrag"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"GroupEdge"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"cursor"}}]}}]} as unknown as DocumentNode<GroupEdgeFlatFragFragment, unknown>;
 export const GroupInsertResponseFlatFragFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"GroupInsertResponseFlatFrag"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"GroupInsertResponse"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"affectedCount"}}]}}]} as unknown as DocumentNode<GroupInsertResponseFlatFragFragment, unknown>;
 export const GroupUpdateResponseFlatFragFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"GroupUpdateResponseFlatFrag"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"GroupUpdateResponse"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"affectedCount"}}]}}]} as unknown as DocumentNode<GroupUpdateResponseFlatFragFragment, unknown>;
-export const IntegrationFlatFragFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"IntegrationFlatFrag"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Integration"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createdBy"}},{"kind":"Field","name":{"kind":"Name","value":"createdDate"}},{"kind":"Field","name":{"kind":"Name","value":"forUser"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"lastSynced"}},{"kind":"Field","name":{"kind":"Name","value":"metadata"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"updatedBy"}},{"kind":"Field","name":{"kind":"Name","value":"updatedDate"}}]}}]} as unknown as DocumentNode<IntegrationFlatFragFragment, unknown>;
+export const HighlightFlatFragFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"HighlightFlatFrag"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Highlight"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"content"}},{"kind":"Field","name":{"kind":"Name","value":"createdBy"}},{"kind":"Field","name":{"kind":"Name","value":"createdDate"}},{"kind":"Field","name":{"kind":"Name","value":"highlightedAt"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"location"}},{"kind":"Field","name":{"kind":"Name","value":"note"}},{"kind":"Field","name":{"kind":"Name","value":"sourceExternalId"}},{"kind":"Field","name":{"kind":"Name","value":"sourceIntegrationId"}},{"kind":"Field","name":{"kind":"Name","value":"sourceMetadata"}},{"kind":"Field","name":{"kind":"Name","value":"tags"}},{"kind":"Field","name":{"kind":"Name","value":"targetRsnPageId"}},{"kind":"Field","name":{"kind":"Name","value":"targetSnipId"}},{"kind":"Field","name":{"kind":"Name","value":"targetUrl"}},{"kind":"Field","name":{"kind":"Name","value":"updatedBy"}},{"kind":"Field","name":{"kind":"Name","value":"updatedDate"}}]}}]} as unknown as DocumentNode<HighlightFlatFragFragment, unknown>;
+export const HighlightDeleteResponseFlatFragFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"HighlightDeleteResponseFlatFrag"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"HighlightDeleteResponse"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"affectedCount"}}]}}]} as unknown as DocumentNode<HighlightDeleteResponseFlatFragFragment, unknown>;
+export const HighlightEdgeFlatFragFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"HighlightEdgeFlatFrag"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"HighlightEdge"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"cursor"}}]}}]} as unknown as DocumentNode<HighlightEdgeFlatFragFragment, unknown>;
+export const HighlightInsertResponseFlatFragFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"HighlightInsertResponseFlatFrag"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"HighlightInsertResponse"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"affectedCount"}}]}}]} as unknown as DocumentNode<HighlightInsertResponseFlatFragFragment, unknown>;
+export const HighlightUpdateResponseFlatFragFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"HighlightUpdateResponseFlatFrag"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"HighlightUpdateResponse"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"affectedCount"}}]}}]} as unknown as DocumentNode<HighlightUpdateResponseFlatFragFragment, unknown>;
+export const IntegrationFlatFragFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"IntegrationFlatFrag"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Integration"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createdBy"}},{"kind":"Field","name":{"kind":"Name","value":"createdDate"}},{"kind":"Field","name":{"kind":"Name","value":"forUser"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"lastSynced"}},{"kind":"Field","name":{"kind":"Name","value":"metadata"}},{"kind":"Field","name":{"kind":"Name","value":"syncError"}},{"kind":"Field","name":{"kind":"Name","value":"syncErrorCount"}},{"kind":"Field","name":{"kind":"Name","value":"syncInProgressSince"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"updatedBy"}},{"kind":"Field","name":{"kind":"Name","value":"updatedDate"}}]}}]} as unknown as DocumentNode<IntegrationFlatFragFragment, unknown>;
 export const IntegrationDeleteResponseFlatFragFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"IntegrationDeleteResponseFlatFrag"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"IntegrationDeleteResponse"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"affectedCount"}}]}}]} as unknown as DocumentNode<IntegrationDeleteResponseFlatFragFragment, unknown>;
 export const IntegrationEdgeFlatFragFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"IntegrationEdgeFlatFrag"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"IntegrationEdge"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"cursor"}}]}}]} as unknown as DocumentNode<IntegrationEdgeFlatFragFragment, unknown>;
 export const IntegrationInsertResponseFlatFragFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"IntegrationInsertResponseFlatFrag"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"IntegrationInsertResponse"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"affectedCount"}}]}}]} as unknown as DocumentNode<IntegrationInsertResponseFlatFragFragment, unknown>;
@@ -15943,6 +16240,7 @@ export const CreateEntityTypeFlatDocument = {"kind":"Document", "definitions":[{
 export const CreateEntityTypeAccessLevelFlatDocument = {"kind":"Document", "definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"createEntityTypeAccessLevelFlat"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"objects"}},"type":{"kind":"NonNullType","type":{"kind":"ListType","type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"EntityTypeAccessLevelInsertInput"}}}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"insertIntoEntityTypeAccessLevelCollection"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"objects"},"value":{"kind":"Variable","name":{"kind":"Name","value":"objects"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"affectedCount"}},{"kind":"Field","name":{"kind":"Name","value":"records"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"EntityTypeAccessLevelFlatFrag"}}]}}]}}]}},...EntityTypeAccessLevelFlatFragFragmentDoc.definitions]} as unknown as DocumentNode<CreateEntityTypeAccessLevelFlatMutation, CreateEntityTypeAccessLevelFlatMutationVariables>;
 export const CreateGoalFlatDocument = {"kind":"Document", "definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"createGoalFlat"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"objects"}},"type":{"kind":"NonNullType","type":{"kind":"ListType","type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"GoalInsertInput"}}}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"insertIntoGoalCollection"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"objects"},"value":{"kind":"Variable","name":{"kind":"Name","value":"objects"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"affectedCount"}},{"kind":"Field","name":{"kind":"Name","value":"records"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"GoalFlatFrag"}}]}}]}}]}},...GoalFlatFragFragmentDoc.definitions]} as unknown as DocumentNode<CreateGoalFlatMutation, CreateGoalFlatMutationVariables>;
 export const CreateGroupFlatDocument = {"kind":"Document", "definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"createGroupFlat"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"objects"}},"type":{"kind":"NonNullType","type":{"kind":"ListType","type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"GroupInsertInput"}}}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"insertIntoGroupCollection"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"objects"},"value":{"kind":"Variable","name":{"kind":"Name","value":"objects"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"affectedCount"}},{"kind":"Field","name":{"kind":"Name","value":"records"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"GroupFlatFrag"}}]}}]}}]}},...GroupFlatFragFragmentDoc.definitions]} as unknown as DocumentNode<CreateGroupFlatMutation, CreateGroupFlatMutationVariables>;
+export const CreateHighlightFlatDocument = {"kind":"Document", "definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"createHighlightFlat"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"objects"}},"type":{"kind":"NonNullType","type":{"kind":"ListType","type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"HighlightInsertInput"}}}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"insertIntoHighlightCollection"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"objects"},"value":{"kind":"Variable","name":{"kind":"Name","value":"objects"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"affectedCount"}},{"kind":"Field","name":{"kind":"Name","value":"records"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"HighlightFlatFrag"}}]}}]}}]}},...HighlightFlatFragFragmentDoc.definitions]} as unknown as DocumentNode<CreateHighlightFlatMutation, CreateHighlightFlatMutationVariables>;
 export const CreateIntegrationFlatDocument = {"kind":"Document", "definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"createIntegrationFlat"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"objects"}},"type":{"kind":"NonNullType","type":{"kind":"ListType","type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"IntegrationInsertInput"}}}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"insertIntoIntegrationCollection"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"objects"},"value":{"kind":"Variable","name":{"kind":"Name","value":"objects"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"affectedCount"}},{"kind":"Field","name":{"kind":"Name","value":"records"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"IntegrationFlatFrag"}}]}}]}}]}},...IntegrationFlatFragFragmentDoc.definitions]} as unknown as DocumentNode<CreateIntegrationFlatMutation, CreateIntegrationFlatMutationVariables>;
 export const CreateIntegrationTokenFlatDocument = {"kind":"Document", "definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"createIntegrationTokenFlat"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"objects"}},"type":{"kind":"NonNullType","type":{"kind":"ListType","type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"IntegrationTokenInsertInput"}}}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"insertIntoIntegrationTokenCollection"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"objects"},"value":{"kind":"Variable","name":{"kind":"Name","value":"objects"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"affectedCount"}},{"kind":"Field","name":{"kind":"Name","value":"records"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"IntegrationTokenFlatFrag"}}]}}]}}]}},...IntegrationTokenFlatFragFragmentDoc.definitions]} as unknown as DocumentNode<CreateIntegrationTokenFlatMutation, CreateIntegrationTokenFlatMutationVariables>;
 export const CreateJournalFlatDocument = {"kind":"Document", "definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"createJournalFlat"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"objects"}},"type":{"kind":"NonNullType","type":{"kind":"ListType","type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"JournalInsertInput"}}}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"insertIntoJournalCollection"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"objects"},"value":{"kind":"Variable","name":{"kind":"Name","value":"objects"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"affectedCount"}},{"kind":"Field","name":{"kind":"Name","value":"records"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"JournalFlatFrag"}}]}}]}}]}},...JournalFlatFragFragmentDoc.definitions]} as unknown as DocumentNode<CreateJournalFlatMutation, CreateJournalFlatMutationVariables>;
@@ -16010,6 +16308,7 @@ export const UpdateEntityTypeFlatDocument = {"kind":"Document", "definitions":[{
 export const UpdateEntityTypeAccessLevelFlatDocument = {"kind":"Document", "definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"updateEntityTypeAccessLevelFlat"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"set"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"EntityTypeAccessLevelUpdateInput"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"filter"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"EntityTypeAccessLevelFilter"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"atMost"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateEntityTypeAccessLevelCollection"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"set"},"value":{"kind":"Variable","name":{"kind":"Name","value":"set"}}},{"kind":"Argument","name":{"kind":"Name","value":"filter"},"value":{"kind":"Variable","name":{"kind":"Name","value":"filter"}}},{"kind":"Argument","name":{"kind":"Name","value":"atMost"},"value":{"kind":"Variable","name":{"kind":"Name","value":"atMost"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"affectedCount"}},{"kind":"Field","name":{"kind":"Name","value":"records"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"EntityTypeAccessLevelFlatFrag"}}]}}]}}]}},...EntityTypeAccessLevelFlatFragFragmentDoc.definitions]} as unknown as DocumentNode<UpdateEntityTypeAccessLevelFlatMutation, UpdateEntityTypeAccessLevelFlatMutationVariables>;
 export const UpdateGoalFlatDocument = {"kind":"Document", "definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"updateGoalFlat"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"set"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"GoalUpdateInput"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"filter"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"GoalFilter"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"atMost"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateGoalCollection"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"set"},"value":{"kind":"Variable","name":{"kind":"Name","value":"set"}}},{"kind":"Argument","name":{"kind":"Name","value":"filter"},"value":{"kind":"Variable","name":{"kind":"Name","value":"filter"}}},{"kind":"Argument","name":{"kind":"Name","value":"atMost"},"value":{"kind":"Variable","name":{"kind":"Name","value":"atMost"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"affectedCount"}},{"kind":"Field","name":{"kind":"Name","value":"records"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"GoalFlatFrag"}}]}}]}}]}},...GoalFlatFragFragmentDoc.definitions]} as unknown as DocumentNode<UpdateGoalFlatMutation, UpdateGoalFlatMutationVariables>;
 export const UpdateGroupFlatDocument = {"kind":"Document", "definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"updateGroupFlat"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"set"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"GroupUpdateInput"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"filter"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"GroupFilter"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"atMost"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateGroupCollection"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"set"},"value":{"kind":"Variable","name":{"kind":"Name","value":"set"}}},{"kind":"Argument","name":{"kind":"Name","value":"filter"},"value":{"kind":"Variable","name":{"kind":"Name","value":"filter"}}},{"kind":"Argument","name":{"kind":"Name","value":"atMost"},"value":{"kind":"Variable","name":{"kind":"Name","value":"atMost"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"affectedCount"}},{"kind":"Field","name":{"kind":"Name","value":"records"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"GroupFlatFrag"}}]}}]}}]}},...GroupFlatFragFragmentDoc.definitions]} as unknown as DocumentNode<UpdateGroupFlatMutation, UpdateGroupFlatMutationVariables>;
+export const UpdateHighlightFlatDocument = {"kind":"Document", "definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"updateHighlightFlat"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"set"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"HighlightUpdateInput"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"filter"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"HighlightFilter"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"atMost"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateHighlightCollection"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"set"},"value":{"kind":"Variable","name":{"kind":"Name","value":"set"}}},{"kind":"Argument","name":{"kind":"Name","value":"filter"},"value":{"kind":"Variable","name":{"kind":"Name","value":"filter"}}},{"kind":"Argument","name":{"kind":"Name","value":"atMost"},"value":{"kind":"Variable","name":{"kind":"Name","value":"atMost"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"affectedCount"}},{"kind":"Field","name":{"kind":"Name","value":"records"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"HighlightFlatFrag"}}]}}]}}]}},...HighlightFlatFragFragmentDoc.definitions]} as unknown as DocumentNode<UpdateHighlightFlatMutation, UpdateHighlightFlatMutationVariables>;
 export const UpdateIntegrationFlatDocument = {"kind":"Document", "definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"updateIntegrationFlat"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"set"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"IntegrationUpdateInput"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"filter"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"IntegrationFilter"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"atMost"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateIntegrationCollection"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"set"},"value":{"kind":"Variable","name":{"kind":"Name","value":"set"}}},{"kind":"Argument","name":{"kind":"Name","value":"filter"},"value":{"kind":"Variable","name":{"kind":"Name","value":"filter"}}},{"kind":"Argument","name":{"kind":"Name","value":"atMost"},"value":{"kind":"Variable","name":{"kind":"Name","value":"atMost"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"affectedCount"}},{"kind":"Field","name":{"kind":"Name","value":"records"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"IntegrationFlatFrag"}}]}}]}}]}},...IntegrationFlatFragFragmentDoc.definitions]} as unknown as DocumentNode<UpdateIntegrationFlatMutation, UpdateIntegrationFlatMutationVariables>;
 export const UpdateIntegrationTokenFlatDocument = {"kind":"Document", "definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"updateIntegrationTokenFlat"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"set"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"IntegrationTokenUpdateInput"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"filter"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"IntegrationTokenFilter"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"atMost"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateIntegrationTokenCollection"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"set"},"value":{"kind":"Variable","name":{"kind":"Name","value":"set"}}},{"kind":"Argument","name":{"kind":"Name","value":"filter"},"value":{"kind":"Variable","name":{"kind":"Name","value":"filter"}}},{"kind":"Argument","name":{"kind":"Name","value":"atMost"},"value":{"kind":"Variable","name":{"kind":"Name","value":"atMost"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"affectedCount"}},{"kind":"Field","name":{"kind":"Name","value":"records"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"IntegrationTokenFlatFrag"}}]}}]}}]}},...IntegrationTokenFlatFragFragmentDoc.definitions]} as unknown as DocumentNode<UpdateIntegrationTokenFlatMutation, UpdateIntegrationTokenFlatMutationVariables>;
 export const UpdateJournalFlatDocument = {"kind":"Document", "definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"updateJournalFlat"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"set"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"JournalUpdateInput"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"filter"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"JournalFilter"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"atMost"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateJournalCollection"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"set"},"value":{"kind":"Variable","name":{"kind":"Name","value":"set"}}},{"kind":"Argument","name":{"kind":"Name","value":"filter"},"value":{"kind":"Variable","name":{"kind":"Name","value":"filter"}}},{"kind":"Argument","name":{"kind":"Name","value":"atMost"},"value":{"kind":"Variable","name":{"kind":"Name","value":"atMost"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"affectedCount"}},{"kind":"Field","name":{"kind":"Name","value":"records"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"JournalFlatFrag"}}]}}]}}]}},...JournalFlatFragFragmentDoc.definitions]} as unknown as DocumentNode<UpdateJournalFlatMutation, UpdateJournalFlatMutationVariables>;
@@ -16074,6 +16373,7 @@ export const DeleteEmailSubscriptionFlatDocument = {"kind":"Document","definitio
 export const DeleteEntityFlatDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"deleteEntityFlat"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"atMost"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"filter"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"EntityFilter"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"deleteFromEntityCollection"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"atMost"},"value":{"kind":"Variable","name":{"kind":"Name","value":"atMost"}}},{"kind":"Argument","name":{"kind":"Name","value":"filter"},"value":{"kind":"Variable","name":{"kind":"Name","value":"filter"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"affectedCount"}},{"kind":"Field","name":{"kind":"Name","value":"records"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]}}]} as unknown as DocumentNode<DeleteEntityFlatMutation, DeleteEntityFlatMutationVariables>;
 export const DeleteGoalFlatDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"deleteGoalFlat"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"atMost"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"filter"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"GoalFilter"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"deleteFromGoalCollection"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"atMost"},"value":{"kind":"Variable","name":{"kind":"Name","value":"atMost"}}},{"kind":"Argument","name":{"kind":"Name","value":"filter"},"value":{"kind":"Variable","name":{"kind":"Name","value":"filter"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"affectedCount"}},{"kind":"Field","name":{"kind":"Name","value":"records"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]}}]} as unknown as DocumentNode<DeleteGoalFlatMutation, DeleteGoalFlatMutationVariables>;
 export const DeleteGroupFlatDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"deleteGroupFlat"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"atMost"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"filter"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"GroupFilter"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"deleteFromGroupCollection"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"atMost"},"value":{"kind":"Variable","name":{"kind":"Name","value":"atMost"}}},{"kind":"Argument","name":{"kind":"Name","value":"filter"},"value":{"kind":"Variable","name":{"kind":"Name","value":"filter"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"affectedCount"}},{"kind":"Field","name":{"kind":"Name","value":"records"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]}}]} as unknown as DocumentNode<DeleteGroupFlatMutation, DeleteGroupFlatMutationVariables>;
+export const DeleteHighlightFlatDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"deleteHighlightFlat"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"atMost"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"filter"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"HighlightFilter"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"deleteFromHighlightCollection"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"atMost"},"value":{"kind":"Variable","name":{"kind":"Name","value":"atMost"}}},{"kind":"Argument","name":{"kind":"Name","value":"filter"},"value":{"kind":"Variable","name":{"kind":"Name","value":"filter"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"affectedCount"}},{"kind":"Field","name":{"kind":"Name","value":"records"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]}}]} as unknown as DocumentNode<DeleteHighlightFlatMutation, DeleteHighlightFlatMutationVariables>;
 export const DeleteIntegrationFlatDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"deleteIntegrationFlat"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"atMost"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"filter"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"IntegrationFilter"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"deleteFromIntegrationCollection"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"atMost"},"value":{"kind":"Variable","name":{"kind":"Name","value":"atMost"}}},{"kind":"Argument","name":{"kind":"Name","value":"filter"},"value":{"kind":"Variable","name":{"kind":"Name","value":"filter"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"affectedCount"}},{"kind":"Field","name":{"kind":"Name","value":"records"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]}}]} as unknown as DocumentNode<DeleteIntegrationFlatMutation, DeleteIntegrationFlatMutationVariables>;
 export const DeleteIntegrationTokenFlatDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"deleteIntegrationTokenFlat"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"atMost"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"filter"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"IntegrationTokenFilter"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"deleteFromIntegrationTokenCollection"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"atMost"},"value":{"kind":"Variable","name":{"kind":"Name","value":"atMost"}}},{"kind":"Argument","name":{"kind":"Name","value":"filter"},"value":{"kind":"Variable","name":{"kind":"Name","value":"filter"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"affectedCount"}},{"kind":"Field","name":{"kind":"Name","value":"records"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]}}]} as unknown as DocumentNode<DeleteIntegrationTokenFlatMutation, DeleteIntegrationTokenFlatMutationVariables>;
 export const DeleteJournalFlatDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"deleteJournalFlat"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"atMost"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"filter"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"JournalFilter"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"deleteFromJournalCollection"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"atMost"},"value":{"kind":"Variable","name":{"kind":"Name","value":"atMost"}}},{"kind":"Argument","name":{"kind":"Name","value":"filter"},"value":{"kind":"Variable","name":{"kind":"Name","value":"filter"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"affectedCount"}},{"kind":"Field","name":{"kind":"Name","value":"records"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]}}]} as unknown as DocumentNode<DeleteJournalFlatMutation, DeleteJournalFlatMutationVariables>;
@@ -16140,6 +16440,7 @@ export const GetEntityTypeFlatDocument = {"kind":"Document", "definitions":[{"ki
 export const GetEntityTypeAccessLevelFlatDocument = {"kind":"Document", "definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"getEntityTypeAccessLevelFlat"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"filter"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"EntityTypeAccessLevelFilter"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"orderBy"}},"type":{"kind":"ListType","type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"EntityTypeAccessLevelOrderBy"}}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"first"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"after"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Cursor"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"last"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"before"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Cursor"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"entityTypeAccessLevelCollection"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filter"},"value":{"kind":"Variable","name":{"kind":"Name","value":"filter"}}},{"kind":"Argument","name":{"kind":"Name","value":"orderBy"},"value":{"kind":"Variable","name":{"kind":"Name","value":"orderBy"}}},{"kind":"Argument","name":{"kind":"Name","value":"first"},"value":{"kind":"Variable","name":{"kind":"Name","value":"first"}}},{"kind":"Argument","name":{"kind":"Name","value":"after"},"value":{"kind":"Variable","name":{"kind":"Name","value":"after"}}},{"kind":"Argument","name":{"kind":"Name","value":"last"},"value":{"kind":"Variable","name":{"kind":"Name","value":"last"}}},{"kind":"Argument","name":{"kind":"Name","value":"before"},"value":{"kind":"Variable","name":{"kind":"Name","value":"before"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"edges"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"node"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"EntityTypeAccessLevelFlatFrag"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"pageInfo"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"PageInfoFlatFrag"}}]}}]}}]}},...EntityTypeAccessLevelFlatFragFragmentDoc.definitions,...PageInfoFlatFragFragmentDoc.definitions]} as unknown as DocumentNode<GetEntityTypeAccessLevelFlatQuery, GetEntityTypeAccessLevelFlatQueryVariables>;
 export const GetGoalFlatDocument = {"kind":"Document", "definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"getGoalFlat"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"filter"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"GoalFilter"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"orderBy"}},"type":{"kind":"ListType","type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"GoalOrderBy"}}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"first"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"after"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Cursor"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"last"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"before"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Cursor"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"goalCollection"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filter"},"value":{"kind":"Variable","name":{"kind":"Name","value":"filter"}}},{"kind":"Argument","name":{"kind":"Name","value":"orderBy"},"value":{"kind":"Variable","name":{"kind":"Name","value":"orderBy"}}},{"kind":"Argument","name":{"kind":"Name","value":"first"},"value":{"kind":"Variable","name":{"kind":"Name","value":"first"}}},{"kind":"Argument","name":{"kind":"Name","value":"after"},"value":{"kind":"Variable","name":{"kind":"Name","value":"after"}}},{"kind":"Argument","name":{"kind":"Name","value":"last"},"value":{"kind":"Variable","name":{"kind":"Name","value":"last"}}},{"kind":"Argument","name":{"kind":"Name","value":"before"},"value":{"kind":"Variable","name":{"kind":"Name","value":"before"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"edges"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"node"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"GoalFlatFrag"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"pageInfo"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"PageInfoFlatFrag"}}]}}]}}]}},...GoalFlatFragFragmentDoc.definitions,...PageInfoFlatFragFragmentDoc.definitions]} as unknown as DocumentNode<GetGoalFlatQuery, GetGoalFlatQueryVariables>;
 export const GetGroupFlatDocument = {"kind":"Document", "definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"getGroupFlat"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"filter"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"GroupFilter"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"orderBy"}},"type":{"kind":"ListType","type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"GroupOrderBy"}}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"first"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"after"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Cursor"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"last"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"before"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Cursor"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"groupCollection"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filter"},"value":{"kind":"Variable","name":{"kind":"Name","value":"filter"}}},{"kind":"Argument","name":{"kind":"Name","value":"orderBy"},"value":{"kind":"Variable","name":{"kind":"Name","value":"orderBy"}}},{"kind":"Argument","name":{"kind":"Name","value":"first"},"value":{"kind":"Variable","name":{"kind":"Name","value":"first"}}},{"kind":"Argument","name":{"kind":"Name","value":"after"},"value":{"kind":"Variable","name":{"kind":"Name","value":"after"}}},{"kind":"Argument","name":{"kind":"Name","value":"last"},"value":{"kind":"Variable","name":{"kind":"Name","value":"last"}}},{"kind":"Argument","name":{"kind":"Name","value":"before"},"value":{"kind":"Variable","name":{"kind":"Name","value":"before"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"edges"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"node"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"GroupFlatFrag"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"pageInfo"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"PageInfoFlatFrag"}}]}}]}}]}},...GroupFlatFragFragmentDoc.definitions,...PageInfoFlatFragFragmentDoc.definitions]} as unknown as DocumentNode<GetGroupFlatQuery, GetGroupFlatQueryVariables>;
+export const GetHighlightFlatDocument = {"kind":"Document", "definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"getHighlightFlat"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"filter"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"HighlightFilter"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"orderBy"}},"type":{"kind":"ListType","type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"HighlightOrderBy"}}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"first"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"after"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Cursor"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"last"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"before"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Cursor"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"highlightCollection"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filter"},"value":{"kind":"Variable","name":{"kind":"Name","value":"filter"}}},{"kind":"Argument","name":{"kind":"Name","value":"orderBy"},"value":{"kind":"Variable","name":{"kind":"Name","value":"orderBy"}}},{"kind":"Argument","name":{"kind":"Name","value":"first"},"value":{"kind":"Variable","name":{"kind":"Name","value":"first"}}},{"kind":"Argument","name":{"kind":"Name","value":"after"},"value":{"kind":"Variable","name":{"kind":"Name","value":"after"}}},{"kind":"Argument","name":{"kind":"Name","value":"last"},"value":{"kind":"Variable","name":{"kind":"Name","value":"last"}}},{"kind":"Argument","name":{"kind":"Name","value":"before"},"value":{"kind":"Variable","name":{"kind":"Name","value":"before"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"edges"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"node"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"HighlightFlatFrag"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"pageInfo"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"PageInfoFlatFrag"}}]}}]}}]}},...HighlightFlatFragFragmentDoc.definitions,...PageInfoFlatFragFragmentDoc.definitions]} as unknown as DocumentNode<GetHighlightFlatQuery, GetHighlightFlatQueryVariables>;
 export const GetIntegrationFlatDocument = {"kind":"Document", "definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"getIntegrationFlat"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"filter"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"IntegrationFilter"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"orderBy"}},"type":{"kind":"ListType","type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"IntegrationOrderBy"}}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"first"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"after"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Cursor"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"last"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"before"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Cursor"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"integrationCollection"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filter"},"value":{"kind":"Variable","name":{"kind":"Name","value":"filter"}}},{"kind":"Argument","name":{"kind":"Name","value":"orderBy"},"value":{"kind":"Variable","name":{"kind":"Name","value":"orderBy"}}},{"kind":"Argument","name":{"kind":"Name","value":"first"},"value":{"kind":"Variable","name":{"kind":"Name","value":"first"}}},{"kind":"Argument","name":{"kind":"Name","value":"after"},"value":{"kind":"Variable","name":{"kind":"Name","value":"after"}}},{"kind":"Argument","name":{"kind":"Name","value":"last"},"value":{"kind":"Variable","name":{"kind":"Name","value":"last"}}},{"kind":"Argument","name":{"kind":"Name","value":"before"},"value":{"kind":"Variable","name":{"kind":"Name","value":"before"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"edges"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"node"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"IntegrationFlatFrag"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"pageInfo"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"PageInfoFlatFrag"}}]}}]}}]}},...IntegrationFlatFragFragmentDoc.definitions,...PageInfoFlatFragFragmentDoc.definitions]} as unknown as DocumentNode<GetIntegrationFlatQuery, GetIntegrationFlatQueryVariables>;
 export const GetIntegrationTokenFlatDocument = {"kind":"Document", "definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"getIntegrationTokenFlat"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"filter"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"IntegrationTokenFilter"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"orderBy"}},"type":{"kind":"ListType","type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"IntegrationTokenOrderBy"}}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"first"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"after"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Cursor"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"last"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"before"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Cursor"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"integrationTokenCollection"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filter"},"value":{"kind":"Variable","name":{"kind":"Name","value":"filter"}}},{"kind":"Argument","name":{"kind":"Name","value":"orderBy"},"value":{"kind":"Variable","name":{"kind":"Name","value":"orderBy"}}},{"kind":"Argument","name":{"kind":"Name","value":"first"},"value":{"kind":"Variable","name":{"kind":"Name","value":"first"}}},{"kind":"Argument","name":{"kind":"Name","value":"after"},"value":{"kind":"Variable","name":{"kind":"Name","value":"after"}}},{"kind":"Argument","name":{"kind":"Name","value":"last"},"value":{"kind":"Variable","name":{"kind":"Name","value":"last"}}},{"kind":"Argument","name":{"kind":"Name","value":"before"},"value":{"kind":"Variable","name":{"kind":"Name","value":"before"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"edges"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"node"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"IntegrationTokenFlatFrag"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"pageInfo"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"PageInfoFlatFrag"}}]}}]}}]}},...IntegrationTokenFlatFragFragmentDoc.definitions,...PageInfoFlatFragFragmentDoc.definitions]} as unknown as DocumentNode<GetIntegrationTokenFlatQuery, GetIntegrationTokenFlatQueryVariables>;
 export const GetJournalFlatDocument = {"kind":"Document", "definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"getJournalFlat"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"filter"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"JournalFilter"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"orderBy"}},"type":{"kind":"ListType","type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"JournalOrderBy"}}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"first"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"after"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Cursor"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"last"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"before"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Cursor"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"journalCollection"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filter"},"value":{"kind":"Variable","name":{"kind":"Name","value":"filter"}}},{"kind":"Argument","name":{"kind":"Name","value":"orderBy"},"value":{"kind":"Variable","name":{"kind":"Name","value":"orderBy"}}},{"kind":"Argument","name":{"kind":"Name","value":"first"},"value":{"kind":"Variable","name":{"kind":"Name","value":"first"}}},{"kind":"Argument","name":{"kind":"Name","value":"after"},"value":{"kind":"Variable","name":{"kind":"Name","value":"after"}}},{"kind":"Argument","name":{"kind":"Name","value":"last"},"value":{"kind":"Variable","name":{"kind":"Name","value":"last"}}},{"kind":"Argument","name":{"kind":"Name","value":"before"},"value":{"kind":"Variable","name":{"kind":"Name","value":"before"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"edges"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"node"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"JournalFlatFrag"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"pageInfo"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"PageInfoFlatFrag"}}]}}]}}]}},...JournalFlatFragFragmentDoc.definitions,...PageInfoFlatFragFragmentDoc.definitions]} as unknown as DocumentNode<GetJournalFlatQuery, GetJournalFlatQueryVariables>;

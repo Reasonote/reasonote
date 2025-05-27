@@ -77,6 +77,8 @@
 --     TABLE "entity" CONSTRAINT "entity_updated_by_fkey" FOREIGN KEY (updated_by) REFERENCES rsn_user(id) ON DELETE SET NULL
 --     TABLE "goal" CONSTRAINT "goal_created_by_fkey" FOREIGN KEY (created_by) REFERENCES rsn_user(id) ON DELETE SET NULL
 --     TABLE "goal" CONSTRAINT "goal_updated_by_fkey" FOREIGN KEY (updated_by) REFERENCES rsn_user(id) ON DELETE SET NULL
+--     TABLE "highlight" CONSTRAINT "highlight_created_by_fkey" FOREIGN KEY (created_by) REFERENCES rsn_user(id) ON DELETE SET NULL
+--     TABLE "highlight" CONSTRAINT "highlight_updated_by_fkey" FOREIGN KEY (updated_by) REFERENCES rsn_user(id) ON DELETE SET NULL
 --     TABLE "integration" CONSTRAINT "integration_created_by_fkey" FOREIGN KEY (created_by) REFERENCES rsn_user(id) ON DELETE SET NULL
 --     TABLE "integration" CONSTRAINT "integration_for_user_fkey" FOREIGN KEY (for_user) REFERENCES rsn_user(id) ON DELETE SET NULL
 --     TABLE "integration_token" CONSTRAINT "integration_token_created_by_fkey" FOREIGN KEY (created_by) REFERENCES rsn_user(id) ON DELETE SET NULL

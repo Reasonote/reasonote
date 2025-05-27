@@ -30,7 +30,7 @@
 --     "user_skill_sysdata__id__check_prefix" CHECK (is_valid_typed_uuid('usrsklsd'::text, id::typed_uuid))
 -- Foreign-key constraints:
 --     "user_skill_sysdata_rsn_user_fkey" FOREIGN KEY (rsn_user) REFERENCES rsn_user(id)
---     "user_skill_sysdata_skill_fkey" FOREIGN KEY (skill) REFERENCES skill(id)
+--     "user_skill_sysdata_skill_fkey" FOREIGN KEY (skill) REFERENCES skill(id) ON DELETE CASCADE
 -- Policies:
 --     POLICY "user_skill_sysdata DELETE" FOR DELETE
 --       USING (is_admin())
@@ -128,7 +128,7 @@ ALTER TABLE ONLY public.user_skill_sysdata
 --
 
 ALTER TABLE ONLY public.user_skill_sysdata
-    ADD CONSTRAINT user_skill_sysdata_skill_fkey FOREIGN KEY (skill) REFERENCES public.skill(id);
+    ADD CONSTRAINT user_skill_sysdata_skill_fkey FOREIGN KEY (skill) REFERENCES public.skill(id) ON DELETE CASCADE;
 
 
 --

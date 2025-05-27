@@ -836,6 +836,51 @@ export const GroupUpdateResponseFlatFrag = graphql(/* GraphQL */ `
     }
 `);
 
+export const HighlightFlatFrag = graphql(/* GraphQL */ `
+    fragment HighlightFlatFrag on Highlight {
+        content
+        createdBy
+        createdDate
+        highlightedAt
+        id
+        location
+        note
+        sourceExternalId
+        sourceIntegrationId
+        sourceMetadata
+        tags
+        targetRsnPageId
+        targetSnipId
+        targetUrl
+        updatedBy
+        updatedDate
+    }
+`);
+
+export const HighlightDeleteResponseFlatFrag = graphql(/* GraphQL */ `
+    fragment HighlightDeleteResponseFlatFrag on HighlightDeleteResponse {
+        affectedCount
+    }
+`);
+
+export const HighlightEdgeFlatFrag = graphql(/* GraphQL */ `
+    fragment HighlightEdgeFlatFrag on HighlightEdge {
+        cursor
+    }
+`);
+
+export const HighlightInsertResponseFlatFrag = graphql(/* GraphQL */ `
+    fragment HighlightInsertResponseFlatFrag on HighlightInsertResponse {
+        affectedCount
+    }
+`);
+
+export const HighlightUpdateResponseFlatFrag = graphql(/* GraphQL */ `
+    fragment HighlightUpdateResponseFlatFrag on HighlightUpdateResponse {
+        affectedCount
+    }
+`);
+
 export const IntegrationFlatFrag = graphql(/* GraphQL */ `
     fragment IntegrationFlatFrag on Integration {
         createdBy
@@ -844,6 +889,9 @@ export const IntegrationFlatFrag = graphql(/* GraphQL */ `
         id
         lastSynced
         metadata
+        syncError
+        syncErrorCount
+        syncInProgressSince
         type
         updatedBy
         updatedDate
