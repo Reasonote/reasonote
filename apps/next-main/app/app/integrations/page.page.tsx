@@ -414,6 +414,42 @@ function ReadwiseIntegrationCard() {
   );
 }
 
+function IntegrationPlaceholderCard({ 
+  icon, 
+  title, 
+  description 
+}: { 
+  icon: string; 
+  title: string; 
+  description: string; 
+}) {
+  return (
+    <Card sx={{ opacity: 0.7 }}>
+      <CardContent>
+        <Stack spacing={2}>
+          <Stack direction="row" alignItems="center" spacing={2}>
+            <img 
+              src={icon} 
+              width={24} 
+              height={24} 
+              alt={`${title} logo`}
+            />
+            <Typography variant="h6">{title} Integration</Typography>
+            <Chip 
+              label="Coming Soon" 
+              color="default" 
+              size="small" 
+            />
+          </Stack>
+          <Typography variant="body2" color="text.secondary">
+            {description}
+          </Typography>
+        </Stack>
+      </CardContent>
+    </Card>
+  );
+}
+
 export default function IntegrationsPage() {
   const theme = useTheme();
 
@@ -435,23 +471,30 @@ export default function IntegrationsPage() {
 
         {/* Readwise Integration */}
         <Stack spacing={2}>
-          <Typography variant="h6">Highlight Services</Typography>
           <ReadwiseIntegrationCard />
         </Stack>
 
-        {/* Future Integrations Placeholder */}
+        {/* Future Integrations */}
         <Stack spacing={2}>
           <Typography variant="h6">Coming Soon</Typography>
-          <Card sx={{ opacity: 0.6 }}>
-            <CardContent>
-              <Stack spacing={2}>
-                <Typography variant="body1">Additional integrations</Typography>
-                <Typography variant="body2" color="text.secondary">
-                  We're working on integrations with Kindle, Instapaper, Pocket, and more.
-                </Typography>
-              </Stack>
-            </CardContent>
-          </Card>
+          
+          <IntegrationPlaceholderCard
+            icon="/static/images/Pocket-Icon.svg"
+            title="Pocket"
+            description="Save articles and read them later. Sync your saved items from Pocket to Reasonote for better organization and note-taking."
+          />
+          
+          <IntegrationPlaceholderCard
+            icon="/static/images/Instapaper-Icon.svg"
+            title="Instapaper"
+            description="Sync your Instapaper articles and highlights to Reasonote. Keep all your read-later content organized in one place."
+          />
+          
+          <IntegrationPlaceholderCard
+            icon="/static/images/Zotero-Icon.svg"
+            title="Zotero"
+            description="Import your research papers, citations, and academic sources from Zotero to enhance your research workflow."
+          />
         </Stack>
       </Stack>
     </Box>
