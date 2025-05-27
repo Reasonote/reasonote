@@ -37,26 +37,12 @@ import {
 import {
   getHighlightFlatQueryDoc,
   getIntegrationFlatQueryDoc,
+  HighlightFlatFragFragment,
   OrderByDirection,
 } from "@reasonote/lib-sdk-apollo-client";
 import {
   useIntegrationFlatFragLoader,
 } from "@reasonote/lib-sdk-apollo-client-react";
-
-interface HighlightNode {
-  id: string;
-  content: string;
-  note?: string | null;
-  location?: string | null;
-  highlightedAt?: string | null;
-  tags?: string[] | null;
-  sourceMetadata?: any;
-  targetUrl?: string | null;
-  targetSnipId?: string | null;
-  targetRsnPageId?: string | null;
-  sourceIntegrationId: string;
-  createdDate: any;
-}
 
 function SectionHeader({ icon, title }: { icon: React.ReactNode; title: string }) {
   const theme = useTheme();
@@ -85,7 +71,7 @@ function SectionHeader({ icon, title }: { icon: React.ReactNode; title: string }
   );
 }
 
-function HighlightCard({ highlight }: { highlight: HighlightNode }) {
+function HighlightCard({ highlight }: { highlight: HighlightFlatFragFragment }) {
   const theme = useTheme();
   const { data: integration } = useIntegrationFlatFragLoader(highlight.sourceIntegrationId);
 
@@ -113,7 +99,7 @@ function HighlightCard({ highlight }: { highlight: HighlightNode }) {
     }
   };
 
-  const sourceTitle = highlight.sourceMetadata?.title || 'Unknown Source';
+  const sourceTitle = highlight.sourceName || 'Unknown Source';
   const sourceAuthor = highlight.sourceMetadata?.author;
   const highlightDate = highlight.highlightedAt || highlight.createdDate;
 
@@ -129,6 +115,23 @@ function HighlightCard({ highlight }: { highlight: HighlightNode }) {
                 {sourceTitle}
                 {sourceAuthor && ` by ${sourceAuthor}`}
               </Typography>
+              {highlight.targetUrl && (
+                <IconButton
+                  size="small"
+                  onClick={() => window.open(highlight.targetUrl!, '_blank')}
+                  title="View in Readwise"
+                  sx={{ 
+                    padding: 0.25,
+                    marginLeft: 0.5,
+                    color: 'text.secondary',
+                    '&:hover': {
+                      color: 'primary.main',
+                    }
+                  }}
+                >
+                  <OpenInNew sx={{ fontSize: 14 }} />
+                </IconButton>
+              )}
             </Stack>
             <Typography variant="caption" color="text.secondary">
               {formatDate(highlightDate)}
@@ -183,16 +186,6 @@ function HighlightCard({ highlight }: { highlight: HighlightNode }) {
 
           {/* Actions */}
           <Stack direction="row" spacing={1} alignItems="center">
-            {highlight.targetUrl && (
-              <IconButton
-                size="small"
-                onClick={() => window.open(highlight.targetUrl!, '_blank')}
-                title="Open source"
-              >
-                <OpenInNew fontSize="small" />
-              </IconButton>
-            )}
-            
             {(highlight.targetRsnPageId || highlight.targetSnipId) && (
               <Button
                 size="small"
@@ -284,6 +277,7 @@ export default function HighlightsPage() {
       filters.or = [
         { content: { ilike: `%${searchQuery}%` } },
         { note: { ilike: `%${searchQuery}%` } },
+        { sourceName: { ilike: `%${searchQuery}%` } },
       ];
     }
 
@@ -308,7 +302,17 @@ export default function HighlightsPage() {
   };
 
   return (
-    <Box sx={{ maxWidth: 900, margin: '0 auto', padding: 3 }}>
+    <Box sx={{ 
+        maxWidth: 900, 
+        width: '100%', 
+        margin: '0 auto', 
+        padding: {
+            xs: .5,
+            sm: 1,
+            md: 2,
+        },
+        height: '100%',
+    }}>
       <Stack spacing={4}>
         {/* Page Header */}
         <Stack spacing={2}>
@@ -373,64 +377,69 @@ export default function HighlightsPage() {
           </CardContent>
         </Card>
 
+
+        
         {/* Highlights List */}
         {rsnUserId ? (
-          <ACSBDefaultInfiniteScroll
-            getCollection={(data) => data.highlightCollection}
-            getNodes={(collection) => collection.edges.map(edge => edge.node)}
-            queryOpts={{
-              query: getHighlightFlatQueryDoc,
-              variables: {
-                filter: buildFilter(),
-                orderBy: [
-                  { highlightedAt: OrderByDirection.DescNullsLast },
-                  { createdDate: OrderByDirection.DescNullsLast }
-                ],
-                first: 20,
-              },
-              fetchPolicy: "network-only",
-            }}
-            getChild={(node: any) => (
-              <HighlightCard key={node.id} highlight={node} />
-            )}
-            infScrollStyle={{
-              gap: '16px'
-            }}
-            emptyListComponent={
-              <Card>
-                <CardContent>
-                  <Stack alignItems="center" spacing={2} sx={{ py: 4 }}>
-                    <Highlight sx={{ fontSize: 48, color: 'text.secondary' }} />
-                    <Typography variant="h6" color="text.secondary">
-                      No highlights found
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary" textAlign="center">
-                      {hasActiveFilters 
-                        ? "Try adjusting your filters or search terms."
-                        : "Connect an integration like Readwise to start syncing your highlights."
-                      }
-                    </Typography>
-                    {!hasActiveFilters && (
-                      <Button
-                        variant="contained"
-                        href="/app/integrations"
-                      >
-                        Set up Integrations
-                      </Button>
+            <Stack gap={1}>
+                <ACSBDefaultInfiniteScroll
+                    disableWrapperEls={true}
+                    getCollection={(data) => data.highlightCollection}
+                    getNodes={(collection) => collection.edges.map(edge => edge.node)}
+                    queryOpts={{
+                    query: getHighlightFlatQueryDoc,
+                    variables: {
+                        filter: buildFilter(),
+                        orderBy: [
+                        { highlightedAt: OrderByDirection.DescNullsLast },
+                        { createdDate: OrderByDirection.DescNullsLast }
+                        ],
+                        first: 20,
+                    },
+                    fetchPolicy: "network-only",
+                    }}
+                    getChild={(node: any) => (
+                    <HighlightCard key={node.id} highlight={node} />
                     )}
-                  </Stack>
-                </CardContent>
-              </Card>
-            }
-            loader={
-              <Stack alignItems="center" spacing={2} sx={{ py: 4 }}>
-                <CircularProgress />
-                <Typography variant="body2" color="text.secondary">
-                  Loading highlights...
-                </Typography>
-              </Stack>
-            }
-          />
+                    infScrollStyle={{
+                    gap: '16px'
+                    }}
+                    emptyListComponent={
+                    <Card>
+                        <CardContent>
+                        <Stack alignItems="center" spacing={2} sx={{ py: 4 }}>
+                            <Highlight sx={{ fontSize: 48, color: 'text.secondary' }} />
+                            <Typography variant="h6" color="text.secondary">
+                            No highlights found
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary" textAlign="center">
+                            {hasActiveFilters 
+                                ? "Try adjusting your filters or search terms."
+                                : "Connect an integration like Readwise to start syncing your highlights."
+                            }
+                            </Typography>
+                            {!hasActiveFilters && (
+                            <Button
+                                variant="contained"
+                                href="/app/integrations"
+                            >
+                                Set up Integrations
+                            </Button>
+                            )}
+                        </Stack>
+                        </CardContent>
+                    </Card>
+                    }
+                    loader={
+                    <Stack alignItems="center" spacing={2} sx={{ py: 4 }}>
+                        <CircularProgress />
+                        <Typography variant="body2" color="text.secondary">
+                        Loading highlights...
+                        </Typography>
+                    </Stack>
+                    }
+                />
+            </Stack>
         ) : (
           <Alert severity="info">
             Please log in to view your highlights.

@@ -39,6 +39,7 @@ interface ACSBDefaultInfiniteScrollProps<TCollectionName extends string, TCollec
     overrideWrapperElProps?: React.HTMLProps<HTMLDivElement>;
     infScrollStyle?: React.CSSProperties;
     emptyListComponent?: React.ReactNode;
+    disableWrapperEls?: boolean;
 }
 
 export function ACSBDefaultInfiniteScroll<TCollectionName extends string,TCollection extends ACSBQueryDataCollection<TNode>, TVariables extends ACSBVariables, TNode, TData>({
@@ -50,11 +51,19 @@ export function ACSBDefaultInfiniteScroll<TCollectionName extends string,TCollec
     listProps,
     overrideWrapperElProps,
     infScrollStyle,
-    emptyListComponent
+    emptyListComponent,
+    disableWrapperEls = false,
 }: ACSBDefaultInfiniteScrollProps<TCollectionName, TCollection, TVariables, TNode, TData>) {
+    const Wrapper = disableWrapperEls ? (props: {children: React.ReactNode}) => props.children : (props: {children: React.ReactNode}) => 
+      <Stack maxHeight={"700px"}> 
+        <List {...listProps} style={{overflowY: 'auto', height: '100%', ...listProps?.style}}>
+          {props.children}
+        </List>
+      </Stack>;
+
+
     return (
-        <Stack maxHeight={"700px"}>
-          <List {...listProps} style={{overflowY: 'auto', height: '100%', ...listProps?.style}}>
+        <Wrapper>
             <ApolloClientInfiniteScroll
               wrapperElId={"list-container"}
               inverse={false}
@@ -129,7 +138,6 @@ export function ACSBDefaultInfiniteScroll<TCollectionName extends string,TCollec
                 return !!ret;
               }}
             />
-          </List>
-        </Stack>
+          </Wrapper>
     );
 }
