@@ -251,9 +251,9 @@ function ReadwiseIntegrationCard() {
             <Typography variant="h6">Readwise Integration</Typography>
             {existingIntegration && (
               <Chip 
-                icon={<CheckCircle />} 
+                icon={<CheckCircle color="success" />} 
                 label="Connected" 
-                color="success" 
+                color="gray" 
                 size="small" 
               />
             )}
