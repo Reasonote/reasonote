@@ -3,50 +3,55 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = process.env.SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY!;
 
+// Configuration
+const INTEGRATION_INGESTION_BATCH_SIZE = parseInt(process.env.INTEGRATION_INGESTION_BATCH_SIZE || '25');
+
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-interface ReadwiseHighlight {
+interface ReadwiseExportHighlight {
   id: number;
+  is_deleted: boolean;
   text: string;
-  note: string | null;
   location: number | null;
   location_type: string;
-  highlighted_at: string;
-  url: string | null;
+  note: string | null;
   color: string;
-  updated: string;
+  highlighted_at: string;
+  created_at: string;
+  updated_at: string;
+  external_id: string | null;
+  end_location: number | null;
+  url: string | null;
   book_id: number;
   tags: { name: string }[];
+  is_favorite: boolean;
+  is_discard: boolean;
+  readwise_url: string;
 }
 
-interface ReadwiseBook {
-  id: number;
+interface ReadwiseExportBook {
+  user_book_id: number;
+  is_deleted: boolean;
   title: string;
   author: string | null;
-  category: string;
+  readable_title: string;
   source: string;
-  num_highlights: number;
-  last_highlight_at: string | null;
-  updated: string;
   cover_image_url: string | null;
-  highlights_url: string;
+  unique_url: string;
+  book_tags: { name: string }[];
+  category: string;
+  document_note: string;
+  summary: string;
+  readwise_url: string;
   source_url: string | null;
   asin: string | null;
-  tags: { name: string }[];
+  highlights: ReadwiseExportHighlight[];
 }
 
-interface ReadwiseResponse {
+interface ReadwiseExportResponse {
   count: number;
-  next: string | null;
-  previous: string | null;
-  results: ReadwiseHighlight[];
-}
-
-interface ReadwiseBooksResponse {
-  count: number;
-  next: string | null;
-  previous: string | null;
-  results: ReadwiseBook[];
+  nextPageCursor: string | null;
+  results: ReadwiseExportBook[];
 }
 
 // Wrapper function to handle Readwise API calls with retry-after logic
@@ -78,6 +83,13 @@ async function fetchWithRetryAfter(url: string, token: string): Promise<Response
 
 export async function syncReadwiseHighlights() {
   console.log('Starting Readwise sync process...');
+  
+  // Log batch size configuration
+  if (!process.env.INTEGRATION_INGESTION_BATCH_SIZE) {
+    console.log(`Using default integration batch size: ${INTEGRATION_INGESTION_BATCH_SIZE}`);
+  } else {
+    console.log(`Using configured integration batch size: ${INTEGRATION_INGESTION_BATCH_SIZE}`);
+  }
 
   try {
     // Get integrations that need syncing
@@ -94,11 +106,8 @@ export async function syncReadwiseHighlights() {
         )
       `)
       .eq('_type', 'readwise')
-      .or('last_synced.is.null');
-      // .or('last_synced.lt.now() - interval \'1 hour\'')
-      // .is('sync_in_progress_since', null);
-
-    console.log('integrations', integrations, 'integrationsError', integrationsError);
+      .or('last_synced.is.null,last_synced.lt.now() - interval \'1 hour\'')
+      .is('sync_in_progress_since', null);
 
     if (integrationsError) {
       console.error('Error fetching integrations:', integrationsError);
@@ -111,10 +120,17 @@ export async function syncReadwiseHighlights() {
     }
 
     console.log(`Found ${integrations.length} integrations to sync`);
+    console.log(`Processing integrations in batches of ${INTEGRATION_INGESTION_BATCH_SIZE}`);
 
-    // Process each integration
-    for (const integration of integrations) {
-      await syncIntegration(integration);
+    // Process integrations in batches concurrently
+    const integrationBatches = [];
+    for (let i = 0; i < integrations.length; i += INTEGRATION_INGESTION_BATCH_SIZE) {
+      integrationBatches.push(integrations.slice(i, i + INTEGRATION_INGESTION_BATCH_SIZE));
+    }
+
+    for (const batch of integrationBatches) {
+      console.log(`Processing batch of ${batch.length} integrations concurrently`);
+      await Promise.all(batch.map(integration => syncIntegration(integration)));
     }
 
   } catch (error) {
@@ -150,21 +166,29 @@ async function syncIntegration(integration: any) {
     const lastSynced = integration.last_synced;
     const updatedAfter = lastSynced ? new Date(lastSynced).toISOString() : null;
 
-    // First, fetch books to get metadata
-    const books = await fetchReadwiseBooks(token);
-    const booksMap = new Map(books.map(book => [book.id, book]));
-
-    // Fetch highlights
-    const highlights = await fetchReadwiseHighlights(token, updatedAfter);
+    // Fetch books with embedded highlights using export API
+    const books = await fetchReadwiseExport(token, updatedAfter);
     
-    console.log(`Fetched ${highlights.length} highlights for integration ${integrationId}`);
+    console.log(`Fetched ${books.length} books for integration ${integrationId}`);
 
-    // Process highlights in batches
-    const batchSize = 100;
-    for (let i = 0; i < highlights.length; i += batchSize) {
-      const batch = highlights.slice(i, i + batchSize);
-      await processHighlightsBatch(batch, booksMap, integrationId, userId);
+    // Process all highlights from all books
+    let totalHighlights = 0;
+    for (const book of books) {
+      if (book.highlights && book.highlights.length > 0) {
+        // Filter out deleted highlights
+        const activeHighlights = book.highlights.filter(h => !h.is_deleted);
+        totalHighlights += activeHighlights.length;
+        
+        // Process highlights in batches
+        const highlightBatchSize = 100;
+        for (let i = 0; i < activeHighlights.length; i += highlightBatchSize) {
+          const batch = activeHighlights.slice(i, i + highlightBatchSize);
+          await processHighlightsBatch(batch, book, integrationId, userId);
+        }
+      }
     }
+
+    console.log(`Processed ${totalHighlights} highlights for integration ${integrationId}`);
 
     // Mark sync as complete
     await supabase
@@ -185,15 +209,31 @@ async function syncIntegration(integration: any) {
   }
 }
 
-async function fetchReadwiseBooks(token: string): Promise<ReadwiseBook[]> {
-  const books: ReadwiseBook[] = [];
-  let nextUrl: string | null = 'https://readwise.io/api/v2/books/';
+async function fetchReadwiseExport(token: string, updatedAfter?: string | null): Promise<ReadwiseExportBook[]> {
+  const books: ReadwiseExportBook[] = [];
+  let nextPageCursor: string | null = null;
 
-  while (nextUrl) {
-    const response = await fetchWithRetryAfter(nextUrl, token);
-    const data: ReadwiseBooksResponse = await response.json();
+  while (true) {
+    const queryParams = new URLSearchParams();
+    if (nextPageCursor) {
+      queryParams.append('pageCursor', nextPageCursor);
+    }
+    if (updatedAfter) {
+      queryParams.append('updatedAfter', updatedAfter);
+    }
+
+    const url = `https://readwise.io/api/v2/export/?${queryParams.toString()}`;
+    console.log('Making export API request with params:', queryParams.toString());
+    
+    const response = await fetchWithRetryAfter(url, token);
+    const data: ReadwiseExportResponse = await response.json();
+    
     books.push(...data.results);
-    nextUrl = data.next;
+    nextPageCursor = data.nextPageCursor;
+    
+    if (!nextPageCursor) {
+      break;
+    }
 
     // Add a small delay to be respectful to the API
     await new Promise(resolve => setTimeout(resolve, 100));
@@ -202,37 +242,29 @@ async function fetchReadwiseBooks(token: string): Promise<ReadwiseBook[]> {
   return books;
 }
 
-async function fetchReadwiseHighlights(token: string, updatedAfter?: string | null): Promise<ReadwiseHighlight[]> {
-  const highlights: ReadwiseHighlight[] = [];
-  let nextUrl: string | null = 'https://readwise.io/api/v2/highlights/';
-  
-  // Add updated_after parameter if provided
-  if (updatedAfter) {
-    nextUrl += `?updated__gt=${encodeURIComponent(updatedAfter)}`;
-  }
-
-  while (nextUrl) {
-    console.log('fetchReadwiseHighlights', nextUrl);
-    const response = await fetchWithRetryAfter(nextUrl, token);
-    const data: ReadwiseResponse = await response.json();
-    highlights.push(...data.results);
-    nextUrl = data.next;
-
-    // Add a small delay to be respectful to the API
-    await new Promise(resolve => setTimeout(resolve, 500));
-  }
-
-  return highlights;
-}
-
 async function processHighlightsBatch(
-  highlights: ReadwiseHighlight[], 
-  booksMap: Map<number, ReadwiseBook>,
+  highlights: ReadwiseExportHighlight[], 
+  book: ReadwiseExportBook,
   integrationId: string,
   userId: string
 ) {
   const highlightsToInsert = highlights.map(highlight => {
-    const book = booksMap.get(highlight.book_id);
+    const metadata = {
+      title: book.title,
+      author: book.author,
+      category: book.category,
+      source: book.source,
+      cover_image_url: book.cover_image_url,
+      source_url: book.source_url,
+      asin: book.asin,
+      readwise_book_id: book.user_book_id,
+      readwise_highlight_id: highlight.id,
+      color: highlight.color,
+      location_type: highlight.location_type,
+      is_favorite: highlight.is_favorite,
+      book_tags: book.book_tags,
+      readable_title: book.readable_title,
+    };
     
     return {
       content: highlight.text,
@@ -242,20 +274,9 @@ async function processHighlightsBatch(
       tags: highlight.tags.map(tag => tag.name),
       source_external_id: highlight.id.toString(),
       source_integration_id: integrationId,
-      source_metadata: {
-        title: book?.title || null,
-        author: book?.author || null,
-        category: book?.category || null,
-        source: book?.source || null,
-        cover_image_url: book?.cover_image_url || null,
-        source_url: book?.source_url || null,
-        asin: book?.asin || null,
-        readwise_book_id: highlight.book_id,
-        readwise_highlight_id: highlight.id,
-        color: highlight.color,
-        location_type: highlight.location_type,
-      },
-      target_url: highlight.url,
+      source_name: inferSourceName(metadata),
+      source_metadata: metadata,
+      target_url: highlight.readwise_url, // Use the provided readwise_url
       created_by: userId,
       updated_by: userId,
     };
@@ -311,4 +332,21 @@ export async function readwiseSyncLoop() {
     // Wait 5 minutes before next sync check
     await new Promise(resolve => setTimeout(resolve, 5 * 60 * 1000));
   }
+}
+
+// Helper function to infer source name from Readwise metadata
+function inferSourceName(metadata: any): string {
+  if (!metadata) return 'Unknown Source';
+  
+  // Use title if available, otherwise fall back to source type
+  if (metadata.title) {
+    return metadata.title;
+  }
+  
+  // Capitalize and format source type
+  if (metadata.source) {
+    return metadata.source.charAt(0).toUpperCase() + metadata.source.slice(1);
+  }
+  
+  return 'Unknown Source';
 } 

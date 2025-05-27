@@ -28,6 +28,7 @@ CREATE TABLE public.highlight (
     source_integration_id text NOT NULL REFERENCES public.integration(id) ON DELETE CASCADE,
     source_external_id text, -- Provider's highlight ID (e.g., Readwise highlight ID)
     source_metadata jsonb, -- Book title, author, etc. (provider-agnostic)
+    source_name text, -- Human-readable name of the source (book title, article title, etc.)
     
     -- Standard audit fields
     created_date timestamptz NOT NULL DEFAULT now(),

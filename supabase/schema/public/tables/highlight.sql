@@ -27,6 +27,7 @@
 --  source_integration_id | text                     |           | not null | 
 --  source_external_id    | text                     |           |          | 
 --  source_metadata       | jsonb                    |           |          | 
+--  source_name           | text                     |           |          | 
 --  created_date          | timestamp with time zone |           | not null | now()
 --  updated_date          | timestamp with time zone |           | not null | now()
 --  created_by            | text                     |           |          | 
@@ -125,6 +126,7 @@ CREATE TABLE public.highlight (
     source_integration_id text NOT NULL,
     source_external_id text,
     source_metadata jsonb,
+    source_name text,
     created_date timestamp with time zone DEFAULT now() NOT NULL,
     updated_date timestamp with time zone DEFAULT now() NOT NULL,
     created_by text,

@@ -848,6 +848,7 @@ export const HighlightFlatFrag = graphql(/* GraphQL */ `
         sourceExternalId
         sourceIntegrationId
         sourceMetadata
+        sourceName
         tags
         targetRsnPageId
         targetSnipId

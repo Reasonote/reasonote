@@ -2849,6 +2849,7 @@ export type Highlight = Node & {
   sourceIntegration?: Maybe<Integration>;
   sourceIntegrationId: Scalars['String'];
   sourceMetadata?: Maybe<Scalars['JSON']>;
+  sourceName?: Maybe<Scalars['String']>;
   tags?: Maybe<Array<Maybe<Scalars['String']>>>;
   targetRsnPage?: Maybe<RsnPage>;
   targetRsnPageId?: Maybe<Scalars['String']>;
@@ -2896,6 +2897,7 @@ export type HighlightFilter = {
   or?: InputMaybe<Array<HighlightFilter>>;
   sourceExternalId?: InputMaybe<StringFilter>;
   sourceIntegrationId?: InputMaybe<StringFilter>;
+  sourceName?: InputMaybe<StringFilter>;
   tags?: InputMaybe<StringListFilter>;
   targetRsnPageId?: InputMaybe<StringFilter>;
   targetSnipId?: InputMaybe<StringFilter>;
@@ -2915,6 +2917,7 @@ export type HighlightInsertInput = {
   sourceExternalId?: InputMaybe<Scalars['String']>;
   sourceIntegrationId?: InputMaybe<Scalars['String']>;
   sourceMetadata?: InputMaybe<Scalars['JSON']>;
+  sourceName?: InputMaybe<Scalars['String']>;
   tags?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
   targetRsnPageId?: InputMaybe<Scalars['String']>;
   targetSnipId?: InputMaybe<Scalars['String']>;
@@ -2941,6 +2944,7 @@ export type HighlightOrderBy = {
   note?: InputMaybe<OrderByDirection>;
   sourceExternalId?: InputMaybe<OrderByDirection>;
   sourceIntegrationId?: InputMaybe<OrderByDirection>;
+  sourceName?: InputMaybe<OrderByDirection>;
   targetRsnPageId?: InputMaybe<OrderByDirection>;
   targetSnipId?: InputMaybe<OrderByDirection>;
   targetUrl?: InputMaybe<OrderByDirection>;
@@ -2959,6 +2963,7 @@ export type HighlightUpdateInput = {
   sourceExternalId?: InputMaybe<Scalars['String']>;
   sourceIntegrationId?: InputMaybe<Scalars['String']>;
   sourceMetadata?: InputMaybe<Scalars['JSON']>;
+  sourceName?: InputMaybe<Scalars['String']>;
   tags?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
   targetRsnPageId?: InputMaybe<Scalars['String']>;
   targetSnipId?: InputMaybe<Scalars['String']>;
@@ -12686,7 +12691,7 @@ export type GroupInsertResponseFlatFragFragment = { __typename?: 'GroupInsertRes
 
 export type GroupUpdateResponseFlatFragFragment = { __typename?: 'GroupUpdateResponse', affectedCount: number };
 
-export type HighlightFlatFragFragment = { __typename?: 'Highlight', content: string, createdBy?: string | null, createdDate: any, highlightedAt?: any | null, id: string, location?: string | null, note?: string | null, sourceExternalId?: string | null, sourceIntegrationId: string, sourceMetadata?: any | null, tags?: Array<string | null> | null, targetRsnPageId?: string | null, targetSnipId?: string | null, targetUrl?: string | null, updatedBy?: string | null, updatedDate: any };
+export type HighlightFlatFragFragment = { __typename?: 'Highlight', content: string, createdBy?: string | null, createdDate: any, highlightedAt?: any | null, id: string, location?: string | null, note?: string | null, sourceExternalId?: string | null, sourceIntegrationId: string, sourceMetadata?: any | null, sourceName?: string | null, tags?: Array<string | null> | null, targetRsnPageId?: string | null, targetSnipId?: string | null, targetUrl?: string | null, updatedBy?: string | null, updatedDate: any };
 
 export type HighlightDeleteResponseFlatFragFragment = { __typename?: 'HighlightDeleteResponse', affectedCount: number };
 
@@ -13315,7 +13320,7 @@ export type CreateHighlightFlatMutationVariables = Exact<{
 }>;
 
 
-export type CreateHighlightFlatMutation = { __typename?: 'Mutation', insertIntoHighlightCollection?: { __typename?: 'HighlightInsertResponse', affectedCount: number, records: Array<{ __typename?: 'Highlight', content: string, createdBy?: string | null, createdDate: any, highlightedAt?: any | null, id: string, location?: string | null, note?: string | null, sourceExternalId?: string | null, sourceIntegrationId: string, sourceMetadata?: any | null, tags?: Array<string | null> | null, targetRsnPageId?: string | null, targetSnipId?: string | null, targetUrl?: string | null, updatedBy?: string | null, updatedDate: any }> } | null };
+export type CreateHighlightFlatMutation = { __typename?: 'Mutation', insertIntoHighlightCollection?: { __typename?: 'HighlightInsertResponse', affectedCount: number, records: Array<{ __typename?: 'Highlight', content: string, createdBy?: string | null, createdDate: any, highlightedAt?: any | null, id: string, location?: string | null, note?: string | null, sourceExternalId?: string | null, sourceIntegrationId: string, sourceMetadata?: any | null, sourceName?: string | null, tags?: Array<string | null> | null, targetRsnPageId?: string | null, targetSnipId?: string | null, targetUrl?: string | null, updatedBy?: string | null, updatedDate: any }> } | null };
 
 export type CreateIntegrationFlatMutationVariables = Exact<{
   objects: Array<IntegrationInsertInput> | IntegrationInsertInput;
@@ -13837,7 +13842,7 @@ export type UpdateHighlightFlatMutationVariables = Exact<{
 }>;
 
 
-export type UpdateHighlightFlatMutation = { __typename?: 'Mutation', updateHighlightCollection: { __typename?: 'HighlightUpdateResponse', affectedCount: number, records: Array<{ __typename?: 'Highlight', content: string, createdBy?: string | null, createdDate: any, highlightedAt?: any | null, id: string, location?: string | null, note?: string | null, sourceExternalId?: string | null, sourceIntegrationId: string, sourceMetadata?: any | null, tags?: Array<string | null> | null, targetRsnPageId?: string | null, targetSnipId?: string | null, targetUrl?: string | null, updatedBy?: string | null, updatedDate: any }> } };
+export type UpdateHighlightFlatMutation = { __typename?: 'Mutation', updateHighlightCollection: { __typename?: 'HighlightUpdateResponse', affectedCount: number, records: Array<{ __typename?: 'Highlight', content: string, createdBy?: string | null, createdDate: any, highlightedAt?: any | null, id: string, location?: string | null, note?: string | null, sourceExternalId?: string | null, sourceIntegrationId: string, sourceMetadata?: any | null, sourceName?: string | null, tags?: Array<string | null> | null, targetRsnPageId?: string | null, targetSnipId?: string | null, targetUrl?: string | null, updatedBy?: string | null, updatedDate: any }> } };
 
 export type UpdateIntegrationFlatMutationVariables = Exact<{
   set: IntegrationUpdateInput;
@@ -15030,7 +15035,7 @@ export type GetHighlightFlatQueryVariables = Exact<{
 }>;
 
 
-export type GetHighlightFlatQuery = { __typename?: 'Query', highlightCollection?: { __typename?: 'HighlightConnection', edges: Array<{ __typename?: 'HighlightEdge', node: { __typename?: 'Highlight', content: string, createdBy?: string | null, createdDate: any, highlightedAt?: any | null, id: string, location?: string | null, note?: string | null, sourceExternalId?: string | null, sourceIntegrationId: string, sourceMetadata?: any | null, tags?: Array<string | null> | null, targetRsnPageId?: string | null, targetSnipId?: string | null, targetUrl?: string | null, updatedBy?: string | null, updatedDate: any } }>, pageInfo: { __typename?: 'PageInfo', endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean, startCursor?: string | null } } | null };
+export type GetHighlightFlatQuery = { __typename?: 'Query', highlightCollection?: { __typename?: 'HighlightConnection', edges: Array<{ __typename?: 'HighlightEdge', node: { __typename?: 'Highlight', content: string, createdBy?: string | null, createdDate: any, highlightedAt?: any | null, id: string, location?: string | null, note?: string | null, sourceExternalId?: string | null, sourceIntegrationId: string, sourceMetadata?: any | null, sourceName?: string | null, tags?: Array<string | null> | null, targetRsnPageId?: string | null, targetSnipId?: string | null, targetUrl?: string | null, updatedBy?: string | null, updatedDate: any } }>, pageInfo: { __typename?: 'PageInfo', endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean, startCursor?: string | null } } | null };
 
 export type GetIntegrationFlatQueryVariables = Exact<{
   filter?: InputMaybe<IntegrationFilter>;
@@ -15983,7 +15988,7 @@ export const GroupDeleteResponseFlatFragFragmentDoc = {"kind":"Document","defini
 export const GroupEdgeFlatFragFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"GroupEdgeFlatFrag"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"GroupEdge"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"cursor"}}]}}]} as unknown as DocumentNode<GroupEdgeFlatFragFragment, unknown>;
 export const GroupInsertResponseFlatFragFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"GroupInsertResponseFlatFrag"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"GroupInsertResponse"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"affectedCount"}}]}}]} as unknown as DocumentNode<GroupInsertResponseFlatFragFragment, unknown>;
 export const GroupUpdateResponseFlatFragFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"GroupUpdateResponseFlatFrag"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"GroupUpdateResponse"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"affectedCount"}}]}}]} as unknown as DocumentNode<GroupUpdateResponseFlatFragFragment, unknown>;
-export const HighlightFlatFragFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"HighlightFlatFrag"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Highlight"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"content"}},{"kind":"Field","name":{"kind":"Name","value":"createdBy"}},{"kind":"Field","name":{"kind":"Name","value":"createdDate"}},{"kind":"Field","name":{"kind":"Name","value":"highlightedAt"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"location"}},{"kind":"Field","name":{"kind":"Name","value":"note"}},{"kind":"Field","name":{"kind":"Name","value":"sourceExternalId"}},{"kind":"Field","name":{"kind":"Name","value":"sourceIntegrationId"}},{"kind":"Field","name":{"kind":"Name","value":"sourceMetadata"}},{"kind":"Field","name":{"kind":"Name","value":"tags"}},{"kind":"Field","name":{"kind":"Name","value":"targetRsnPageId"}},{"kind":"Field","name":{"kind":"Name","value":"targetSnipId"}},{"kind":"Field","name":{"kind":"Name","value":"targetUrl"}},{"kind":"Field","name":{"kind":"Name","value":"updatedBy"}},{"kind":"Field","name":{"kind":"Name","value":"updatedDate"}}]}}]} as unknown as DocumentNode<HighlightFlatFragFragment, unknown>;
+export const HighlightFlatFragFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"HighlightFlatFrag"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Highlight"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"content"}},{"kind":"Field","name":{"kind":"Name","value":"createdBy"}},{"kind":"Field","name":{"kind":"Name","value":"createdDate"}},{"kind":"Field","name":{"kind":"Name","value":"highlightedAt"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"location"}},{"kind":"Field","name":{"kind":"Name","value":"note"}},{"kind":"Field","name":{"kind":"Name","value":"sourceExternalId"}},{"kind":"Field","name":{"kind":"Name","value":"sourceIntegrationId"}},{"kind":"Field","name":{"kind":"Name","value":"sourceMetadata"}},{"kind":"Field","name":{"kind":"Name","value":"sourceName"}},{"kind":"Field","name":{"kind":"Name","value":"tags"}},{"kind":"Field","name":{"kind":"Name","value":"targetRsnPageId"}},{"kind":"Field","name":{"kind":"Name","value":"targetSnipId"}},{"kind":"Field","name":{"kind":"Name","value":"targetUrl"}},{"kind":"Field","name":{"kind":"Name","value":"updatedBy"}},{"kind":"Field","name":{"kind":"Name","value":"updatedDate"}}]}}]} as unknown as DocumentNode<HighlightFlatFragFragment, unknown>;
 export const HighlightDeleteResponseFlatFragFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"HighlightDeleteResponseFlatFrag"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"HighlightDeleteResponse"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"affectedCount"}}]}}]} as unknown as DocumentNode<HighlightDeleteResponseFlatFragFragment, unknown>;
 export const HighlightEdgeFlatFragFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"HighlightEdgeFlatFrag"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"HighlightEdge"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"cursor"}}]}}]} as unknown as DocumentNode<HighlightEdgeFlatFragFragment, unknown>;
 export const HighlightInsertResponseFlatFragFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"HighlightInsertResponseFlatFrag"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"HighlightInsertResponse"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"affectedCount"}}]}}]} as unknown as DocumentNode<HighlightInsertResponseFlatFragFragment, unknown>;
