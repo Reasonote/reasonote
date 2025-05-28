@@ -54,13 +54,12 @@ export function ACSBDefaultInfiniteScroll<TCollectionName extends string,TCollec
     emptyListComponent,
     disableWrapperEls = false,
 }: ACSBDefaultInfiniteScrollProps<TCollectionName, TCollection, TVariables, TNode, TData>) {
-    const Wrapper = disableWrapperEls ? (props: {children: React.ReactNode}) => props.children : (props: {children: React.ReactNode}) => 
+    const Wrapper = (disableWrapperEls ? (props: {children: React.ReactNode}) => props.children : (props: {children: React.ReactNode}) => 
       <Stack maxHeight={"700px"}> 
         <List {...listProps} style={{overflowY: 'auto', height: '100%', ...listProps?.style}}>
           {props.children}
         </List>
-      </Stack>;
-
+      </Stack>) as any;
 
     return (
         <Wrapper>
