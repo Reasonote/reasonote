@@ -408,7 +408,6 @@ export default function HighlightsPage() {
                         ],
                         first: 20,
                     },
-                    fetchPolicy: "network-only",
                     }}
                     getChild={(node: any) => (
                     <HighlightCard key={node.id} highlight={node} />
