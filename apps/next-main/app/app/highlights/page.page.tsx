@@ -403,8 +403,8 @@ export default function HighlightsPage() {
                     variables: {
                         filter: buildFilter(),
                         orderBy: [
-                        { highlightedAt: OrderByDirection.DescNullsLast },
-                        { createdDate: OrderByDirection.DescNullsLast }
+                            { highlightedAt: OrderByDirection.DescNullsLast },
+                            { createdDate: OrderByDirection.DescNullsLast }
                         ],
                         first: 20,
                     },
