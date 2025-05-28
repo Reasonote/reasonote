@@ -51,6 +51,7 @@
 --     "snip_source_integration_fkey" FOREIGN KEY (source_integration) REFERENCES integration(id) ON DELETE SET NULL
 --     "snip_updated_by_fkey" FOREIGN KEY (updated_by) REFERENCES rsn_user(id) ON DELETE SET NULL
 -- Referenced by:
+--     TABLE "highlight" CONSTRAINT "highlight_target_snip_id_fkey" FOREIGN KEY (target_snip_id) REFERENCES snip(id) ON DELETE CASCADE
 --     TABLE "resource" CONSTRAINT "resource_child_snip_id_fkey" FOREIGN KEY (child_snip_id) REFERENCES snip(id) ON DELETE SET NULL
 -- Policies:
 --     POLICY "snip DELETE" FOR DELETE

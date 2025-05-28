@@ -104,7 +104,7 @@ CREATE TRIGGER run_tgr_apply_audit BEFORE INSERT OR UPDATE ON podcast_audio FOR 
 
 -------------
 
-ALTER TABLE storage.objects ENABLE ROW LEVEL SECURITY;
+-- ALTER TABLE storage.objects ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "storage.objects INSERT"
     ON storage.objects
     FOR INSERT

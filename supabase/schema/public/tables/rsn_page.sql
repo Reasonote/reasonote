@@ -39,6 +39,7 @@
 --     "rsn_page_parent_fkey" FOREIGN KEY (parent) REFERENCES rsn_page(id) ON DELETE CASCADE
 --     "rsn_page_updated_by_fkey" FOREIGN KEY (updated_by) REFERENCES rsn_user(id) ON DELETE SET NULL
 -- Referenced by:
+--     TABLE "highlight" CONSTRAINT "highlight_target_rsn_page_id_fkey" FOREIGN KEY (target_rsn_page_id) REFERENCES rsn_page(id) ON DELETE CASCADE
 --     TABLE "resource" CONSTRAINT "resource_child_page_id_fkey" FOREIGN KEY (child_page_id) REFERENCES rsn_page(id) ON DELETE SET NULL
 --     TABLE "rsn_page" CONSTRAINT "rsn_page_parent_fkey" FOREIGN KEY (parent) REFERENCES rsn_page(id) ON DELETE CASCADE
 --     TABLE "rsn_page_vector" CONSTRAINT "rsn_page_vector_rsn_page_id_fkey" FOREIGN KEY (rsn_page_id) REFERENCES rsn_page(id) ON DELETE CASCADE

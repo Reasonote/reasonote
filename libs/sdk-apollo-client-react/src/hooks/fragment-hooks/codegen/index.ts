@@ -399,6 +399,27 @@ export const { FragLoader: GroupFlatFragLoader, useFragLoader: useGroupFlatFragL
         },
     });
 
+import { HighlightFlatFrag } from "@reasonote/lib-sdk-apollo-client";
+import { getHighlightFlatQueryDoc } from "@reasonote/lib-sdk-apollo-client";
+export const { FragLoader: HighlightFlatFragLoader, useFragLoader: useHighlightFlatFragLoader } =
+    createFragmentDataLoaders({
+        entityCachePrefix: "Highlight",
+        fragmentDoc: HighlightFlatFrag,
+        fragmentName: "HighlightFlatFrag",
+        batchQuery: getHighlightFlatQueryDoc,
+        createBatchVarsForKeys: (ids: any) => {
+            return {
+                filter: {
+                    id: { in: ids },
+                },
+            };
+        },
+        queryManyPagesOpts: {
+            queryManyType: "relay",
+            getRelayPageInfo: (data) => data?.highlightCollection?.pageInfo,
+        },
+    });
+
 import { IntegrationFlatFrag } from "@reasonote/lib-sdk-apollo-client";
 import { getIntegrationFlatQueryDoc } from "@reasonote/lib-sdk-apollo-client";
 export const { FragLoader: IntegrationFlatFragLoader, useFragLoader: useIntegrationFlatFragLoader } =

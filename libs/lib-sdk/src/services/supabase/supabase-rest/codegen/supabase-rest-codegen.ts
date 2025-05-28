@@ -1293,6 +1293,102 @@ export type Database = {
         }
         Relationships: []
       }
+      highlight: {
+        Row: {
+          content: string
+          created_by: string | null
+          created_date: string
+          highlighted_at: string | null
+          id: string
+          location: string | null
+          note: string | null
+          source_external_id: string | null
+          source_integration_id: string
+          source_metadata: Json | null
+          source_name: string | null
+          tags: string[] | null
+          target_rsn_page_id: string | null
+          target_snip_id: string | null
+          target_url: string | null
+          updated_by: string | null
+          updated_date: string
+        }
+        Insert: {
+          content: string
+          created_by?: string | null
+          created_date?: string
+          highlighted_at?: string | null
+          id?: string
+          location?: string | null
+          note?: string | null
+          source_external_id?: string | null
+          source_integration_id: string
+          source_metadata?: Json | null
+          source_name?: string | null
+          tags?: string[] | null
+          target_rsn_page_id?: string | null
+          target_snip_id?: string | null
+          target_url?: string | null
+          updated_by?: string | null
+          updated_date?: string
+        }
+        Update: {
+          content?: string
+          created_by?: string | null
+          created_date?: string
+          highlighted_at?: string | null
+          id?: string
+          location?: string | null
+          note?: string | null
+          source_external_id?: string | null
+          source_integration_id?: string
+          source_metadata?: Json | null
+          source_name?: string | null
+          tags?: string[] | null
+          target_rsn_page_id?: string | null
+          target_snip_id?: string | null
+          target_url?: string | null
+          updated_by?: string | null
+          updated_date?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "highlight_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "rsn_user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "highlight_source_integration_id_fkey"
+            columns: ["source_integration_id"]
+            isOneToOne: false
+            referencedRelation: "integration"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "highlight_target_rsn_page_id_fkey"
+            columns: ["target_rsn_page_id"]
+            isOneToOne: false
+            referencedRelation: "rsn_page"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "highlight_target_snip_id_fkey"
+            columns: ["target_snip_id"]
+            isOneToOne: false
+            referencedRelation: "snip"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "highlight_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "rsn_user"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       integration: {
         Row: {
           _type: string
@@ -1302,6 +1398,9 @@ export type Database = {
           id: string
           last_synced: string | null
           metadata: Json | null
+          sync_error: string | null
+          sync_error_count: number | null
+          sync_in_progress_since: string | null
           updated_by: string | null
           updated_date: string
         }
@@ -1313,6 +1412,9 @@ export type Database = {
           id?: string
           last_synced?: string | null
           metadata?: Json | null
+          sync_error?: string | null
+          sync_error_count?: number | null
+          sync_in_progress_since?: string | null
           updated_by?: string | null
           updated_date?: string
         }
@@ -1324,6 +1426,9 @@ export type Database = {
           id?: string
           last_synced?: string | null
           metadata?: Json | null
+          sync_error?: string | null
+          sync_error_count?: number | null
+          sync_in_progress_since?: string | null
           updated_by?: string | null
           updated_date?: string
         }

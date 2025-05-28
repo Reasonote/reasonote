@@ -12,18 +12,21 @@
 ---------------------------------------------------------------------------
 -- BEGIN: TABLE DESCRIPTION (TABLE: public.integration)
 ------------------------------
---                                       Table "public.integration"
---     Column    |           Type           | Collation | Nullable |               Default                
--- --------------+--------------------------+-----------+----------+--------------------------------------
---  id           | text                     |           | not null | generate_typed_uuid('intgrtn'::text)
---  _type        | text                     |           | not null | 
---  metadata     | jsonb                    |           |          | 
---  created_date | timestamp with time zone |           | not null | now()
---  updated_date | timestamp with time zone |           | not null | now()
---  created_by   | typed_uuid               |           |          | 
---  updated_by   | typed_uuid               |           |          | 
---  for_user     | text                     |           |          | 
---  last_synced  | timestamp with time zone |           |          | 
+--                                            Table "public.integration"
+--          Column         |           Type           | Collation | Nullable |               Default                
+-- ------------------------+--------------------------+-----------+----------+--------------------------------------
+--  id                     | text                     |           | not null | generate_typed_uuid('intgrtn'::text)
+--  _type                  | text                     |           | not null | 
+--  metadata               | jsonb                    |           |          | 
+--  created_date           | timestamp with time zone |           | not null | now()
+--  updated_date           | timestamp with time zone |           | not null | now()
+--  created_by             | typed_uuid               |           |          | 
+--  updated_by             | typed_uuid               |           |          | 
+--  for_user               | text                     |           |          | 
+--  last_synced            | timestamp with time zone |           |          | 
+--  sync_in_progress_since | timestamp with time zone |           |          | 
+--  sync_error             | text                     |           |          | 
+--  sync_error_count       | integer                  |           |          | 0
 -- Indexes:
 --     "integration_pkey" PRIMARY KEY, btree (id)
 -- Check constraints:
@@ -33,6 +36,7 @@
 --     "integration_for_user_fkey" FOREIGN KEY (for_user) REFERENCES rsn_user(id) ON DELETE SET NULL
 --     "integration_updated_by_fkey" FOREIGN KEY (updated_by) REFERENCES rsn_user(id) ON DELETE SET NULL
 -- Referenced by:
+--     TABLE "highlight" CONSTRAINT "highlight_source_integration_id_fkey" FOREIGN KEY (source_integration_id) REFERENCES integration(id) ON DELETE CASCADE
 --     TABLE "integration_token" CONSTRAINT "integration_token_integration_id_fkey" FOREIGN KEY (integration_id) REFERENCES integration(id) ON DELETE CASCADE
 --     TABLE "snip" CONSTRAINT "snip_source_integration_fkey" FOREIGN KEY (source_integration) REFERENCES integration(id) ON DELETE SET NULL
 -- Policies:
@@ -94,6 +98,9 @@ CREATE TABLE public.integration (
     updated_by public.typed_uuid,
     for_user text,
     last_synced timestamp with time zone,
+    sync_in_progress_since timestamp with time zone,
+    sync_error text,
+    sync_error_count integer DEFAULT 0,
     CONSTRAINT integration__id__check_prefix CHECK (public.is_valid_typed_uuid('intgrtn'::text, (id)::public.typed_uuid))
 );
 

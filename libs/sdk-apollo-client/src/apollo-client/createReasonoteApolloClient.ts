@@ -99,6 +99,7 @@ export function createReasonoteApolloClient(config: CreateReasonoteApolloClientC
         "rsnUserCollection",
         "rsnUserSysdataCollection",
         "rsnPageCollection",
+        "highlightCollection",
         "rsnPageVectorCollection",
         "rsnVecCollection",
         "rsnVecConfigCollection",

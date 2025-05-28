@@ -7,6 +7,7 @@ import {
 import { createClient } from '@supabase/supabase-js';
 
 import { createChunks } from './chunking';
+import { readwiseSyncLoop } from './readwise-sync';
 import type { VectorWorkerContext } from './types';
 import { vectorize_chunks } from './vectorize_chunks';
 
@@ -37,8 +38,18 @@ export async function main() {
         SUPERUSER_supabase: createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_KEY!),
     };
 
-    ctx.logger.log('vector-worker started.')
+    ctx.logger.log('vector-worker started with both vector and Readwise sync processes.')
 
+    // Run both sync processes concurrently
+    await Promise.all([
+        vectorSyncLoop(ctx),
+        readwiseSyncLoop(),
+    ]);
+}
+
+async function vectorSyncLoop(ctx: VectorWorkerContext) {
+    ctx.logger.log('Vector sync loop started.');
+    
     while (true) {
         try {
             const dataResultVecQueue = await getVecQueue(ctx);
@@ -149,13 +160,12 @@ export async function main() {
 
             ctx.logger.info(`Processed ${totalChunksProcessed} chunks`);
         } catch (error) {
-            ctx.logger.error("Error in main loop:", error);
+            ctx.logger.error("Error in vector sync loop:", error);
         }
 
         await asyncSleep(SLEEP_TIME_MS);
     }
 }
-
 
 async function getVecQueue(ctx: VectorWorkerContext) {
     const { SUPERUSER_supabase: sb } = ctx;
@@ -311,6 +321,5 @@ async function getVecQueue(ctx: VectorWorkerContext) {
     );
     return ret.items;
 }
-
 
 main().catch((err) => console.error("Fatal error in main loop:", err));

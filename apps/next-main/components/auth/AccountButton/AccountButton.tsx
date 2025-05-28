@@ -17,11 +17,13 @@ import {
   FilterCenterFocus,
   FitnessCenter,
   Gamepad,
+  Highlight,
   LocalLibrary,
   Logout,
   Person,
   Reviews,
   Settings,
+  SettingsInputComponent,
   SmartButton,
 } from "@mui/icons-material";
 import {
@@ -141,6 +143,18 @@ export default function AccountButton() {
       icon: <LocalLibrary fontSize="small" />,
       onClick: () => router.push("/app/lessons")
     },
+    {
+      key: 'highlights',
+      label: "Highlights",
+      icon: <Highlight fontSize="small" />,
+      onClick: () => router.push("/app/highlights")
+    },
+    {
+      key: 'integrations',
+      label: "Integrations",
+      icon: <SettingsInputComponent fontSize="small" />,
+      onClick: () => router.push("/app/integrations")
+    },
   ];
 
   // Only include experimental items if user is admin
@@ -198,7 +212,7 @@ export default function AccountButton() {
       label: "Courses",
       icon: <CollectionsBookmark fontSize="small" />,
       onClick: () => router.push("/app/courses")
-    }
+    },
   ] : [];
 
   // Combine regular library items with experimental items (if user is admin)

@@ -638,6 +638,35 @@ export const getGroupFlatQueryDoc = graphql(/* GraphQL */ `
     }
 `);
 
+export const getHighlightFlatQueryDoc = graphql(/* GraphQL */ `
+    query getHighlightFlat (
+        $filter: HighlightFilter
+        $orderBy: [HighlightOrderBy!]
+        $first: Int
+        $after: Cursor
+        $last: Int
+        $before: Cursor
+    ) {
+        highlightCollection (
+            filter: $filter
+            orderBy: $orderBy
+            first: $first
+            after: $after
+            last: $last
+            before: $before
+        ) {
+            edges {
+                node {
+                    ...HighlightFlatFrag
+                }
+            }
+            pageInfo {
+                ...PageInfoFlatFrag
+            }
+        }
+    }
+`);
+
 export const getIntegrationFlatQueryDoc = graphql(/* GraphQL */ `
     query getIntegrationFlat (
         $filter: IntegrationFilter
