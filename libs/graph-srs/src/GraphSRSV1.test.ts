@@ -953,34 +953,40 @@ describe('GraphSRSV1Runner', () => {
           timestamp: now - daysToMs(15),
           score: 0.9,
           evaluationType: EvaluationType.MULTIPLE_CHOICE,
-          difficulty: DEFAULT_DIFFICULTIES[EvaluationType.MULTIPLE_CHOICE] || { [TaxonomyLevel.REMEMBER]: 1.0 }
+          difficulty: { [TaxonomyLevel.REMEMBER]: 1.0 }
         },
         {
           timestamp: now - daysToMs(10),
           score: 0.9,
-          evaluationType: EvaluationType.MULTIPLE_CHOICE,
-          difficulty: DEFAULT_DIFFICULTIES[EvaluationType.MULTIPLE_CHOICE] || { [TaxonomyLevel.REMEMBER]: 1.0 }
+          difficulty: { [TaxonomyLevel.REMEMBER]: 1.0 }
         },
         {
           timestamp: now - daysToMs(5),
           score: 1.0,
-          evaluationType: EvaluationType.MULTIPLE_CHOICE,
-          difficulty: DEFAULT_DIFFICULTIES[EvaluationType.MULTIPLE_CHOICE] || { [TaxonomyLevel.REMEMBER]: 1.0 }
+          difficulty: { [TaxonomyLevel.REMEMBER]: 1.0 }
         },
-        
         // UNDERSTAND - due for review
         {
           timestamp: now - daysToMs(1),
           score: 0.6, // Below mastery threshold
-          evaluationType: EvaluationType.SHORT_ANSWER,
-          difficulty: DEFAULT_DIFFICULTIES[EvaluationType.SHORT_ANSWER] || { [TaxonomyLevel.UNDERSTAND]: 1.0 }
+          difficulty: { [TaxonomyLevel.UNDERSTAND]: 1.0 }
         }
       ];
       
       runner.addNode({ id: 'concept', evalHistory: mixedHistory });
+
+      console.log('runner.nodes', runner.nodes);
+
+      const nodeScores = runner.calculateNodeScores();
       
+      console.log('runner.nodes', runner.nodes);
+
+      // console.log('nodeScores', nodeScores);
+ 
       // Get recommended level
       const recommendedLevel = runner.getRecommendedTaxonomyLevelForNode('concept');
+
+      console.log('recommendedLevel', recommendedLevel);
       
       // Should recommend UNDERSTAND level (REMEMBER is mastered, APPLY not started)
       expect(recommendedLevel).toBe(TaxonomyLevel.UNDERSTAND);

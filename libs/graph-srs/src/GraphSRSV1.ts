@@ -120,8 +120,17 @@ export interface EvalRecord {
   timestamp: number;
   /** Score in 0-1 range (0 = complete failure, 1 = perfect recall) */
   score: number;
-  /** Type of evaluation used */
-  evaluationType: string;
+  /** 
+   * Type of evaluation used, one of the types provided at class instantiation.
+   * 
+   * If not provided, the following difficulty precedence will be used:
+   * 
+   * 1. If the evaluationType is provided, the difficulty will be the difficulty of the evaluationType at the lowest level of taxonomy.
+   * 2. If the evaluationType is not provided, the difficulty will be the default difficulty for the provided taxonomy.
+   *
+   *
+   **/
+  evaluationType?: string;
   /** 
    * Difficulty factor of the evaluation method
    * Can be either:
@@ -386,13 +395,9 @@ export class GraphSRSV1Runner {
       return result;
     }
     
-    
-    // Case 5: Default - use defaults for evaluation type or safe fallback
-    if (record.evaluationType in DEFAULT_DIFFICULTIES) {
-      return {...DEFAULT_DIFFICULTIES[record.evaluationType as EvaluationType]};
-    }
-    
     // Final fallback - medium difficulty for REMEMBER only
+    // TODO: This should probably be configured along with the taxonomy itself...
+    // i.e. it should be this.taxonomy.defaultDifficulty, and if that isn't defined, it should throw here?
     return { [TaxonomyLevel.REMEMBER]: 0.5 };
   }
 
