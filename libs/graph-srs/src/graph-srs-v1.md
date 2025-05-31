@@ -595,3 +595,63 @@ class GraphSRSV1Runner {
 - **Inconsistent Evaluations**: Weighted by recency and evaluation difficulty
 - **Incomplete Prerequisites**: Prevented from appearing in review selection
 - **Missing Evaluation Types**: Will throw explicit errors instead of using defaults
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-----------------------------------------------
+# Post-Thoughts
+
+Perhaps it'd be better if each node had their own levels, entirely.
+
+The AI could invent these, and evaluate them.
+
+
+- "Tensor"
+  - Levels
+    - Definition: Can comprehend the definition of a tensor
+    - Examples: Can explain examples of a tensor
+
+
+- "Tensor Addition"
+  - Requires
+    - Tensor.Definition
+    - Tensor.Examples
+  - Levels
+    - Beginner: Can add two tensors of 2-D
+    - Intermediate: Can add two tensors of 3-D
+
+
+
+The hard thing here is when should something be represented as a "level", and when should something be represented as another node in the primary graph?
+
+It's clear that any one of the "levels" could *also* be represented as a node within the graph, if you're that interested in it.
+
+Maybe something becomes a node in the graph whenever you want to reference it as an explicit dependency?
+
+No, that feels wrong -- I feel like the levels would just go away, because we'd probably want to use them *all the time*.
+
