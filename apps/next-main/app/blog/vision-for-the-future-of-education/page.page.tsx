@@ -9,6 +9,7 @@ import {Txt} from "@/components/typography/Txt";
 import {trimLines} from "@lukebechtel/lab-ts-utils";
 import {ArrowBack} from "@mui/icons-material";
 import {
+  Avatar,
   Box,
   Button,
   Container,
@@ -39,7 +40,7 @@ export default function VisionForTheFutureOfEducationPage() {
         spacing={2} 
         alignItems="center" 
         textAlign="center" 
-        sx={{ mb: 6 }}
+        sx={{ mb: 2 }}
       >
         <Txt variant="h3" fontWeight="bold">
           A Vision for the Future of Education
@@ -47,6 +48,34 @@ export default function VisionForTheFutureOfEducationPage() {
         <Txt variant="h5" color="text.secondary">
           Reimagining education in the age of information and AI
         </Txt>
+      </Stack>
+
+      {/* Author Section */}
+      <Stack 
+        direction="row" 
+        spacing={1} 
+        alignItems="center" 
+        justifyContent="center"
+        sx={{ mb: 3 }}
+      >
+        <Typography variant="body1" color="text.secondary">
+          by
+        </Typography>
+        <Avatar 
+          sx={{ 
+            width: 24, 
+            height: 24,
+            bgcolor: 'primary.main',
+            fontSize: '0.75rem',
+            fontWeight: 'bold'
+          }}
+          src="/static/images/ishan-headshot.jpeg"
+        >
+          IP
+        </Avatar>
+        <Typography variant="body1" fontWeight="medium">
+          Ishan Paidhungat
+        </Typography>
       </Stack>
 
       <Divider sx={{ mb: 4 }} />
