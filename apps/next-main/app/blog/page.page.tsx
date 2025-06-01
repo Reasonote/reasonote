@@ -23,6 +23,13 @@ import {
 // Blog post data
 const blogPosts = [
   {
+    id: 'vision-for-the-future-of-education',
+    title: 'Vision for the Future of Education',
+    description: 'Reimagining education in the age of information and AI.',
+    date: 'May 30, 2025',
+    slug: '/blog/vision-for-the-future-of-education'
+  },
+  {
     id: 'cursor-readonly-rules',
     title: 'Cursor: Readonly Rules',
     description: 'How to make AI assistants think before they act with a simple rule',

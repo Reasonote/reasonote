@@ -242,6 +242,17 @@ export const createGroupFlatMutDoc = graphql(/* GraphQL */ `
     }
 `);
 
+export const createHighlightFlatMutDoc = graphql(/* GraphQL */ `
+    mutation createHighlightFlat($objects: [HighlightInsertInput!]!) {
+        insertIntoHighlightCollection(objects: $objects) {
+            affectedCount
+            records {
+                ...HighlightFlatFrag
+            }
+        }
+    }
+`);
+
 export const createIntegrationFlatMutDoc = graphql(/* GraphQL */ `
     mutation createIntegrationFlat($objects: [IntegrationInsertInput!]!) {
         insertIntoIntegrationCollection(objects: $objects) {
@@ -979,6 +990,17 @@ export const updateGroupFlatMutDoc = graphql(/* GraphQL */ `
     }
 `);
 
+export const updateHighlightFlatMutDoc = graphql(/* GraphQL */ `
+    mutation updateHighlightFlat($set: HighlightUpdateInput!, $filter: HighlightFilter, $atMost: Int!) {
+        updateHighlightCollection(set: $set, filter: $filter, atMost: $atMost) {
+            affectedCount
+            records {
+                ...HighlightFlatFrag
+            }
+        }
+    }
+`);
+
 export const updateIntegrationFlatMutDoc = graphql(/* GraphQL */ `
     mutation updateIntegrationFlat($set: IntegrationUpdateInput!, $filter: IntegrationFilter, $atMost: Int!) {
         updateIntegrationCollection(set: $set, filter: $filter, atMost: $atMost) {
@@ -1693,6 +1715,18 @@ export const deleteGoalFlatMutDoc = graphql(/* GraphQL */ `
 export const deleteGroupFlatMutDoc = graphql(/* GraphQL */ `
     mutation deleteGroupFlat($atMost: Int!, $filter: GroupFilter) {
         deleteFromGroupCollection(atMost: $atMost, filter: $filter) {
+            affectedCount
+            records {
+                __typename
+                id
+            }
+        }
+    }
+`);
+
+export const deleteHighlightFlatMutDoc = graphql(/* GraphQL */ `
+    mutation deleteHighlightFlat($atMost: Int!, $filter: HighlightFilter) {
+        deleteFromHighlightCollection(atMost: $atMost, filter: $filter) {
             affectedCount
             records {
                 __typename
