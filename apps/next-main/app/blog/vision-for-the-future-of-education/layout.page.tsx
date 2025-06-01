@@ -5,7 +5,7 @@ export async function generateMetadata() {
             description: `A Vision for the Future of Education`,
             openGraph: {
                 title: `A Vision for the Future of Education`,
-                description: `The mind is not a vessel to be filled, but a fire to be kindled.`,
+                description: `Reimagining education in the age of information and AI.`,
                 images: [
                     {
                         url: `/static/images/vision-for-the-future-of-education-header.jpg`,
@@ -19,7 +19,7 @@ export async function generateMetadata() {
             twitter: {
                 card: 'summary_large_image',
                 title: `A Vision for the Future of Education`,
-                description: `The mind is not a vessel to be filled, but a fire to be kindled.`,
+                description: `Reimagining education in the age of information and AI.`,
                 images: [
                     {
                         url: `/static/images/vision-for-the-future-of-education-header.jpg`,
