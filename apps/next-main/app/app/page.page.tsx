@@ -8,21 +8,21 @@ import React, {
 
 import {motion} from "framer-motion";
 import _lodash from "lodash";
-import {
-  ChevronDown,
-  FileText,
-} from "lucide-react";
+import {FileText} from "lucide-react";
 import {useRouter} from "next/navigation";
 import posthog from "posthog-js";
 
 import {useDurationsMs} from "@/clientOnly/hooks/useDuration";
 import useIsSmallDevice from "@/clientOnly/hooks/useIsSmallDevice";
 import {useRsnUser} from "@/clientOnly/hooks/useRsnUser";
+import {CreateCourseCTA} from "@/components/course-creation/CreateCourseCTA";
+import {
+  ProcessingState,
+} from "@/components/course-creation/types/courseCreation.types";
 import {Txt} from "@/components/typography/Txt";
 import {TypingTxt} from "@/components/typography/TypingTxt";
 import {
   Alert,
-  Button,
   Card,
   Chip,
   CircularProgress,
@@ -34,60 +34,7 @@ import {
 import VoronoiBackgroundDefault
   from "../../components/backgrounds/VoronoiBackgroundDefault";
 import {Footer} from "../../components/footer/Footer";
-import {HomeMainSkillCreatorV2} from "../HomeMainSkillCreatorV2";
 import {HomepageContinueLearning} from "../HomepageContinueLearning";
-
-const AnimatedLearnMore = () => {
-  const durationsMs = useDurationsMs();
-  const theme = useTheme();
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: -20 }}
-      animate={{
-        opacity: 1,
-        y: [-2, 2, -2], // Creates a gentle floating effect
-      }}
-      transition={{
-        opacity: { duration: 1.5, delay: 1.5 },
-        y: {
-          duration: 1.5,
-          repeat: Infinity,
-          ease: "easeInOut",
-          repeatType: "reverse"
-        }
-      }}
-    >
-      <Button
-        onClick={() => {
-          document.querySelector('#multiple-ways-to-learn')?.scrollIntoView({
-            behavior: 'smooth',
-            block: 'start'
-          });
-        }}
-        sx={{
-          textTransform: 'none',
-        }}
-        variant="contained"
-        endIcon={
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1.5, duration: 1.5 }}
-
-          >
-            <ChevronDown
-              size={24}
-              className="animate-draw-in-1s"
-              color={theme.palette.text.primary}
-            />
-          </motion.div>
-        }
-      >
-        <Txt sx={{ color: theme.palette.text.primary }} fontStyle={'bold'} fontWeight={'bold'}>Learn More</Txt>
-      </Button>
-    </motion.div>
-  );
-};
 
 export default function Page() {
   const theme = useTheme();
@@ -119,12 +66,7 @@ export default function Page() {
 
   const durationsMs = useDurationsMs();
 
-  const [processingState, setProcessingState] = useState<{
-    isProcessing: boolean;
-    type: "text" | "document";
-    input?: string;
-    fileNames?: string[];
-  } | null>(null);
+  const [processingState, setProcessingState] = useState<ProcessingState | null>(null);
 
   const [error, setError] = useState<string | null>(null);
 
@@ -161,27 +103,6 @@ export default function Page() {
                 <Txt variant="h5" color="primary">
                   Creating your course...
                 </Txt>
-                {processingState.type === "text" && processingState.input && (
-                  <Txt
-                    variant="body1"
-                    color="text.secondary"
-                    sx={{
-                      textAlign: 'center',
-                      fontStyle: 'italic',
-                      maxWidth: '100%',
-                      wordBreak: 'break-word',
-                      backgroundColor: theme.palette.background.default,
-                      padding: '12px 16px',
-                      borderRadius: '12px',
-                      border: `1px solid ${theme.palette.divider}`,
-                      '& span': {
-                        opacity: 0.8
-                      }
-                    }}
-                  >
-                    "{processingState.input}"
-                  </Txt>
-                )}
                 {processingState.type === "document" && processingState.fileNames && (
                   <Stack direction="row" spacing={1} flexWrap="wrap" justifyContent="center" sx={{ gap: 1 }}>
                     {processingState.fileNames.map((fileName, index) => (
@@ -273,17 +194,7 @@ export default function Page() {
                         )
                       }
 
-                      {/* <HomeMainSkillCreator
-                          inputRef={inputRef}
-                          onProcessingStateChange={setProcessingState}
-                          onError={setError}
-                          onPopperOpen={setIsPopperOpen}
-                        /> */}
-
-                      <HomeMainSkillCreatorV2
-                        onProcessingStateChange={setProcessingState}
-                        onError={setError}
-                      />
+                      <CreateCourseCTA />
 
                       <HomepageContinueLearning
                         handleSkillClick={

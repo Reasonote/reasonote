@@ -21,6 +21,9 @@ import {useRsnUserId} from "@/clientOnly/hooks/useRsnUser";
 import {useUserIsLoggedIn} from "@/clientOnly/hooks/useUserIsLoggedIn";
 import {useUserXP} from "@/clientOnly/hooks/useUserXP";
 import {sidebarCollapsedVar} from "@/clientOnly/state/userVars";
+import {
+  HeaderAddButton,
+} from "@/components/header/headerAddButton/HeaderAddButton";
 import {useReactiveVar} from "@apollo/client";
 import {
   AppBar,
@@ -331,6 +334,8 @@ export function AppHeaderInner({
                   </Stack>
                 )
               )}
+
+              <HeaderAddButton />
             </>
           )}
         </Stack>
