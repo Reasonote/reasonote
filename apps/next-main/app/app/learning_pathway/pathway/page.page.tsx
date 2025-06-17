@@ -40,7 +40,7 @@ export default function LearningPathwayDisplay() {
             setPathway(JSON.parse(storedPathway));
         } else {
             // If no pathway is found, redirect back to survey
-            router.push('/learning_pathway/survey');
+            router.push('/app/learning_pathway/survey');
         }
     }, [router]);
 
@@ -58,7 +58,7 @@ export default function LearningPathwayDisplay() {
                 <Typography variant="h4">Your Learning Pathway</Typography>
                 <Button
                     variant="outlined"
-                    onClick={() => router.push('/learning_pathway/survey')}
+                    onClick={() => router.push('/app/learning_pathway/survey')}
                 >
                     Start Over
                 </Button>
