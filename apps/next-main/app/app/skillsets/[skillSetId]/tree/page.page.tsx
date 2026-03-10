@@ -1,5 +1,5 @@
 'use client'
-import {ReactFlowProvider} from "reactflow";
+import dynamic from "next/dynamic";
 
 import {
   Paper,
@@ -7,6 +7,11 @@ import {
 } from "@mui/material";
 
 import {SkillSetTree} from "../../SkillSetTree";
+
+const ReactFlowProvider = dynamic(
+  () => import("reactflow").then((mod) => ({ default: mod.ReactFlowProvider })),
+  { ssr: false }
+);
 
 export default function Page(){
     return <div>
