@@ -7,11 +7,11 @@ import React, {
 } from "react";
 
 import {motion} from "framer-motion";
-import _lodash from "lodash";
 import {
   ChevronDown,
   FileText,
 } from "lucide-react";
+import dynamic from "next/dynamic";
 import {useRouter} from "next/navigation";
 import posthog from "posthog-js";
 
@@ -31,11 +31,14 @@ import {
   useTheme,
 } from "@mui/material";
 
-import VoronoiBackgroundDefault
-  from "../../components/backgrounds/VoronoiBackgroundDefault";
 import {Footer} from "../../components/footer/Footer";
 import {HomeMainSkillCreatorV2} from "../HomeMainSkillCreatorV2";
 import {HomepageContinueLearning} from "../HomepageContinueLearning";
+
+const VoronoiBackgroundDefault = dynamic(
+  () => import("../../components/backgrounds/VoronoiBackgroundDefault"),
+  { ssr: false }
+);
 
 const AnimatedLearnMore = () => {
   const durationsMs = useDurationsMs();
