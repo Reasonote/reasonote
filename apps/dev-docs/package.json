@@ -21,7 +21,7 @@
     "clsx": "^2.1.1",
     "gray-matter": "^4.0.3",
     "lucide-react": "^0.435.0",
-    "next": "15.0.3",
+    "next": "15.2.4",
     "next-mdx-remote": "^5.0.0",
     "next-themes": "^0.3.0",
     "react": "19.0.0-rc-66855b96-20241106",
@@ -41,7 +41,7 @@
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "eslint": "^8",
-    "eslint-config-next": "15.0.3",
+    "eslint-config-next": "15.2.4",
     "postcss": "^8",
     "tailwindcss": "^3.4.1",
     "typescript": "^5"
