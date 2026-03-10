@@ -175,7 +175,7 @@ async function createSections(pages: RsnPage[]){
         driverConfig: {
             type: 'openai',
             config: {
-                model: 'gpt-3.5-turbo-0613'
+                model: 'gpt-5-mini'
             }
         }
     })

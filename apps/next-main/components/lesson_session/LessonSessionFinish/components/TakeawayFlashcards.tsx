@@ -79,7 +79,7 @@ export function TakeawayFlashcards({
         hasGeneratedRef.current = true;
 
         aib.genObject({
-            model: 'openai:gpt-4o-mini-2024-07-18',
+            model: 'openai:gpt-5-mini',
             functionName: "generate_takeway_flashcards",
             functionDescription: "Generate personalized takeaway flashcards based on lesson content and student performance",
             schema: z.object({

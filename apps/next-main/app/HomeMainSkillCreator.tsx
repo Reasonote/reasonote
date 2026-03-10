@@ -300,7 +300,7 @@ export function HomeMainSkillCreator({
                             2. "i want to study digital marketing strategies"
                             3. "i want to study business administration"
                             4. "i want to study user experience design"`,
-                    model: "openai:gpt-4o-mini",
+                    model: "openai:gpt-5-mini",
                     mode: "json",
                     providerArgs: {
                         temperature: 0.7, // Add some variety to suggestions

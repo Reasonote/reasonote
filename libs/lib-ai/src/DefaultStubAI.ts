@@ -17,44 +17,30 @@ export function createDefaultStubAI(){
         ac: {} as any,
         aiDriver: {} as any,
         defaultGenObjectModels: [
-          openai('gpt-4o-mini'),
+          openai('gpt-5-mini'),
           // groq('llama3-groq-70b-8192-tool-use-preview'),
         ],
         defaultGenTextModels: [
-          openai('gpt-4o-mini'),
+          openai('gpt-5-mini'),
           // groq('llama3-groq-70b-8192-tool-use-preview'),
         ],
-        modelProps: { 
-          'openai:gpt-4o-mini': {
-            quality: 88,
-            speed: 103,
-            contextLength: 128_000,
+        modelProps: {
+          'openai:gpt-5-mini': {
+            quality: 92,
+            speed: 105,
+            contextLength: 1_000_000,
             toolOptimized: true,
             altTags: ['fastest']
           },
-          'openai:gpt-4o': {
-            quality: 99,
-            speed: 82,
-            contextLength: 128_000,
-            toolOptimized: true,
-            altTags: []
-          },
-          'openai:gpt-4o-2024-08-06': {
+          'anthropic:claude-sonnet-4-6': {
             quality: 100,
-            speed: 82,
-            contextLength: 128_000,
+            speed: 85,
+            contextLength: 1_000_000,
             toolOptimized: true,
             altTags: ['best']
           },
-          'anthropic:claude-3-5-sonnet-20240620': {
-            quality: 99,
-            speed: 79,
-            contextLength: 200_000,
-            toolOptimized: true,
-            altTags: ['best']
-          },
-          'anthropic:claude-3-haiku-20240307': {
-            quality: 74,
+          'anthropic:claude-haiku-4-5-20251001': {
+            quality: 88,
             speed: 128,
             contextLength: 200_000,
             toolOptimized: true,

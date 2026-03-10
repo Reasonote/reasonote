@@ -661,7 +661,7 @@ export const streamGenObjectWithRetry = async ({
         chatId: `classroom-${userId}-${skillId}-${courseId}`,
         system: systemContent,
         genArgs: {
-          model: "openai:gpt-4o-mini",
+          model: "openai:gpt-5-mini",
           mode: USE_JSON_MODE ? "json" : undefined,
           providerArgs: {
             structuredOutputs: true,

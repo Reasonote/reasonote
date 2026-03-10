@@ -20,7 +20,7 @@ export async function* getLessonOverviewStream(args: GetLessonOverviewStreamArgs
                 Object.fromEntries(args.fieldsToGet.map((f) => [f, true]))
             ).describe('The lesson plan'),
         }),
-        model: args?.streamGenObjectArgs?.model ?? 'openai:gpt-4o-2024-08-06',
+        model: args?.streamGenObjectArgs?.model ?? 'openai:gpt-5-mini',
         mode: args?.streamGenObjectArgs?.mode ?? 'json',
         providerArgs: {
             structuredOutputs: true,

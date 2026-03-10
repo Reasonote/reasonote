@@ -71,7 +71,7 @@ export async function suggestPartialSkill(
     ai: AI,
     args: SuggestSkillArgs
 ): Promise<SuggestSkillResult> {
-    const { userInput, documents, docDB, docDBFilter, maxDocTokens = 10000, model = "openai:gpt-4o-mini" } = args;
+    const { userInput, documents, docDB, docDBFilter, maxDocTokens = 10000, model = "openai:gpt-5-mini" } = args;
     
     // If we have a docDB and hierarchical analysis is preferred, use that approach
     if (docDB && (docDBFilter || (documents && documents.length > 0))) {
@@ -481,7 +481,7 @@ async function suggestSkillWithHierarchicalAnalysis(
   ai: AI,
   args: SuggestSkillArgs
 ): Promise<SuggestSkillResult> {
-  const { userInput, documents, docDB, docDBFilter, maxDocTokens = 10000, model = "openai:gpt-4o-mini" } = args;
+  const { userInput, documents, docDB, docDBFilter, maxDocTokens = 10000, model = "openai:gpt-5-mini" } = args;
   
   if (!docDB) {
     throw new Error("DocDB is required for hierarchical analysis");

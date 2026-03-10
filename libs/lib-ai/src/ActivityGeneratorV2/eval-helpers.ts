@@ -128,7 +128,7 @@ export async function evaluateBaseActivity<T extends ActivityConfig>(
         `,
         schema: BaseEvaluationSchema,
         mode: 'json',
-        model: 'openai:gpt-4o-mini',
+        model: 'openai:gpt-5-mini',
         providerArgs: {
             structuredOutputs: true,
         },

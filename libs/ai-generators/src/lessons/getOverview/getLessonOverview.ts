@@ -16,7 +16,7 @@ export async function getLessonOverview(args: GetLessonOverviewArgs) {
                 Object.fromEntries(args.fieldsToGet.map((f) => [f, true]))
             ).describe('The lesson plan'),
         }),
-        model: args?.genObjectArgs?.model ?? 'openai:gpt-4o-2024-08-06',
+        model: args?.genObjectArgs?.model ?? 'openai:gpt-5-mini',
         mode: args?.genObjectArgs?.mode ?? 'json',
         providerArgs: {
             structuredOutputs: true,

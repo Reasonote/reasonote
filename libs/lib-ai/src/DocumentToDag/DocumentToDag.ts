@@ -89,7 +89,7 @@ export class DocumentToDag {
                 learningObjectives: z.array(z.string()).describe("The key learning objectives from this document"),
             }),
             prompt: prompt,
-            model: "openai:gpt-4o-mini",
+            model: "openai:gpt-5-mini",
             mode: "json",
             providerArgs: {
                 structuredOutputs: true,
@@ -112,7 +112,7 @@ export class DocumentToDag {
                 emoji: z.string().describe("An emoji that represents the skill"),
             }),
             prompt: prompt,
-            model: "openai:gpt-4o-mini",
+            model: "openai:gpt-5-mini",
             mode: "json",
             providerArgs: {
                 structuredOutputs: true,
@@ -145,7 +145,7 @@ export class DocumentToDag {
                             objectives: z.array(z.string()).describe("Specific learning objectives for this chunk"),
                         }),
                         prompt: prompt,
-                        model: "openai:gpt-4o-mini",
+                        model: "openai:gpt-5-mini",
                         mode: "json",
                         providerArgs: {
                             structuredOutputs: true,
@@ -398,7 +398,7 @@ export class DocumentToDag {
                 }))
             }),
             prompt: prompt,
-            model: "openai:gpt-4o-mini",
+            model: "openai:gpt-5-mini",
             mode: "json",
             providerArgs: {
                 structuredOutputs: true,
@@ -485,7 +485,7 @@ export class DocumentToDag {
                     referenceSentences: z.array(z.string()).describe("The reference sentences for the key term")
                 }),
                 prompt: prompt,
-                model: "openai:gpt-4o-mini",
+                model: "openai:gpt-5-mini",
                 mode: "json",
                 providerArgs: {
                     structuredOutputs: true,
@@ -615,7 +615,7 @@ export class DocumentToDag {
                     prerequisites: z.array(z.string()).describe("The prerequisites for the key term")
                 }),
                 prompt: prompt,
-                model: "openai:gpt-4o-mini",
+                model: "openai:gpt-5-mini",
                 mode: "json",
                 providerArgs: {
                     structuredOutputs: true,
@@ -739,7 +739,7 @@ export class DocumentToDag {
                         rankedObjectives: z.array(z.string())
                     }),
                     prompt: prompt,
-                    model: "openai:gpt-4o-mini",
+                    model: "openai:gpt-5-mini",
                     mode: "json",
                     providerArgs: {
                         structuredOutputs: true,
@@ -916,7 +916,7 @@ export class DocumentToDag {
                     }))
                 }),
                 prompt: prompt,
-                model: "openai:gpt-4o-mini",
+                model: "openai:gpt-5-mini",
                 mode: "json",
                 providerArgs: {
                     structuredOutputs: true,

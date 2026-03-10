@@ -185,7 +185,7 @@ export class GraphTreeMaker {
                     })
                 ])
             }),
-            model: 'openai:gpt-4o-mini-2024-07-18',
+            model: 'openai:gpt-5-mini',
             temperature,
             mode: 'json',
             providerArgs: {
@@ -252,7 +252,7 @@ export class GraphTreeMaker {
                     })
                 ])
             }),
-            model: 'openai:gpt-4o-mini-2024-07-18',
+            model: 'openai:gpt-5-mini',
             temperature,
             mode: 'json',
             providerArgs: {

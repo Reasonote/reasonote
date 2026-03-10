@@ -247,7 +247,7 @@ export async function gradeChooseTheBlankActivity(data: ChooseTheBlankActivityCo
                 ),
             gradePerBlank: z.array(z.number()).describe("An array of scores between 0 and 100, one for each of the hidden words or phrases."),
         }),
-        model: 'openai:gpt-4o-mini',
+        model: 'anthropic:claude-sonnet-4-6',
         mode: 'json',
         providerArgs: {
             structuredOutputs: true,

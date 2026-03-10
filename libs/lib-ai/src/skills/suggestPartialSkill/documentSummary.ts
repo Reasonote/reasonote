@@ -13,7 +13,7 @@ async function generateAIDocumentTitle(
     ai: AI,
     fileName: string,
     chunks: DocumentChunk[],
-    model = "openai:gpt-4o-mini"
+    model = "openai:gpt-5-mini"
 ): Promise<string> {
     if (!chunks.length) {
         return `Document ${fileName}`;
@@ -98,7 +98,7 @@ async function getBestDocumentTitle(
     docId: string,
     document?: DocumentInfo,
     chunks?: DocumentChunk[],
-    model = "openai:gpt-4o-mini"
+    model = "openai:gpt-5-mini"
 ): Promise<string> {
     // If document has a title metadata, use that
     if (document?.metadata?.title) {
@@ -173,7 +173,7 @@ function extractDocumentSummary(chunks: DocumentChunk[]): string {
 export async function createDocumentInfoWithSummaries(
     ai: AI,
     analysisResult: HierarchicalAnalysisResult<any>,
-    model = "openai:gpt-4o-mini"
+    model = "openai:gpt-5-mini"
 ): Promise<DocumentInfoWithSummary[]> {
     // Get unique document IDs from all chunks
     const documentIds = new Set<string>();

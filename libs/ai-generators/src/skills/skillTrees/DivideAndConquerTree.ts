@@ -73,7 +73,7 @@ export class DivideAndConquerTreeMaker {
     private outputDir: string = '';
     private useQuestions: boolean = false;
     private useTopicNames: boolean = false;
-    private model: string = 'openai:gpt-4o-mini';
+    private model: string = 'openai:gpt-5-mini';
 
     private WRITE_OUTPUT_TO_FILE: boolean = false;
 
@@ -88,7 +88,7 @@ export class DivideAndConquerTreeMaker {
         this.useQuestions = args.useQuestions || false;
         this.useTopicNames = args.useTopicNames || false;
         this.WRITE_OUTPUT_TO_FILE = args.WRITE_OUTPUT_TO_FILE || false;
-        this.model = args.model || 'openai:gpt-4o-mini';
+        this.model = args.model || 'openai:gpt-5-mini';
     }
 
     addNode(node: SkillGraphNode): void {

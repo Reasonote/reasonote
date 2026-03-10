@@ -74,7 +74,7 @@ export async function latexFixer(args: LatexFixerArgs, ai: AIGenerator) {
                 content: JSON.stringify({ stringsToFix: object }, null, 2)
             }
         ],
-        model: 'openai:gpt-4o-mini',
+        model: 'openai:gpt-5-mini',
         mode: 'json',
         providerArgs: {
             structuredOutputs: true,

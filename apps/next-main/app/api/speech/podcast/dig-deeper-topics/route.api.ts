@@ -53,7 +53,7 @@ export const { POST } = makeServerApiHandlerV3({
 
     // Use AI to generate dig deeper topics
     const result = await ai.genObject({
-      model: 'openai:gpt-4o-mini',
+      model: 'openai:gpt-5-mini',
       schema: z.object({
         digDeeperTopics: z.array(z.string()).describe(
           'A list of 2-4 specific topics from the line that would be interesting to explore further. ' +

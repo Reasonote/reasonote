@@ -280,7 +280,7 @@ export const { POST } = makeServerApiHandlerV3({
 
               The hosts and the title should remain constant; you just need to update the sections.
             `),
-            model: "openai:gpt-4o",
+            model: "openai:gpt-5-mini",
           });
 
           outline = {
@@ -339,7 +339,7 @@ export const { POST } = makeServerApiHandlerV3({
 
               Make sure the outline reflects the "${podcastType}" podcast style.
             `),
-            model: "openai:gpt-4o-mini",
+            model: "openai:gpt-5-mini",
           });
 
           outline = outlineResponse.object;
@@ -370,7 +370,7 @@ export const { POST } = makeServerApiHandlerV3({
         // Step 2: Generate and stream podcast transcript
         const transcriptStream = await ai.streamGenObject({
           output: 'object',
-          model: "openai:gpt-4o-mini",
+          model: "openai:gpt-5-mini",
           mode: 'json',
           schema: z.object({
             transcript: z.array(

@@ -420,7 +420,7 @@ export async function generateCourseStructure(
                 })
             }),
             prompt: prompt,
-            model: "openai:gpt-4o-mini",
+            model: "openai:gpt-5-mini",
             mode: "json",
             providerArgs: {
                 structuredOutputs: true,
@@ -462,7 +462,7 @@ export async function generateCourseStructure(
                 }))
             }),
             prompt: prompt,
-            model: "openai:gpt-4o-mini",
+            model: "openai:gpt-5-mini",
             mode: "json",
             providerArgs: {
                 structuredOutputs: true,

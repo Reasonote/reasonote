@@ -87,7 +87,7 @@ async function generateLessonWithAI(skillData: any, skillTree: any) {
                 - Make the name concise but descriptive
             </FORMAT>
         `,
-        model: 'openai:gpt-4o-mini',
+        model: 'openai:gpt-5-mini',
     });
 
     if (response.object.lessons.length === 0) {
@@ -339,7 +339,7 @@ export function LessonPlanner({ rootSkill, selectedSkills, onLessonsGenerated, e
                         - 1-2 lessons per major skill branch
                     </FORMAT>
                 `,
-                model: 'openai:gpt-4o-mini',
+                model: 'openai:gpt-5-mini',
             });
 
             const newLessons = response.object.lessons.map((lesson, idx) => ({

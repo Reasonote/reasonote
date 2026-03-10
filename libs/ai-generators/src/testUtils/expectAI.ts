@@ -30,7 +30,7 @@ export async function expectAI(expectation: string, value: unknown) {
             meets: z.boolean().describe('Whether the value meets the expectation'),
             reason: z.string().describe('A clear explanation of why the value does or doesn\'t meet the expectation')
         }),
-        model: 'openai:gpt-4o-mini',
+        model: 'openai:gpt-5-mini',
         mode: 'json',
         providerArgs: {
             structuredOutputs: true,

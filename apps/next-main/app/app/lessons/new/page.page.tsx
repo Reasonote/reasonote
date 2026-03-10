@@ -222,7 +222,7 @@ export default function NewLessonPage(){
                         - Each learning objective should be a single sentence
                     </FORMAT>
                 `,
-                model: 'openai:gpt-4o-mini',
+                model: 'openai:gpt-5-mini',
             });
 
             if (outlineResponse.object.lessonName && !lessonName) {

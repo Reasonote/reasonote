@@ -226,7 +226,7 @@ export class RoleplayActivityTypeServerV2 extends ActivityTypeServerV2<RoleplayA
 
     override gradeUserAnswer = async ({config, userAnswer, ai}: {config: RoleplayActivityConfig, userAnswer: RoleplaySubmitRequest, ai: AI}): Promise<RoleplaySubmitResult> => {
         const gradeResult = await ai.genObject({
-            model: 'openai:gpt-4o',
+            model: 'anthropic:claude-sonnet-4-6',
             schema: z.object({
                 grade0To100: z
                     .number()
@@ -291,7 +291,7 @@ export class RoleplayActivityTypeServerV2 extends ActivityTypeServerV2<RoleplayA
         const context = await ai.prompt.activities.generateActivityContextString(request);
 
         const evaluationResponse = await ai.genObject({
-            model: 'openai:gpt-4o-mini',
+            model: 'openai:gpt-5-mini',
             schema: z.object({
                 thinking: z.array(z.object({
                     reasoning: z.string().describe('The AI\'s reasoning for the issue'),

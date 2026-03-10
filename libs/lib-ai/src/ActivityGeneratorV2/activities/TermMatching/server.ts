@@ -165,7 +165,7 @@ export class TermMatchingActivityTypeServerV2 extends ActivityTypeServerV2<TermM
         const context = await ai.prompt.activities.generateActivityContextString(request);
 
         const evaluationResponse = await ai.genObject({
-            model: 'openai:gpt-4o-mini',
+            model: 'openai:gpt-5-mini',
             schema: z.object({
                 thinking: z.array(z.object({
                     reasoning: z.string().describe('The AI\'s reasoning for the issue'),
