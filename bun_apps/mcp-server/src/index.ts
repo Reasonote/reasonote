@@ -29,6 +29,12 @@ import {
   semanticSearchDatabase,
 } from './notion-integration.js';
 
+// Import activity generation tools
+import { registerActivityTools } from './activity-tools.js';
+
+// Import API key authentication
+import { apiKeyAuth, isAuthEnabled } from './auth.js';
+
 // Extend SSEServerTransport to include clientId
 declare module '@modelcontextprotocol/sdk/server/sse.js' {
   interface SSEServerTransport {
@@ -113,9 +119,21 @@ if (process.env.NOTION_API_KEY) {
 
 // Create an MCP server
 const server = new McpServer({
-  name: "ReasonoteMcpDemo",
+  name: "ReasonoteMCP",
   version: "1.0.0"
 });
+
+// Register activity generation tools (flashcard, multiple-choice, short-answer)
+registerActivityTools(server);
+
+// Log LLM API key status
+if (process.env.OPENAI_API_KEY) {
+  log.info('OpenAI API key found, activity generation will use OpenAI');
+} else if (process.env.ANTHROPIC_API_KEY) {
+  log.info('Anthropic API key found, activity generation will use Anthropic');
+} else {
+  log.info('No LLM API key found (OPENAI_API_KEY or ANTHROPIC_API_KEY). Activity generation tools will not work until one is configured.');
+}
 
 // Add a simple calculator tool
 server.tool(
@@ -425,6 +443,31 @@ server.prompt(
   })
 );
 
+// Add a prompt for generating a study session
+server.prompt(
+  "study-session",
+  {
+    topic: z.string().describe('The topic to study'),
+    difficulty: z.enum(['beginner', 'intermediate', 'advanced']).optional().describe('Difficulty level'),
+  },
+  ({ topic, difficulty }) => ({
+    messages: [{
+      role: "user",
+      content: {
+        type: "text",
+        text: `Please create a study session about "${topic}"${difficulty ? ` at the ${difficulty} level` : ''}.
+
+Use the Reasonote activity generation tools to create a mix of educational activities:
+1. Start with 2-3 flashcards to introduce key concepts
+2. Then generate 2-3 multiple choice questions to test understanding
+3. Finish with 1-2 short answer questions for deeper thinking
+
+Present each activity clearly so I can work through them one at a time.`
+      }
+    }]
+  })
+);
+
 // Start based on transport type
 log.info(`Starting MCP server with transport type: ${transportType}`);
 
@@ -436,7 +479,15 @@ if (transportType === "http" || transportType === "both") {
   let activeTransports: SSEServerTransport[] = [];
 
   app.use(express.json());
-  
+
+  // API key authentication (only enforced when REASONOTE_MCP_API_KEYS is set)
+  if (isAuthEnabled()) {
+    log.info('API key authentication is ENABLED for HTTP transport');
+    app.use(apiKeyAuth);
+  } else {
+    log.info('API key authentication is DISABLED (set REASONOTE_MCP_API_KEYS to enable)');
+  }
+
   app.get("/sse", async (req, res) => {
     log.info(`New SSE connection established from: ${req.ip}`);
     // Set headers for SSE
