@@ -8,12 +8,8 @@ import React, {
   useState,
 } from "react";
 
-////////////////////////////////////////////////////////
-// When the user changes, we must update the subscription var.
-import * as AsyncMutex from "async-mutex";
 import {UserInteractionProvider} from "contexts/UserInteractionContext";
-import _ from "lodash";
-import posthog from "posthog-js";
+import type PostHogType from "posthog-js";
 
 import {AIBrowserProvider} from "@/clientOnly/ai/AIBrowserProvider";
 import {BreadcrumbProvider} from "@/clientOnly/context/BreadcrumbContext";
@@ -107,12 +103,38 @@ function AppProviderWrapper({ children }: React.PropsWithChildren<{}>) {
     });
   }, [sbUrl]);
 
-  // // Create a new supabase browser client on every first render.
-  // const [supabaseClient] = useState(() => createBrowserSupabaseClient())
+  if (!apolloClient) {
+    // Show a lightweight loading state instead of null to avoid blank screen
+    return (
+      <div
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width: "100vw",
+          height: "100dvh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          background: theme.palette.background.default,
+        }}
+      >
+        <div
+          style={{
+            width: 48,
+            height: 48,
+            border: `4px solid ${theme.palette.divider}`,
+            borderTopColor: theme.palette.primary.main,
+            borderRadius: "50%",
+            animation: "rsn-spin 0.8s linear infinite",
+          }}
+        />
+        <style>{`@keyframes rsn-spin { to { transform: rotate(360deg); } }`}</style>
+      </div>
+    );
+  }
 
-  // Get the authToken
-  return apolloClient ? (
-    // Setup the Apollo Provider
+  return (
     //@ts-ignore - ApolloProvider react component is not typed correctly.
     <ApolloProvider client={apolloClient}>
       {/* Sets up Vercel Analytics */}
@@ -120,17 +142,21 @@ function AppProviderWrapper({ children }: React.PropsWithChildren<{}>) {
       <RsnClientProvider>
         {children}
       </RsnClientProvider>
-    </ApolloProvider >
-  ) : null;
+    </ApolloProvider>
+  );
 }
-
-const mutex = new AsyncMutex.Mutex();
 
 export function UserHandling({ children }: any) {
   // This will now handle all the login logic internally
   useRsnUser();
   
   return <>{children}</>;
+}
+
+// Lazily loaded posthog instance - loaded after initial render to avoid blocking
+let _posthogInstance: typeof PostHogType | null = null;
+function getPosthog(): typeof PostHogType | null {
+  return _posthogInstance;
 }
 
 export function PosthogProvider({ children }: any) {
@@ -144,31 +170,20 @@ export function PosthogProvider({ children }: any) {
 
     // only if on reasonote.com do we do this, not on dev.reasonote.com or localhost, or anything else.
     if (window.location.hostname === 'reasonote.com' || window.location.hostname === 'www.reasonote.com') {
-      posthog.init(token, {
-        api_host: '/posthog/ingest',
-        person_profiles: 'identified_only',
-        session_recording: {
-          maskAllInputs: false,
-          maskInputOptions: {
-            password: true, // Highly recommended as a minimum!!
-            // color: false,
-            // date: false,
-            // 'datetime-local': false,
-            // email: false,
-            // month: false,
-            // number: false,
-            // range: false,
-            // search: false,
-            // tel: false,
-            // text: false,
-            // time: false,
-            // url: false,
-            // week: false,
-            // textarea: false,
-            // select: false,
+      // Lazy-load posthog to keep it off the critical rendering path
+      import("posthog-js").then(({ default: posthog }) => {
+        _posthogInstance = posthog;
+        posthog.init(token, {
+          api_host: '/posthog/ingest',
+          person_profiles: 'identified_only',
+          session_recording: {
+            maskAllInputs: false,
+            maskInputOptions: {
+              password: true,
+            }
           }
-        }
-      })
+        });
+      });
     }
     else {
       console.warn("Not on reasonote.com or www.reasonote.com, skipping Posthog init");
@@ -183,6 +198,8 @@ export function PosthogProvider({ children }: any) {
   const name = (rsnUser?.data?.familyName ?? "") + " " + (rsnUser?.data?.givenName ?? "");
 
   useEffect(() => {
+    const posthog = getPosthog();
+    if (!posthog) return;
     if (rsnUserId) {
       posthog.identify(rsnUserId, {
         email: email,

@@ -1,8 +1,6 @@
 "use client";
 import {useState} from "react";
 
-import _ from "lodash";
-
 import {useSupabase} from "@/components/supabase/SupabaseProvider";
 import {useReactiveVar} from "@apollo/client";
 import {
@@ -10,7 +8,6 @@ import {
   useRsnUserSysdataFlatFragLoader,
 } from "@reasonote/lib-sdk-apollo-client-react";
 import {uuidv4} from "@reasonote/lib-utils";
-import {useEffectDeepEqual} from "@reasonote/lib-utils-frontend";
 
 import {useSupabaseSession} from "../../components/supabase/useSupabaseSession";
 import {useSupabaseUser} from "../../components/supabase/useSupabaseUser";
@@ -21,6 +18,11 @@ interface LoginJwtResult {
   id: string;
   has_password: boolean;
 }
+
+// Cache the timezone string to avoid repeated Intl lookups
+const browserTimezone = typeof Intl !== 'undefined'
+  ? Intl.DateTimeFormat().resolvedOptions().timeZone
+  : 'UTC';
 
 export function useRsnUserId() {
   const rsnUserId = useReactiveVar(rsnUserIdVar);
@@ -53,7 +55,7 @@ export function useRsnUser() {
       try {
         console.debug('login_jwt fetchFn');
         var innerJwtResult = await supabase.rpc('login_jwt', {
-          browser_timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+          browser_timezone: browserTimezone
         });
 
         if (innerJwtResult.error) {
@@ -67,7 +69,7 @@ export function useRsnUser() {
           await supabase.auth.signInAnonymously();
           // Refetch the jwt with the new anonymous user
           innerJwtResult = await supabase.rpc('login_jwt', {
-            browser_timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+            browser_timezone: browserTimezone
           });
         }
         else {
@@ -97,18 +99,6 @@ export function useRsnUser() {
   const rsnUserSysdata = useRsnUserSysdataFlatFragLoader(
     currentRsnUserId ? `rsnusrsys_${currentRsnUserId?.split("_")[1]}` : undefined
   );
-
-  useEffectDeepEqual(() => {
-    // console.debug("useRsnUser: rsnUserSysdata", rsnUserSysdata);
-  }, [rsnUserSysdata.data]);
-
-  useEffectDeepEqual(() => {
-    // console.debug("useRsnUser: rsnUser", rsnUser);
-  }, [rsnUser.data]);
-
-  useEffectDeepEqual(() => {
-    // console.debug(`${instanceId}: login_jwt useRsnUser: rsnUserId`, currentRsnUserId);
-  }, [currentRsnUserId]);
 
   return {
     refresh: loginJwtResult.refetch,
