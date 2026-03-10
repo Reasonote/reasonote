@@ -316,7 +316,7 @@ export class AIGenSkillTree {
                                 })
                             ])
                         }),
-                        model: 'openai:gpt-4o-mini-2024-07-18',
+                        model: 'openai:gpt-5-mini',
                         mode: 'json',
                         temperature,
                         providerArgs: {
@@ -427,7 +427,7 @@ export class AIGenSkillTree {
                 }
             ],
             schema: jsonSchema(InitializeSkillTreeAIOutputJsonSchema),
-            model: 'openai:gpt-4o-mini-2024-07-18',
+            model: 'openai:gpt-5-mini',
             mode: 'json',
             providerArgs: {
                 structuredOutputs: true,
@@ -465,7 +465,7 @@ export class AIGenSkillTree {
                 }
             ],
             schema: jsonSchema(InitializeSkillTreeAIOutputJsonSchema),
-            model: 'openai:gpt-4o',
+            model: 'openai:gpt-5-mini',
             mode: 'json',
             providerArgs: {
                 structuredOutputs: true,
@@ -598,8 +598,8 @@ export class AIGenSkillTree {
                 </FINAL_NOTES>
             `),
             schema: JGFSimpleSchema,
-            model: 'openai:gpt-4o-mini-2024-07-18',
-            feedbackModel: 'openai:gpt-4o-mini-2024-07-18',
+            model: 'openai:gpt-5-mini',
+            feedbackModel: 'openai:gpt-5-mini',
             mode: 'json',
             providerArgs: {
                 structuredOutputs: true,
@@ -797,8 +797,8 @@ export class AIGenSkillTree {
             schema: z.object({
                 prereqTree: PrereqSkillTreeSchema
             }),
-            model: 'openai:gpt-4o-mini-2024-07-18',
-            feedbackModel: 'openai:gpt-4o-mini-2024-07-18',
+            model: 'openai:gpt-5-mini',
+            feedbackModel: 'openai:gpt-5-mini',
             mode: 'json',
             providerArgs: {
                 structuredOutputs: true,
@@ -895,7 +895,7 @@ export class AIGenSkillTree {
                     })).describe('Common stumbling blocks and how to overcome them.'),
                 })).describe('A detailed map of the learning journey from beginner to expert.'),
             }),
-            model: 'openai:gpt-4o-mini-2024-07-18',
+            model: 'openai:gpt-5-mini',
             mode: 'json',
             providerArgs: {
                 structuredOutputs: true,
@@ -924,7 +924,7 @@ export class AIGenSkillTree {
                     moreAdvancedProblems: z.array(z.string()).describe('What more advanced problems does this unlock?'),
                 })).describe('A list of the 20 most important problems a ${this.rootSkill.name} ${parentContextString} practitioner needs to solve.'),
             }),
-            model: 'openai:gpt-4o-mini-2024-07-18',
+            model: 'openai:gpt-5-mini',
             mode: 'json',
             providerArgs: {
                 structuredOutputs: true,
@@ -961,7 +961,7 @@ export class AIGenSkillTree {
                     problems: z.string().describe('The key differences in problems a beginner and an expert can solve.'),
                 }).describe('The key differences in knowledge, skills, mental models, tools, and problems between a beginner and an expert.'),
             }),
-            model: 'openai:gpt-4o-mini-2024-07-18',
+            model: 'openai:gpt-5-mini',
             mode: 'json',
             providerArgs: {
                 structuredOutputs: true,
@@ -1072,7 +1072,7 @@ export class AIGenSkillTree {
     //         schema: z.object({
     //             patches: JsonPatchSchema.describe('A list of patches to apply to the skill tree.'),
     //         }),
-    //         model: 'openai:gpt-4o-mini-2024-07-18',
+    //         model: 'openai:gpt-5-mini',
     //         mode: 'json',
     //         // Don't use structured outputs for this, because we explicitly want to allow `any` values.
     //         // providerArgs: {
@@ -1189,7 +1189,7 @@ export class AIGenSkillTree {
     //         schema: z.object({
     //             patches: JsonPatchSchema.describe('A list of patches to apply to the skill tree.'),
     //         }),
-    //         model: 'openai:gpt-4o-mini-2024-07-18',
+    //         model: 'openai:gpt-5-mini',
     //         mode: 'json',
     //         // Don't use structured outputs for this, because we explicitly want to allow `any` values.
     //         // providerArgs: {
@@ -1314,7 +1314,7 @@ export class AIGenSkillTree {
     //             </GUIDELINES>
     //         `),
     //         schema: PrerequisiteAdjustmentsSchema,
-    //         model: 'openai:gpt-4o-mini-2024-07-18',
+    //         model: 'openai:gpt-5-mini',
     //         mode: 'json',
     //         providerArgs: {
     //             structuredOutputs: true,

@@ -85,7 +85,7 @@ export async function giveFeedbackOnSkillTree({
             </SKILL_TREE>
         `),
         schema: SkillTreeFeedbackSchema,
-        model: 'openai:gpt-4o-mini-2024-07-18',
+        model: 'openai:gpt-5-mini',
         mode: 'json',
         providerArgs: {
             structuredOutputs: true,
@@ -129,7 +129,7 @@ export async function giveFeedbackOnSkillTree({
     //                 </SKILL_TREE>
     //             `),
     //             schema: SkillTreeFeedbackSchema,
-    //             model: 'openai:gpt-4o-mini-2024-07-18',
+    //             model: 'openai:gpt-5-mini',
     //             mode: 'json',
     //             providerArgs: {
     //                 structuredOutputs: true,

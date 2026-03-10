@@ -42,7 +42,7 @@ export interface SuggestSkillArgs {
     maxDocTokens?: number;
     
     // AI model to use for generating the skill
-    // If not provided, defaults to "openai:gpt-4o-mini"
+    // If not provided, defaults to "openai:gpt-5-mini"
     model?: string;
 }
 

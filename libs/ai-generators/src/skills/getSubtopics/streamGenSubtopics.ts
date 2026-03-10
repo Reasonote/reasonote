@@ -57,7 +57,7 @@ export async function* streamGenSubtopics({
     const streamResult = await ai.streamGenObject({
         schema: SubTopicsResponseSchema,
         prompt: basePrompt,
-        model: "openai:gpt-4o-mini",
+        model: "openai:gpt-5-mini",
         mode: "json",
         providerArgs: {
             temperature: 0.7,

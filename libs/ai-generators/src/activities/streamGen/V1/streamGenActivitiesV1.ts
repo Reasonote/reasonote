@@ -629,7 +629,7 @@ export async function* streamGenActivitiesV1({
 
 
     const streamResult = (await ai.streamGenObject({
-        model: 'openai:gpt-4o-mini',
+        model: 'openai:gpt-5-mini',
         mode: 'json',
         schema: StreamActivityOutputSchema,
         messages: [

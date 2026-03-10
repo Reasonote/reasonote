@@ -356,7 +356,7 @@ export class DomainCtxInjector extends RNCtxInjector<DomainCtxInjectorConfig> {
                     </CONFIDENCE>
                 </OUTPUT>
             `,
-                model: 'openai:gpt-4o-mini',
+                model: 'openai:gpt-5-mini',
                 mode: 'json',
                 providerArgs: {
                     structuredOutputs: true

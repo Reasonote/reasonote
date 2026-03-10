@@ -382,7 +382,7 @@ describe('Document Summarization and Title Extraction', () => {
       question: "identify potential course concepts and important information",
       schema: {} as any, // Use type assertion since we're mocking the return value
       filter: {},
-      model: "openai:gpt-4o-mini",
+      model: "openai:gpt-5-mini",
       maxTokens: 10000
     });
     

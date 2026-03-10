@@ -53,7 +53,7 @@ export function useAILessonRefinement() {
                         - A list of learning objectives in plain text
                     </OUTPUT_FORMAT>
                 `,
-                model: 'openai:gpt-4o-mini',
+                model: 'openai:gpt-5-mini',
             });
 
             if (response.object.refinedOutline) {

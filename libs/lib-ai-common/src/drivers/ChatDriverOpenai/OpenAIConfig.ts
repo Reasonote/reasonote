@@ -21,6 +21,7 @@ export const OpenAIChatModelsEnumSchema = z.union([
   z.literal("gpt-4-turbo-2024-04-09"),
   z.literal("gpt-4-turbo"),
   z.literal('gpt-4o'),
-  z.literal('gpt-4o-mini')
+  z.literal('gpt-4o-mini'),
+  z.literal('gpt-5-mini'),
 ]);
 export type OpenAIChatModelsEnum = z.infer<typeof OpenAIChatModelsEnumSchema>;

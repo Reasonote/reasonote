@@ -509,7 +509,7 @@ export async function asyncChat({
 
   const finalResult = await aib.RNAgentStream({
     genArgs: {
-      model: "openai:gpt-4o-mini",
+      model: "openai:gpt-5-mini",
     },
     // system: ,
     chatId,
@@ -670,7 +670,7 @@ export function useChat({ chatId }: { chatId: string | undefined }) {
     // Call the streamSuggestedNextMessages method
     return aib.streamSuggestedNextMessages({
       genArgs: {
-        model: "openai:gpt-4o-mini",
+        model: "openai:gpt-5-mini",
       },
       messages: chatHistory,
       chatId: chatId,

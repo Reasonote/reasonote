@@ -42,7 +42,7 @@ export async function improveMarkdownDiagrams({ai, markdownWithDiagrams}: Improv
                 `
             },
         ],
-        model: 'anthropic:claude-3-5-sonnet-20240620'
+        model: 'anthropic:claude-sonnet-4-6'
     });
 
     console.log('ORIGINAL', markdownWithDiagrams, 'IMPROVED', res.object.improvedMarkdown);

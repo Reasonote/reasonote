@@ -84,7 +84,7 @@ export default function RNAgentTestPage() {
         try {
             const aiResponse = await aib.RNAgentStream({
                 genArgs: {
-                    model: 'openai:gpt-4o-mini',
+                    model: 'openai:gpt-5-mini',
                 },
                 chatId: 'test-chat-id',
                 messages: [

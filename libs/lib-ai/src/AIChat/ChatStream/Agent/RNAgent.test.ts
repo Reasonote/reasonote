@@ -84,27 +84,27 @@ describe('RNAgent', () => {
             openaiApiKey: process.env.OPENAI_API_KEY,
             aiDriver: null as any,
             defaultGenObjectModels: [
-              openai('gpt-4o-mini'),
+              openai('gpt-5-mini'),
               // groq('llama3-groq-70b-8192-tool-use-preview'),
             ],
             defaultGenTextModels: [
-              openai('gpt-4o-mini'),
+              openai('gpt-5-mini'),
               // groq('llama3-groq-70b-8192-tool-use-preview'),
             ],
             modelProps: {
-                'openai:gpt-4o-mini': {
-                    quality: 88,
-                    speed: 103,
-                    contextLength: 128_000,
+                'openai:gpt-5-mini': {
+                    quality: 92,
+                    speed: 105,
+                    contextLength: 1_000_000,
                     toolOptimized: true,
                     altTags: ['fastest']
                 },
-                'anthropic:claude-3-5-sonnet-20240620': {
-                    quality: 88,
-                    speed: 103,
-                    contextLength: 128_000,
+                'anthropic:claude-sonnet-4-6': {
+                    quality: 100,
+                    speed: 85,
+                    contextLength: 1_000_000,
                     toolOptimized: true,
-                    altTags: ['fastest']
+                    altTags: ['best']
                 }
             },
             logger: console,

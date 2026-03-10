@@ -275,7 +275,7 @@ export async function fillSubskillTree({
             },
             "required": ["resultType", "adjustedRootSkill"]
           }),
-        model: 'openai:gpt-4o-mini-2024-07-18',
+        model: 'openai:gpt-5-mini',
         mode: 'json',
         providerArgs: {
             structuredOutputs: true,

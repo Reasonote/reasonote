@@ -51,7 +51,7 @@ export async function generateLessonParts(ai: AI, lessonInfo: LessonGroup, token
                 }))
             })
         }),
-        model: 'openai:gpt-4o-mini',
+        model: 'openai:gpt-5-mini',
         mode: 'json',
         providerArgs: {
             structuredOutputs: true,

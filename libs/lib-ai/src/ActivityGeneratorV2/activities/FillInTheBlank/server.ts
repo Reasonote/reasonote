@@ -159,7 +159,7 @@ export class FillInTheBlankActivityTypeServerV2 extends ActivityTypeServerV2<Fil
         const context = await ai.prompt.activities.generateActivityContextString(request);
 
         const evaluationResponse = await ai.genObject({
-            model: 'openai:gpt-4o-mini',
+            model: 'openai:gpt-5-mini',
             schema: z.object({
                 thinking: z.array(z.object({
                     reasoning: z.string().describe('The AI\'s reasoning for the issue'),
@@ -303,7 +303,7 @@ export class FillInTheBlankActivityTypeServerV2 extends ActivityTypeServerV2<Fil
         
         // Generate feedback using AI for more detailed explanation and grading
         const gradeResult = await ai.genObject({
-            model: 'openai:gpt-4o',
+            model: 'anthropic:claude-sonnet-4-6',
             schema: z.object({
                 grade0To100: z
                     .number()

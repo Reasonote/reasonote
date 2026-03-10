@@ -89,7 +89,7 @@ export async function expectValidDependencies({subject, activities, ai}: {subjec
 
             ${criticalSection}
             `,
-            model: 'openai:gpt-4o-mini'
+            model: 'openai:gpt-5-mini'
         })
 
         return {
@@ -150,7 +150,7 @@ export async function expectInterestsMentioned({interests, activities, ai}: {int
             Remember -- it's enough if AT LEAST ONE interest is mentioned, or if it's implicitly mentioned by reference.
 
             `,
-            model: 'openai:gpt-4o-mini'
+            model: 'openai:gpt-5-mini'
     })
 
     console.log(ret?.object);

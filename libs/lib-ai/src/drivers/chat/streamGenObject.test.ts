@@ -33,7 +33,7 @@ describe('streamGenObject', () => {
         openai('gpt-4o-mini'),
       ],
       modelProps: { 
-        'openai:gpt-4o-mini': {
+        'openai:gpt-5-mini': {
           quality: 88,
           speed: 103,
           contextLength: 128_000,

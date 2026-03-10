@@ -119,7 +119,7 @@ async function runTest(subject: string, interest: string) {
 
             ${criticalSection}
             `,
-            model: 'openai:gpt-4o-mini'
+            model: 'openai:gpt-5-mini'
         });
 
         return {

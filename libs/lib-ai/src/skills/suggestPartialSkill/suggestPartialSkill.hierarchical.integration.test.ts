@@ -174,7 +174,7 @@ describe('suggestPartialSkill hierarchical analysis integration', () => {
       docDBFilter: {
         tags: ['web-development']
       },
-      model: 'openai:gpt-4o-mini', // Use a model that supports structured outputs
+      model: 'openai:gpt-5-mini', // Use a model that supports structured outputs
       maxDocTokens: 4000
     });
     
@@ -246,7 +246,7 @@ describe('suggestPartialSkill hierarchical analysis integration', () => {
       docDBFilter: {
         tags: ['technical']
       },
-      model: 'openai:gpt-4o-mini', // Use a model that supports structured outputs
+      model: 'openai:gpt-5-mini', // Use a model that supports structured outputs
       maxDocTokens: 4000
     });
     
@@ -314,7 +314,7 @@ describe('suggestPartialSkill hierarchical analysis integration', () => {
       docDBFilter: {
         tags: ['calculus']
       },
-      model: 'openai:gpt-4o-mini',
+      model: 'openai:gpt-5-mini',
       maxDocTokens: 4000
     });
     

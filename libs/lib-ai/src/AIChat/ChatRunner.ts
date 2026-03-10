@@ -204,7 +204,7 @@ export class ChatRunner {
         var completedOutputIds: Set<string> = new Set();
 
         const res = await this.streamGenObject({
-            model: 'openai:gpt-4o-mini',
+            model: 'openai:gpt-5-mini',
             schema: z.object({
                 outputs: z.array(z.union([
                     z.object({

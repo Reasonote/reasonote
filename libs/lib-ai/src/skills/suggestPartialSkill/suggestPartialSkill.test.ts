@@ -109,7 +109,7 @@ describe('suggestPartialSkill', () => {
             expect(ai.genObject).toHaveBeenCalledWith(
                 expect.objectContaining({
                     prompt: expect.stringMatching(/I want to learn Python/),
-                    model: "openai:gpt-4o-mini",
+                    model: "openai:gpt-5-mini",
                     mode: 'json',
                 })
             );

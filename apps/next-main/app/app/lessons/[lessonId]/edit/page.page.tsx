@@ -667,7 +667,7 @@ export function LessonEditPageLoaded({ lesson, refreshLesson }: { lesson: Lesson
                     emoji: z.string(),
                 }),
                 prompt,
-                model: 'openai:gpt-4o-mini',
+                model: 'openai:gpt-5-mini',
                 mode: 'json',
                 providerArgs: {
                     structuredOutputs: true,

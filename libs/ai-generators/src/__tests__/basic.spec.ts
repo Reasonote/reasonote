@@ -93,7 +93,7 @@ describe('genObject complex schema tests', () => {
                 providerArgs: {
                     structuredOutputs: true,
                 },
-                model: 'openai:gpt-4o-mini-2024-07-18',
+                model: 'openai:gpt-5-mini',
                 system: INSTRUCTIONS,
                 schema: complexSchema,
             });

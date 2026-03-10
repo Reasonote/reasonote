@@ -377,7 +377,7 @@ export class ActivityGeneratorV2 {
 
         // Perform the generation
         const res = await this.ai.streamGenObject({
-            model: 'openai:gpt-4o-mini',
+            model: 'openai:gpt-5-mini',
             schema: outputSchema,
             messages: MESSAGES,
             // TODO: spread other args

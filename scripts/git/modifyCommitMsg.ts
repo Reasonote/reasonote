@@ -23,7 +23,7 @@ async function generateAICommit(): Promise<string | undefined> {
     }))
 
     const aiResults = await openai.createChatCompletion({
-        model: "gpt-3.5-turbo-16k",
+        model: "gpt-5-mini",
         messages: [
             {
                 role: 'system',
@@ -74,7 +74,7 @@ async function checkForBugs(): Promise<string | undefined> {
     }))
 
     const aiResults = await openai.createChatCompletion({
-        model: "gpt-3.5-turbo-16k",
+        model: "gpt-5-mini",
         messages: [
             {
                 role: 'system',

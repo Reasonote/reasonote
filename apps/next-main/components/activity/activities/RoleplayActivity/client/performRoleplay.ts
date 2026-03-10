@@ -72,7 +72,7 @@ export async function performRoleplay({messages, config}: PerformRoleplayArgs){
                 characterToSpeak: z.string().describe("The EXACT name of the character that would most likely speak next."),
                 messageContent: z.string().describe("The message that the character should speak, in their authentic voice."),
             }),
-            model: "openai:gpt-4o-mini",
+            model: "openai:gpt-5-mini",
             mode: 'json',
             providerArgs: {
                 structuredOutputs: true,

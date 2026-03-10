@@ -273,7 +273,7 @@ export class SequenceActivityTypeServerV2 extends ActivityTypeServerV2<SequenceA
         const context = await ai.prompt.activities.generateActivityContextString(request);
 
         const result = await ai.genObject({
-            model: 'openai:gpt-4-turbo',
+            model: 'openai:gpt-5-mini',
             schema: z.object({
                 thinking: z.array(z.object({
                     reasoning: z.string(),

@@ -11,7 +11,7 @@ import {
 describe('unsafeRecursiveJsonSchemaToZod', () => {
     it('should handle complex case and not fail', () => {
         const schema = {
-            "model": "openai:gpt-4o-mini",
+            "model": "openai:gpt-5-mini",
             "messages": [
               {
                 "role": "system",
