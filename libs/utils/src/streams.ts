@@ -4,13 +4,17 @@
  * @returns A readable stream that emits a JSON array.
  */
 export function generatorToJSONArrayReadableStream<T>(generator: AsyncGenerator<T>) {
+    const encoder = new TextEncoder();
     return new ReadableStream({
       async start(controller) {
-        controller.enqueue(new TextEncoder().encode(`[`));
+        let isFirst = true;
+        controller.enqueue(encoder.encode(`[`));
         for await (const chunk of generator) {
-          controller.enqueue(new TextEncoder().encode(`${JSON.stringify(chunk)},`));
+          const prefix = isFirst ? "" : ",";
+          isFirst = false;
+          controller.enqueue(encoder.encode(`${prefix}${JSON.stringify(chunk)}`));
         }
-        controller.enqueue(new TextEncoder().encode(`]`));
+        controller.enqueue(encoder.encode(`]`));
         controller.close();
       },
     });
